@@ -1,5 +1,7 @@
 # Oracle/OCI 11g or higher recommended
 #
+# More info: https://github.com/rsim/oracle-enhanced/
+#
 # Requires Ruby/OCI8:
 #  https://github.com/kubo/ruby-oci8
 #
@@ -20,8 +22,9 @@
 oracle_default: &oracle_default
   adapter: oracle_enhanced
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  username: ils_connector
-  password:
+  database: <%= Rails.application.secrets.oracle_database %>
+  username: <%= Rails.application.secrets.oracle_user %>
+  password: <%= Rails.application.secrets.oracle_password %>
 
 
 # The Mysql connector is used for any other intermediate data so we dont write to oracle
@@ -36,7 +39,7 @@ mysql_default: &mysql_default
 
 development:
   <<: *mysql_default
-  database: ils_connector_development
+  #database: ils_connector_development
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".

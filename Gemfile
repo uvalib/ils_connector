@@ -11,9 +11,10 @@ gem 'rails', '~> 5.1.4'
 
 # Oracle for SIRSI connections
 gem 'activerecord-oracle_enhanced-adapter'
+gem 'ruby-oci8', '~> 2.2.5' # required for CRuby
 
 # Mysql for intermediate data
-gem 'mysql2', '>= 0.3.18', '< 0.5'
+gem 'mysql2'
 
 # Use Puma as the app server
 gem 'puma', '~> 3.7'
@@ -38,8 +39,8 @@ end
 group :development do
   gem 'listen', '>= 3.0.5', '< 3.2'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
-  gem 'spring'
-  gem 'spring-watcher-listen', '~> 2.0.0'
+# gem 'spring'
+# gem 'spring-watcher-listen', '~> 2.0.0'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
