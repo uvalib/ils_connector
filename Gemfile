@@ -13,13 +13,17 @@ gem 'rails', '~> 5.1.4'
 gem 'activerecord-oracle_enhanced-adapter'
 gem 'ruby-oci8', '~> 2.2.5' # required for CRuby
 
+gem 'active_hash'
+
 # Mysql for intermediate data
 gem 'mysql2'
 
 # Use Puma as the app server
 gem 'puma', '~> 3.7'
-# Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
-# gem 'jbuilder', '~> 2.5'
+
+# JSON API
+gem 'active_model_serializers', '~> 0.10.0'
+
 # Use Redis adapter to run Action Cable in production
 # gem 'redis', '~> 3.0'
 # Use ActiveModel has_secure_password
@@ -35,10 +39,11 @@ group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
   gem 'rspec-rails'
+  gem 'rspec_api_documentation'
 end
 
 group :test do
-  gem 'factory_girl_rails'
+  gem 'factory_bot_rails'
   gem 'shoulda-matchers'
   gem 'faker'
 end
