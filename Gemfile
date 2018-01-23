@@ -14,6 +14,7 @@ gem 'activerecord-oracle_enhanced-adapter'
 gem 'ruby-oci8', '~> 2.2.5' # required for CRuby
 
 gem 'active_hash'
+gem 'httparty'
 
 # Mysql for intermediate data
 gem 'mysql2'
