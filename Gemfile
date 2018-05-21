@@ -7,11 +7,13 @@ end
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 5.1.4'
+gem 'rails', '~> 5.2'
 
 # Oracle for SIRSI connections
 gem 'activerecord-oracle_enhanced-adapter'
-gem 'ruby-oci8', '~> 2.2.5' # required for CRuby
+gem 'ruby-oci8', '2.2.5' # required for CRuby
+
+gem "bootsnap", ">= 1.1.0", require: false
 
 gem 'active_hash'
 gem 'httparty'
