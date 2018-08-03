@@ -7,11 +7,9 @@ RSpec.describe V1::LibrariesController, type: :routing do
       expect(:get => "/v1/libraries").to route_to("v1/libraries#index")
     end
 
-
     it "routes to #show" do
       expect(:get => "/v1/libraries/1").to route_to("v1/libraries#show", :id => "1")
     end
-
 
     it "routes to #create" do
       expect(:post => "/v1/libraries").to route_to("v1/libraries#create")

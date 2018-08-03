@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  devise_for :api_users, defaults: {format: :json}
   namespace :v1 do
     resources :libraries
 
@@ -18,13 +19,16 @@ Rails.application.routes.draw do
 
     resources :items, only: :show
   end
+
   namespace :v2 do
     resources :libraries
     resources :users
-
-
-
   end
+
+  root controller: :application, action: :landing
+
+
+
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
 end

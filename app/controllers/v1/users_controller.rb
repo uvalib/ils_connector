@@ -1,4 +1,4 @@
-class V1::UsersController < ApplicationController
+class V1::UsersController < V1ApplicationController
 
   def show
     user = V1::User.new(user_params)

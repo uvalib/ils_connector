@@ -1,4 +1,4 @@
-class V1::ItemsController < ApplicationController
+class V1::ItemsController < V1ApplicationController
   def show
     item = V1::Item.new(item_params)
     render xml: item.to_xml

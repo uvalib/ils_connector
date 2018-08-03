@@ -13,6 +13,9 @@
 !/log/.keep
 !/tmp/.keep
 
+# Ignore dev db
+/db/*.sqlite3
+
 .byebug_history
 .idea/
 

@@ -1,4 +1,4 @@
-class V1::LibrariesController < ApplicationController
+class V1::LibrariesController < V1ApplicationController
   before_action :set_library, only: [:show, :update, :destroy]
 
   # GET /v1/libraries

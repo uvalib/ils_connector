@@ -18,8 +18,9 @@ gem "bootsnap", ">= 1.1.0", require: false
 gem 'active_hash'
 gem 'httparty'
 
-# Mysql for intermediate data
-gem 'mysql2'
+gem 'devise'
+gem 'devise-jwt', '~> 0.5'
+
 
 # Use Puma as the app server
 gem 'puma', '~> 3.7'
@@ -43,12 +44,21 @@ group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
   gem 'rspec-rails'
   gem 'rspec_api_documentation'
+
+
+  gem 'sqlite3'
+end
+
+group :production do
+  # Mysql for intermediate data
+  gem 'mysql2'
 end
 
 group :test do
   gem 'factory_bot_rails'
   gem 'shoulda-matchers'
   gem 'faker'
+  gem 'database_cleaner'
 end
 
 group :development do

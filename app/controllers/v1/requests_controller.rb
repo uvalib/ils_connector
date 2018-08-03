@@ -1,4 +1,4 @@
-class V1::RequestsController < ApplicationController
+class V1::RequestsController < V1ApplicationController
   def renew_all
     item = V1::Request.new(request_params)
     byebug
