@@ -282,6 +282,6 @@ Devise.setup do |config|
   # config.omniauth_path_prefix = '/my_engine/users/auth'
 
   config.jwt do |jwt|
-    jwt.secret = ENV['DEVISE_JWT_SECRET']
+    jwt.secret = Rails.application.secrets.jwt_secret
   end
 end
