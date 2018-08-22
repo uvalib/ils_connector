@@ -28,6 +28,9 @@ gem 'puma', '~> 3.7'
 # JSON API
 gem 'active_model_serializers', '~> 0.10.0'
 
+# State machine: https://github.com/aasm/aasm
+gem 'aasm'
+
 # Use Redis adapter to run Action Cable in production
 # gem 'redis', '~> 3.0'
 # Use ActiveModel has_secure_password
