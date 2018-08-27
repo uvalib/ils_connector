@@ -23,6 +23,7 @@ Rails.application.routes.draw do
   namespace :v2 do
     resources :libraries
     resources :users
+    resources :ivy_requests, only: [:create, :index]
   end
 
   root controller: :application, action: :landing
