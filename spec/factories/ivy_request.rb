@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :ivy_request, class: V2::IvyRequest do
     sequence(:user_id, ) {|n| "user#{n}"}
-    library {"Alderman"}
+    library {"ALD"}
     sequence(:catalog_id) {|n| "cat#{n}" }
     title { Faker::Book.title }
     sequence(:volume) {|n| "vol#{n}"}

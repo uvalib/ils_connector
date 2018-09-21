@@ -51,7 +51,7 @@ RSpec.describe V2::IvyRequest, type: :model do
       expect(subject).to be_valid
 
       item_keys = subject.items.first.keys
-      expect(item_keys).to match_array V2::IvyRequest::VALID_ITEM_KEYS
+      expect(V2::IvyRequest::VALID_ITEM_KEYS).to include *item_keys
     end
   end
 end

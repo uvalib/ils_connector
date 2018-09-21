@@ -3,19 +3,31 @@ class V2::IvyRequest < ApplicationRecord
 
   validates_presence_of :user_id, :library, :catalog_id, :items
 
-  VALID_ITEM_KEYS = %w(barcode type call)
+  REQUIRED_ITEM_KEYS = %w(barcode type call)
+  OPTIONAL_ITEM_KEYS = %w(errors)
+  VALID_ITEM_KEYS    = REQUIRED_ITEM_KEYS + OPTIONAL_ITEM_KEYS
+
   validate :valid_item_keys, if: :items?
   before_save :cleanup_item_keys
 
 
   aasm :state do
     state :created, initial: true
-    # more to come
+    state :error
+    state :success
+
+    event :errored do
+      transitions from: [:created, :sent], to: :error
+    end
+    event :request_sent do
+      transitions from: [:created, :error], to: :success
+    end
   end
 
 
   private
 
+  # Check for array and required item keys. Other item validations should go here.
   def valid_item_keys
     if !items.is_a? Array
       self.errors.add(:items, "must be an array of hash(s).")
@@ -24,10 +36,10 @@ class V2::IvyRequest < ApplicationRecord
     items.each do |item|
 
       item_keys = item.keys
-      if (VALID_ITEM_KEYS - item_keys).empty?
+      if (REQUIRED_ITEM_KEYS - item_keys).empty?
         return true
       else
-        self.errors.add(:items, "valid keys are #{VALID_ITEM_KEYS.to_sentence}. Given: #{item_keys}")
+        self.errors.add(:items, "required item keys are #{REQUIRED_ITEM_KEYS.to_sentence}. Given: #{item_keys}")
         return false
       end
     end
