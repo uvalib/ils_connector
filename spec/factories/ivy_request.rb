@@ -8,7 +8,7 @@ FactoryBot.define do
     sequence(:edition) {|n| "#{n.ordinalize} ed."}
     author { Faker::Book.author }
     items do
-      [ {barcode: Faker::Number.number(12), type: 'test',call: Faker::Internet.ip_v4_address} ]
+      [ {barcode: 'X032576506', type: 'test',call: Faker::Internet.ip_v4_address} ]
     end
   end
 end

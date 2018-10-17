@@ -4,12 +4,19 @@ class CaiasoftRequestJob < ApplicationJob
 
   def perform(ivy_request)
     ivy_request.items.each do |item|
-      response = HTTParty.get(
+      response = HTTParty.post(
                     request_url(item['barcode'], 'PYR', ivy_request.library, item_details(item, ivy_request)),
         headers: caiasoft_headers
       )
       if response.success?
-        # 
+        # successful response, parse the body
+        response = JSON.parse response.body
+
+        if response['denied'] == 'Y'
+          item.merge! 'errors' => response['status']
+        else
+          # attach success info
+        end
       else
 
         item.merge! 'errors' => response.body
