@@ -22,9 +22,9 @@
 oracle_default: &oracle_default
   adapter: oracle_enhanced
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  database: <%= Rails.application.credentials[Rails.env.to_sym][:oracle_database].squish %>
-  username: <%= Rails.application.credentials[Rails.env.to_sym][:oracle_user] %>
-  password: <%= Rails.application.credentials[Rails.env.to_sym][:oracle_password] %>
+  database: <%= environment_credential(:oracle_database).squish %>
+  username: <%= environment_credential(:oracle_user) %>
+  password: <%= environment_credential(:oracle_password) %>
 
 
 # The Mysql connector is used for any other intermediate data so we dont write to oracle
