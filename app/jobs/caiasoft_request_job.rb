@@ -31,11 +31,11 @@ class CaiasoftRequestJob < ApplicationJob
   end
 
   def request_url barcode, request_type, stop_code, details
-    URI.encode "#{environment_credential(:caiasoft_host)}/api/requestitem/v1/#{barcode}/#{request_type}/#{stop_code}/#{details}"
+    URI.encode "#{env_credential(:caiasoft_host)}/api/requestitem/v1/#{barcode}/#{request_type}/#{stop_code}/#{details}"
   end
 
   def caiasoft_headers
-    @caiasoft_headers ||= {'X-API-Key' => environment_credential(:caiasoft_api_key) }
+    @caiasoft_headers ||= {'X-API-Key' => env_credential(:caiasoft_api_key) }
   end
 
   def item_details item, ivy_request

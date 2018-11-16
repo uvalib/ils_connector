@@ -16,6 +16,8 @@ gem 'ruby-oci8', '2.2.5' # required for CRuby
 gem "bootsnap", ">= 1.1.0", require: false
 
 gem 'active_hash'
+
+
 gem 'httparty'
 
 gem 'devise'
