@@ -22,7 +22,15 @@ Rails.application.routes.draw do
 
   namespace :v2 do
     resources :libraries
-    resources :users
+    resources :users, only: [:show] do
+      member do
+        get :checkouts
+        get :holds
+        get :reserves
+      end
+    end
+  end
+  namespace :v3 do
     resources :ivy_requests, only: [:create, :index]
   end
 

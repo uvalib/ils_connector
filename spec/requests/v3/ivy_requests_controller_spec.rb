@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe V2::IvyRequestsController, type: :request do
+RSpec.describe V3::IvyRequestsController, type: :request do
   before do
     @user = create :api_user
     sign_in @user
@@ -13,7 +13,7 @@ RSpec.describe V2::IvyRequestsController, type: :request do
 
   describe 'POST /v2/ivy_requests' do
     before do
-      post v2_ivy_requests_path,
+      post v3_ivy_requests_path,
         params: {ivy_request: @ivy_request.attributes}.to_json,
         headers: @headers
     end
