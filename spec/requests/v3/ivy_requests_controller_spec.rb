@@ -23,7 +23,7 @@ RSpec.describe V3::IvyRequestsController, type: :request do
     end
 
     it 'creates an IvyRequest' do
-      expect(V2::IvyRequest.count).to equal 1
+      expect(V3::IvyRequest.count).to equal 1
     end
   end
 end

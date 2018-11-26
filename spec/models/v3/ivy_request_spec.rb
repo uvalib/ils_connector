@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe V2::IvyRequest, type: :model do
+RSpec.describe V3::IvyRequest, type: :model do
 
   subject {build(:ivy_request)}
 
@@ -51,7 +51,7 @@ RSpec.describe V2::IvyRequest, type: :model do
       expect(subject).to be_valid
 
       item_keys = subject.items.first.keys
-      expect(V2::IvyRequest::VALID_ITEM_KEYS).to include *item_keys
+      expect(V3::IvyRequest::VALID_ITEM_KEYS).to include *item_keys
     end
   end
 end

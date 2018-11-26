@@ -19,13 +19,13 @@ RSpec.describe CaiasoftRequestJob, type: :job do
 
     it 'receives a successful response' do
       CaiasoftRequestJob.perform_now @ivy_request
-      expect(@ivy_request.reload.state).to eq(V2::IvyRequest::STATE_SUCCESS.to_s)
+      expect(@ivy_request.reload.state).to eq(V3::IvyRequest::STATE_SUCCESS.to_s)
     end
 
     it 'errors with an invalid library stop' do
       @ivy_request.library = "INVALID"
       CaiasoftRequestJob.perform_now @ivy_request
-      expect(@ivy_request.reload.state).to eq(V2::IvyRequest::STATE_ERROR.to_s)
+      expect(@ivy_request.reload.state).to eq(V3::IvyRequest::STATE_ERROR.to_s)
     end
   end
 

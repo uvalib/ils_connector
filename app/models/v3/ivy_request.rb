@@ -1,4 +1,4 @@
-class V2::IvyRequest < ApplicationRecord
+class V3::IvyRequest < ApplicationRecord
   include AASM
 
   validates_presence_of :user_id, :library, :catalog_id, :items

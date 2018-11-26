@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :ivy_request, class: V2::IvyRequest do
+  factory :ivy_request, class: V3::IvyRequest do
     sequence(:user_id, ) {|n| "user#{n}"}
     library {"ALD"}
     sequence(:catalog_id) {|n| "cat#{n}" }

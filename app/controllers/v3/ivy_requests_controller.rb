@@ -1,7 +1,6 @@
 class V3::IvyRequestsController < ApplicationController
   def create
-    # todo: move to V3::IvyRequest
-    ivy_request = V2::IvyRequest.new(ivy_request_params)
+    ivy_request = V3::IvyRequest.new(ivy_request_params)
     if ivy_request.save
       render json: ivy_request.as_json, status: :created
     else
