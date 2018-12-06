@@ -30,6 +30,7 @@ gem 'puma', '~> 3.7'
 
 # JSON API
 gem 'active_model_serializers', '~> 0.10.0'
+gem 'activemodel-serializers-xml'
 
 # State machine: https://github.com/aasm/aasm
 gem 'aasm'
@@ -50,6 +51,9 @@ group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
 
   gem 'sqlite3'
+
+  # compares hashes. Used when comparing firehose responses to V2
+  gem 'hashdiff'
 end
 
 group :production do

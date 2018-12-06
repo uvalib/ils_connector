@@ -1,12 +1,12 @@
 class V2::Library < ActiveYaml::Base
-  include ActiveModel::Serialization
+  include ActiveModel::Serializers::Xml
 
   set_root_path "app/data/"
   set_filename "libraries"
 
 # LIBRARY_PARAMS = {policyType: 'LIBR'}
 
-# def index
+# def sirsi_all
 #   libraries = self.class.get('/rest/admin/lookupPolicyList',
 #                              query: LIBRARY_PARAMS,
 #                              headers: auth_headers
