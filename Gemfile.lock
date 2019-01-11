@@ -46,9 +46,6 @@ GEM
       activemodel (= 5.2.0)
       activesupport (= 5.2.0)
       arel (>= 9.0)
-    activerecord-oracle_enhanced-adapter (5.2.2)
-      activerecord (~> 5.2.0)
-      ruby-plsql (>= 0.6.0)
     activestorage (5.2.0)
       actionpack (= 5.2.0)
       activerecord (= 5.2.0)
@@ -195,8 +192,6 @@ GEM
       activesupport (>= 3.0.0)
       mustache (~> 1.0, >= 0.99.4)
       rspec (~> 3.0)
-    ruby-oci8 (2.2.5)
-    ruby-plsql (0.6.0)
     ruby_dep (1.5.0)
     shoulda-matchers (3.1.2)
       activesupport (>= 4.0.0)
@@ -240,7 +235,6 @@ DEPENDENCIES
   active_hash
   active_model_serializers (~> 0.10.0)
   activemodel-serializers-xml
-  activerecord-oracle_enhanced-adapter
   bootsnap (>= 1.1.0)
   byebug
   database_cleaner
@@ -257,7 +251,6 @@ DEPENDENCIES
   rspec-rails
   rspec-sidekiq
   rspec_api_documentation
-  ruby-oci8 (= 2.2.5)
   shoulda-matchers
   sidekiq
   spring

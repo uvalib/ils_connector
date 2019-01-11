@@ -10,8 +10,8 @@ end
 gem 'rails', '~> 5.2'
 
 # Oracle for SIRSI connections
-gem 'activerecord-oracle_enhanced-adapter'
-gem 'ruby-oci8', '2.2.5' # required for CRuby
+#gem 'activerecord-oracle_enhanced-adapter'
+#gem 'ruby-oci8', '2.2.5' # required for CRuby
 
 gem "bootsnap", ">= 1.1.0", require: false
 
