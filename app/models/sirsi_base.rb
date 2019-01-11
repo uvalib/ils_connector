@@ -14,14 +14,14 @@ class SirsiBase
     login_body = {'login' => env_credential(:sirsi_user),
              'password' => env_credential(:sirsi_password)
             }
-    @sirsi_user = self.class.post( "v1/user/staff/login",
-                                  { body: login_body.to_json,
+    @sirsi_user = self.class.get( "/rest/security/loginUser",
+                                  { query: login_body,
                                     headers: login_headers
     })
 
     @session_token = @sirsi_user['sessionToken']
     @session_date = @sirsi_user['date']
-  rescue
+  rescue e
     byebug
   end
 
