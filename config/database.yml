@@ -75,6 +75,7 @@ test:
 #
 production:
   <<: *mysql_default
-  database: ils_connector_production
-  username: ils_connector
-  password: <%= ENV['ILS_CONNECTOR_DATABASE_PASSWORD'] %>
+  host: <%= ENV['DBHOST'] %>
+  database: <%= ENV['DBNAME'] %>
+  username: <%= ENV['DBUSER'] %>
+  password: <%= ENV['DBPASSWD'] %>

@@ -27,3 +27,4 @@ config/secrets.yml.key
 
 # ignore .env
 .env*
+env*

@@ -1,17 +1,40 @@
-FROM ruby:2.4.2-stretch
+FROM alpine:3.8
 
-RUN apt-get update -qq && apt-get install -y build-essential mysql-client
+# Add necessary packages
+RUN apk --update add bash tzdata ruby ruby-dev build-base nodejs sqlite-dev mariadb-dev zlib-dev libxml2-dev libxslt-dev libffi-dev ca-certificates
 
-RUN chmod 777 -R /tmp && chmod o+t -R /tmp
-ENV APP_HOME /ils_connector
-ENV RAILS_ENV production
-RUN mkdir $APP_HOME
-WORKDIR $APP_HOME
+# Create the run user and group
+RUN addgroup --gid 18570 sse && adduser --uid 1984 docker -G sse -D
 
-ADD Gemfile $APP_HOME/Gemfile
-ADD Gemfile.lock $APP_HOME/Gemfile.lock
+# set the timezone appropriatly
+ENV TZ=UTC
+RUN cp /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# Add necessary gems
+RUN gem install bundler -v 1.16.2 --no-ri --no-rdoc && gem install io-console --no-ri --no-rdoc
+
+# Copy the Gemfile into the image and temporarily set the working directory to where they are.
+WORKDIR /tmp
+ADD Gemfile .
+ADD Gemfile.lock .
 RUN bundle install
 
-ADD . $APP_HOME
+# Specify home 
+ENV APP_HOME /ils-connector
+WORKDIR $APP_HOME
 
-#RUN rake assets:precompile
+# install the app and bundle
+COPY . $APP_HOME
+
+# Update permissions
+RUN chown -R docker $APP_HOME && chgrp -R sse $APP_HOME
+
+# Specify the user
+#USER docker
+
+# define port and startup script
+EXPOSE 3000
+CMD scripts/entry.sh
+
+# move in the profile
+COPY data/container_bash_profile /home/docker/.profile
