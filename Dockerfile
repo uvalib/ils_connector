@@ -17,6 +17,7 @@ RUN gem install bundler -v 1.16.2 --no-ri --no-rdoc && gem install io-console --
 WORKDIR /tmp
 ADD Gemfile .
 ADD Gemfile.lock .
+ADD .ruby-gemset .
 RUN bundle install
 
 # Specify home 
@@ -30,7 +31,7 @@ COPY . $APP_HOME
 RUN chown -R docker $APP_HOME && chgrp -R sse $APP_HOME
 
 # Specify the user
-#USER docker
+USER docker
 
 # define port and startup script
 EXPOSE 3000
