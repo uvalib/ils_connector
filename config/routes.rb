@@ -34,6 +34,9 @@ Rails.application.routes.draw do
     resources :ivy_requests, only: [:create, :index]
   end
 
+  resources :healthcheck, only: [ :index ]
+  resources :version, only: [ :index ]
+
   root controller: :application, action: :landing
 
 
