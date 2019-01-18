@@ -97,7 +97,7 @@ GEM
     ffi (1.9.25)
     globalid (0.4.1)
       activesupport (>= 4.2.0)
-    hashdiff (0.3.7)
+    hashdiff (0.3.8)
     httparty (0.16.2)
       multi_xml (>= 0.5.2)
     i18n (1.1.1)
