@@ -1,4 +1,4 @@
-FROM alpine:3.8
+FROM alpine:3.9
 
 # Add necessary packages
 RUN apk --update add bash tzdata ruby ruby-dev build-base nodejs sqlite-dev mariadb-dev zlib-dev libxml2-dev libxslt-dev libffi-dev ca-certificates
