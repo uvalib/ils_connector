@@ -1,8 +1,13 @@
 class V2::UsersController < V2ApplicationController
+  include XmlHelpers
 
   def show
-    user = V2::User.new(user_params)
-    render xml: user.to_xml
+   @user = V2::User.new(user_params[:id])
+   if @user.present?
+     render
+   else
+     render :not_found
+   end
   end
 
   def checkouts
@@ -23,7 +28,7 @@ class V2::UsersController < V2ApplicationController
 
   private
   def user_params
-    params.require(:id)
+    params.permit(:id)
   end
 
 end
