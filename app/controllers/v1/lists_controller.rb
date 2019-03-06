@@ -1,17 +1,13 @@
-class V1::LibrariesController < V1ApplicationController
+class V1::ListsController < V1ApplicationController
   before_action :set_library, only: [:show, :update, :destroy]
 
-  # GET /v1/libraries
-  def index
-    @libraries = V1::FirehoseLibrary.all
+  # GET /v1/list/libraries
+  def libraries
+    @libraries = V1::FirehoseLibrary.new
 
-    render json: @libraries
+    render xml: @libraries.to_xml
   end
 
-  # GET /v1/libraries/1
-  def show
-    render json: @v1_library
-  end
 
 
   private

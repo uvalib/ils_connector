@@ -7,7 +7,7 @@ class V1::Hold < FirehoseBase
   end
 
   def to_xml
-    holds.to_xml
+    holds.body
   end
 
 end

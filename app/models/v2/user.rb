@@ -11,13 +11,13 @@ class V2::User < SirsiBase
 
   def initialize user_id
     super()
-    find user_id
+    V2::User.find user_id
   end
 
 
-  def find user_id
+  def self.find user_id
     @data = {}.with_indifferent_access
-    response = self.class.get('/v1/user/patron/search',
+    response = get('/v1/user/patron/search',
                               query: REQUEST_PARAMS.merge(q: "ALT_ID:#{user_id}"),
                               headers: auth_headers
                              )

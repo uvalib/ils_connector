@@ -7,7 +7,7 @@ class V1::FirehoseLibrary < FirehoseBase
   end
 
   def to_xml
-    libraries.to_xml
+    libraries.body
   end
 
 end

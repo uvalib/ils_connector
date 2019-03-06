@@ -7,26 +7,27 @@ class SirsiBase
   format :json
 
   def initialize
-    login
+    # Don't call SirsiBase on it's own. Override it in the subclass.
+    self.class.login
   end
 
-  def login
+  def self.login
     login_body = {'login' => env_credential(:sirsi_user),
              'password' => env_credential(:sirsi_password)
             }
-    @sirsi_user = self.class.get( "/rest/security/loginUser",
-                                  { query: login_body,
-                                    headers: base_headers
+    @@sirsi_user = get( "/rest/security/loginUser",
+                       { query: login_body,
+                         headers: base_headers
     })
 
-    @session_token = @sirsi_user['sessionToken']
-    @session_date = @sirsi_user['date']
-  rescue e
-    byebug
+    @@session_token = @@sirsi_user['sessionToken']
+    @@session_date = @@sirsi_user['date']
+  rescue => e
+    puts e
   end
 
-  def base_headers
-    @base_headers ||= {'x-sirs-clientID' => env_credential(:sirsi_client_id),
+  def self.base_headers
+    @@base_headers ||= {'x-sirs-clientID' => env_credential(:sirsi_client_id),
     'Content-Type' => 'application/json',
     'Accept' => 'application/json',
     'sd-originating-app-id' => 'cs'
@@ -34,8 +35,8 @@ class SirsiBase
   end
 
 
-  def auth_headers
-    @auth_headers = base_headers.merge({'x-sirs-sessionToken' => @session_token})
+  def self.auth_headers
+    @@auth_headers = base_headers.merge({'x-sirs-sessionToken' => @@session_token})
   end
 
 end

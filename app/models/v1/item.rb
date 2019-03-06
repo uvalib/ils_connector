@@ -5,7 +5,7 @@ class V1::Item < FirehoseBase
   end
 
   def to_xml
-    @item.to_xml
+    @item.body
   end
 
 end

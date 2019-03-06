@@ -1,8 +1,14 @@
 Rails.application.routes.draw do
-  devise_for :api_users, defaults: {format: :json}, controllers: {sessions: 'api_users/sessions'}
-  namespace :v1 do
-    resources :libraries
+  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
+  devise_for :api_users, defaults: {format: :json}, controllers: {sessions: 'api_users/sessions'}
+
+  namespace :v1 do
+    resources :lists, path: '/list', only: [] do
+      collection do
+        get :libraries
+      end
+    end
     resources :users, only: [:show] do
       member do
         get :checkouts
@@ -10,18 +16,21 @@ Rails.application.routes.draw do
         get :reserves
       end
     end
-
     resources :requests, path: '/request', only: [] do
       collection do
         post :renew_all, path: '/renewAll'
+        post :hold
       end
     end
-
     resources :items, only: :show
   end
 
   namespace :v2 do
-    resources :libraries
+    resources :lists, path: '/list', only: [] do
+      collection do
+        get :libraries
+      end
+    end
     resources :users, only: [:show] do
       member do
         get :checkouts
@@ -29,7 +38,17 @@ Rails.application.routes.draw do
         get :reserves
       end
     end
+    resources :requests, path: '/request', only: [] do
+      collection do
+        post :renew_all, path: '/renewAll'
+        post :hold
+      end
+    end
+    resources :items, only: [:show]
   end
+
+
+  # TODO
   namespace :v3 do
     resources :ivy_requests, only: [:create, :index]
   end
@@ -38,9 +57,5 @@ Rails.application.routes.draw do
   resources :version, only: [ :index ]
 
   root controller: :application, action: :landing
-
-
-
-  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
 end

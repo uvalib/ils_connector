@@ -7,7 +7,7 @@ class V1::Request < FirehoseBase
   end
 
   def to_xml
-    request.to_xml
+    request.body
   end
 
 end

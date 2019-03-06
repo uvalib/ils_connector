@@ -6,7 +6,8 @@ class V1::User < FirehoseBase
 
 
   def to_xml
-    @user.to_xml
+    # pass body without any parsing
+    @user.body
   end
 
 end

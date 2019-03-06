@@ -1,5 +1,4 @@
 class V2::UsersController < V2ApplicationController
-  include XmlHelpers
 
   def show
    @user = V2::User.new(user_params[:id])

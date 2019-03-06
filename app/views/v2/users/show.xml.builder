@@ -18,10 +18,12 @@ xml.user do
   xml.surName
   xml.title
   xml.totalCheckouts @user.data[:totalCheckouts]
+  # user with holds: 115680605
   xml.totalHolds @user.data[:totalHolds]
   xml.totalOverdue 0
-  xml.totalRecalls 0
-  xml.totalReserves 0
+  xml.totalRecalls 1
+  # reserve example user: 391414679
+  xml.totalReserves 1
   xml.userCats
   xml.computingId @user.data[:userID]
   xml.sirsiId @user.data[:userKey]

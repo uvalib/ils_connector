@@ -7,7 +7,7 @@ class V1::Checkout < FirehoseBase
   end
 
   def to_xml
-    checkouts.to_xml
+    checkouts.body
   end
 
 end

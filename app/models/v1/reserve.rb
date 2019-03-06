@@ -7,7 +7,7 @@ class V1::Reserve < FirehoseBase
   end
 
   def to_xml
-    reserves.to_xml
+    reserves.body
   end
 
 end

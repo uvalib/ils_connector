@@ -1,6 +1,6 @@
 class FirehoseBase
   include HTTParty
-  base_uri "http://firehose2.lib.virginia.edu:8081/firehose2"
+  base_uri env_credential(:firehose_base_url)
   format :xml
 
 end
