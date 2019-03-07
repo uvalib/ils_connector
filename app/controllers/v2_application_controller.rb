@@ -3,7 +3,6 @@ class V2ApplicationController < ApplicationController
   include ActionController::ImplicitRender
   include XmlHelpers
 
-  respond_to :xml
 
   before_action :swap_version
 
