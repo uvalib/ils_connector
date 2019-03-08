@@ -5,6 +5,7 @@ class V1::Item < FirehoseBase
   end
 
   def to_xml
+    Rails.logger.debug @item
     @item.body
   end
 
