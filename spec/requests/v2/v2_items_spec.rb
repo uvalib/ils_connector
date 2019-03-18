@@ -8,7 +8,6 @@ RSpec.describe "V2::Items", type: :request do
     end
 
     it 'works' do
-      byebug
       expect(response).to have_http_status(200)
     end
 
@@ -19,7 +18,6 @@ RSpec.describe "V2::Items", type: :request do
 
       diff = HashDiff.diff v2_response, firehose_response
 
-      byebug
 
       expect(diff).to be_empty
 
