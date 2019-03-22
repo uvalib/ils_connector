@@ -1,6 +1,6 @@
 class V2::ItemsController < V2ApplicationController
   def show
-   @item = V2::Item.new(item_params[:id])
+   @item = V2::Item.find(item_params[:id])
    if @item.present?
      render
    else

@@ -15,16 +15,18 @@ class V2::Item < SirsiBase
   end
 
   def self.find item_id
-    data = {}.with_indifferent_access
-    response = self.class.get('/rest/standard/lookupTitleInfo',
-                              query: REQUEST_PARAMS.merge(titleID: item_id),
-                              headers: auth_headers
-                             )
-    if response['TitleInfo'].present? && response['TitleInfo'].one?
-      data = response['TitleInfo'].first
-    else
-      # not found or more than one (should never happen?)
+    ensure_login do
+      data = {}.with_indifferent_access
+      response = get('/rest/standard/lookupTitleInfo',
+                                query: REQUEST_PARAMS.merge(titleID: item_id),
+                                headers: auth_headers
+                               )
+      if response['TitleInfo'].present? && response['TitleInfo'].one?
+        data = response['TitleInfo'].first
+      else
+        # not found or more than one (should never happen?)
+      end
+      data
     end
-    data
   end
 end

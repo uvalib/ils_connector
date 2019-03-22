@@ -9,7 +9,7 @@ class V2ApplicationController < ApplicationController
   V1CONTROLLERS = %w(items users requests lists)
 
   def swap_version
-    if V1CONTROLLERS.include? controller_name
+    if !Rails.env.test? && V1CONTROLLERS.include?(controller_name)
       redirect_to(controller: "v1/#{controller_name}", action: action_name) and return
     end
   end

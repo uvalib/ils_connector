@@ -4,8 +4,9 @@ class V2::SirsiLibrary < SirsiBase
  LIBRARY_PARAMS = {policyType: 'LIBR'}
 
 
- def all
-   libraries = self.class.get('/rest/admin/lookupPolicyList',
+ def self.all
+   ensure_login
+   libraries = get('/rest/admin/lookupPolicyList',
                               query: LIBRARY_PARAMS,
                               headers: auth_headers
                              )

@@ -6,9 +6,18 @@ class SirsiBase
 
   format :json
 
-  def initialize
-    # Don't call SirsiBase on it's own. Override it in the subclass.
-    self.class.login
+  # wrap api calls with this
+  #
+  def self.ensure_login
+    unless defined?(@@session_token)
+      login
+    end
+    yield
+
+  rescue => e
+    # catch a stale login?
+    # yield again to retry
+    Rails.logger.error e
   end
 
   def self.login
@@ -22,8 +31,6 @@ class SirsiBase
 
     @@session_token = @@sirsi_user['sessionToken']
     @@session_date = @@sirsi_user['date']
-  rescue => e
-    puts e
   end
 
   def self.base_headers
@@ -33,7 +40,6 @@ class SirsiBase
     'sd-originating-app-id' => 'cs'
     }
   end
-
 
   def self.auth_headers
     @@auth_headers = base_headers.merge({'x-sirs-sessionToken' => @@session_token})
