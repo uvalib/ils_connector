@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe "V2::Libraries", type: :request do
   describe "GET /v2/libraries" do
     before do
-      get v2_libraries_path(format: :xml),headers: {'ACCEPT': 'application/xml'}
+      get libraries_v2_lists_path(format: :xml),headers: {'ACCEPT': 'application/xml'}
     end
 
     it "works" do
