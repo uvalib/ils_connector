@@ -5,6 +5,9 @@ class V2::RequestsController < V2ApplicationController
     @libraries = V2::Library.all
   end
 
+  def renew
+  end
+
   def hold
   end
 

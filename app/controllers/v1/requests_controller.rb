@@ -4,6 +4,9 @@ class V1::RequestsController < V1ApplicationController
     render xml: item.to_xml
   end
 
+  def renew
+  end
+
   def hold
   end
 

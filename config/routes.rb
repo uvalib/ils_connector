@@ -19,6 +19,7 @@ Rails.application.routes.draw do
     resources :requests, path: '/request', only: [] do
       collection do
         post :renew_all, path: '/renewAll'
+        post :renew
         post :hold
       end
     end
@@ -41,6 +42,7 @@ Rails.application.routes.draw do
     resources :requests, path: '/request', only: [] do
       collection do
         post :renew_all, path: '/renewAll'
+        post :renew
         post :hold
       end
     end
