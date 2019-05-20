@@ -7,13 +7,6 @@ class V2::Item < SirsiBase
                     callList: 'true'
   }
 
-  attr_reader :data
-
-  def initialize item_id
-    super()
-    @data ||= find item_id
-  end
-
   def self.find item_id
     ensure_login do
       data = {}.with_indifferent_access

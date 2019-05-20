@@ -7,9 +7,9 @@ end
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 5.2'
+gem 'rails', '5.2.3'
 
-# Oracle for SIRSI connections
+# Oracle for SIRSI connections - removed
 #gem 'activerecord-oracle_enhanced-adapter'
 #gem 'ruby-oci8', '2.2.5' # required for CRuby
 
@@ -20,7 +20,7 @@ gem 'active_hash'
 gem 'httparty'
 
 gem 'devise'
-gem 'devise-jwt', '~> 0.5'
+gem 'devise-jwt'
 
 gem 'sidekiq'
 
@@ -49,7 +49,7 @@ group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
 
-  gem 'sqlite3'
+  gem 'sqlite3', '~> 1.4'
 
   # compares hashes. Used when comparing firehose responses to V2
   gem 'hashdiff'

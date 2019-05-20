@@ -9,7 +9,7 @@ Devise.setup do |config|
   # Devise will use the `secret_key_base` as its `secret_key`
   # by default. You can change it below and use your own secret key.
   config.secret_key = '10ac069e9ea597c222805c89e2161d510e8fac88a414972839581a4000d8138163d526203faa3ccdd8109a83920396b1470d854020eba38d7201e0a204394793'
-  
+
   # ==> Controller configuration
   # Configure the parent class to the devise controllers.
   # config.parent_controller = 'DeviseController'
@@ -281,7 +281,7 @@ Devise.setup do |config|
   # so you need to do it manually. For the users scope, it would be:
   # config.omniauth_path_prefix = '/my_engine/users/auth'
 
-  config.jwt do |jwt|
-    jwt.secret = Rails.application.credentials.jwt_secret
-  end
+ config.jwt do |jwt|
+   jwt.secret = Rails.application.credentials.jwt_secret
+ end
 end

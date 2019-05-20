@@ -10,7 +10,7 @@ require "action_controller/railtie"
 require "action_mailer/railtie"
 require "action_view/railtie"
 require "action_cable/engine"
-# require "sprockets/railtie"
+require "sprockets/railtie"
 require "rails/test_unit/railtie"
 
 ENV['NLS_LANG'] = 'American_America.AL32UTF8'
@@ -27,6 +27,7 @@ module IlsConnector
     ActiveModelSerializers.config.adapter = :json
 
     config.active_job.queue_adapter = :sidekiq
+
 
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration can go into files in config/initializers

@@ -1,7 +1,7 @@
 class V2::UsersController < V2ApplicationController
 
   def show
-   @user = V2::User.new(user_params[:id])
+   @user = V2::User.find(user_params[:id])
    if @user.present?
      render
    else

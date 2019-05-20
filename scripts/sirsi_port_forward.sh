@@ -1,6 +1,6 @@
 #! /bin/bash
-ssh -NL 1521:localhost:8070 libsvr26.lib.virginia.edu &
+ssh -NL 1521:localhost:8071 libsvr27.lib.virginia.edu &
 PID=$!
-ssh libsvr26.lib.virginia.edu -t ssh -NL 8070:localhost:1521 ilstest.lib.virginia.edu
+ssh libsvr27.lib.virginia.edu -t ssh -NL 8071:localhost:1521 ils.lib.virginia.edu
 kill $PID
 echo "Tunnel closed"
