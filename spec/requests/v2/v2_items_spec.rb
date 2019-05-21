@@ -4,6 +4,7 @@ RSpec.describe "V2::Items", type: :request do
   describe "GET /v2/items/:id" do
     let(:item_id) {'333'}
     before do
+      pending 'Need to finish'
       get v2_item_path(id: item_id, format: :xml), headers: {'ACCEPT': 'application/xml'}
     end
 
