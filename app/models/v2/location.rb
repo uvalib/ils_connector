@@ -4,24 +4,26 @@ class V2::Location < SirsiBase
   LOCATION_PARAMS = {key: '*', includeFields: '*'}
 
 
-  def all
+  def self.all
     @@locations ||= get_locations
   end
 
-  def find id
+  def self.find id
   end
 
  private
- def get_locations
-   locations = self.class.get('/v1/policy/location/simpleQuery',
-                              query: LOCATION_PARAMS,
-                              headers: auth_headers
-                             )
-   if locations.present?
-     puts 'loaded locations'
-     locations.map! {|l| l['fields']}
-   else
-     []
+ def self.get_locations
+   locations = []
+   ensure_login do
+     locations = get('/v1/policy/location/simpleQuery',
+                                query: LOCATION_PARAMS,
+                                headers: auth_headers
+                    )
+     if locations.present?
+       locations = locations.parsed_response.map {|l| l['fields']}
+     end
+     locations
    end
+   locations
  end
 end

@@ -53,6 +53,8 @@ group :development, :test do
 
   # compares hashes. Used when comparing firehose responses to V2
   gem 'hashdiff'
+  # compare xml
+  gem 'equivalent-xml'
 end
 
 group :production do

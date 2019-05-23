@@ -6,6 +6,8 @@ class SirsiBase
 
   format :json
 
+  default_timeout 1
+
   # wrap api calls with this
   #
   def self.ensure_login
@@ -18,6 +20,7 @@ class SirsiBase
     # catch a stale login?
     # yield again to retry
     Rails.logger.error e
+    return []
   end
 
   def self.login

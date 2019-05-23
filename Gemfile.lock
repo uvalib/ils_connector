@@ -88,6 +88,8 @@ GEM
       dry-configurable (~> 0.1, >= 0.1.3)
     dry-core (0.4.7)
       concurrent-ruby (~> 1.0)
+    equivalent-xml (0.6.0)
+      nokogiri (>= 1.4.3)
     erubi (1.8.0)
     etc (1.0.1)
     factory_bot (5.0.2)
@@ -255,6 +257,7 @@ DEPENDENCIES
   database_cleaner
   devise
   devise-jwt
+  equivalent-xml
   etc
   factory_bot_rails
   faker

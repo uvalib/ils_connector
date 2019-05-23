@@ -7,6 +7,7 @@ Rails.application.routes.draw do
     resources :lists, path: '/list', only: [] do
       collection do
         get :libraries
+        get :locations
       end
     end
     resources :users, only: [:show] do
@@ -30,6 +31,7 @@ Rails.application.routes.draw do
     resources :lists, path: '/list', only: [] do
       collection do
         get :libraries
+        get :locations
       end
     end
     resources :users, only: [:show] do
