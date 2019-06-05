@@ -13,9 +13,25 @@ RSpec.describe "V2::Lists", type: :request do
     end
 
     it 'matches the firehose response' do
-      firehose_response = V1::FirehoseLibrary.new.libraries.to_hash
+      #firehose_response = V1::FirehoseLibrary.new.libraries
 
-      v2_response = Hash.from_xml response.body
+      v2_response = Nokogiri::XML(response.body) do |config|
+        config.noblanks
+      end
+
+      expect(v2_response.root.name).to eq('libraries')
+      v2_response.css('libraries').children.each do |lib|
+        attributes = lib.attributes.keys
+        expect(attributes).to include('code', 'id')
+
+        lib_field_count = lib.children.length
+        expect(lib_field_count).to eq(4)
+
+        %w(remote name holdable deliverable).each do |field|
+          name = lib.css field
+          expect(name).to be_present
+        end
+      end
     end
   end
 
@@ -32,7 +48,7 @@ RSpec.describe "V2::Lists", type: :request do
     end
 
     it 'matches the firehose response' do
-      firehose_response = Nokogiri::XML(V1::Location.all)
+      #firehose_response = Nokogiri::XML(V1::Location.all)
 
       v2_response = Nokogiri::XML(response.body) do |config|
           config.noblanks
