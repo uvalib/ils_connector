@@ -5,10 +5,11 @@ class V2::SirsiLibrary < SirsiBase
 
 
  def self.all
-   ensure_login
-   libraries = get('/rest/admin/lookupPolicyList',
-                              query: LIBRARY_PARAMS,
-                              headers: auth_headers
-                             )
+   ensure_login do
+     libraries = get('/rest/admin/lookupPolicyList',
+                                query: LIBRARY_PARAMS,
+                                headers: auth_headers
+                               )
+   end
  end
 end

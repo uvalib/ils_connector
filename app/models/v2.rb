@@ -1,2 +1,2 @@
-module V2
+class V2
 end

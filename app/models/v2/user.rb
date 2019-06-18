@@ -1,7 +1,4 @@
 class V2::User < SirsiBase
-  require "ostruct"
-
-  base_uri env_credential(:sirsi_web_services_base)
 
   REQUEST_PARAMS= { rw: 1,
     includeFields: '*,circRecordList,patronStatusInfo,holdRecordList,estimatedOverdueAmount'
@@ -11,7 +8,7 @@ class V2::User < SirsiBase
 
   def self.find user_id
     ensure_login do
-      data = {}.with_indifferent_access
+      data = {}
       response = get('/v1/user/patron/search',
                                 query: REQUEST_PARAMS.merge(q: "ALT_ID:#{user_id}"),
                                 headers: self.auth_headers
@@ -32,12 +29,13 @@ class V2::User < SirsiBase
 
       #todo overdue, recalls & reserves totals need detailed record list
 
-      #puts @data
+      # add in user fields from LDAP
+      ldap_user = V2::UserLDAP.find(user_id)
+      data.merge! ldap_user
 
-      data
+      data.with_indifferent_access
     end
 
   end
-
 
 end
