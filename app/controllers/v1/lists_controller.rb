@@ -1,19 +1,17 @@
 class V1::ListsController < V1ApplicationController
-  before_action :set_library, only: [:show, :update, :destroy]
 
   # GET /v1/list/libraries
   def libraries
     @libraries = V1::FirehoseLibrary.new
 
-    render xml: @libraries.to_xml
+    render xml: @libraries
   end
 
+  # GET /v1/list/locations
+  def locations
+    @locations = V1::Location.all
 
-
-  private
-  # Use callbacks to share common setup or constraints between actions.
-  def set_library
-    @v1_lebrary = V1::FirehoseLibrary.find(params[:id])
+    render xml: @locations
   end
 
 end
