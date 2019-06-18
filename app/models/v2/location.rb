@@ -8,8 +8,6 @@ class V2::Location < SirsiBase
     @@locations ||= get_locations
   end
 
-  def self.find id
-  end
 
  private
  def self.get_locations
