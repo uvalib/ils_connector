@@ -2,7 +2,7 @@ class V1::ListsController < V1ApplicationController
 
   # GET /v1/list/libraries
   def libraries
-    @libraries = V1::FirehoseLibrary.new
+    @libraries = V1::FirehoseLibrary.all
 
     render xml: @libraries
   end
