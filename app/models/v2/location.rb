@@ -3,11 +3,14 @@ class V2::Location < SirsiBase
 
   LOCATION_PARAMS = {key: '*', includeFields: '*'}
 
-
   def self.all
     @@locations ||= get_locations
   end
 
+  def self.find(name)
+    V2::Location.all 
+    @@locations.find {|loc| loc['displayName'] == name }
+  end
 
  private
  def self.get_locations

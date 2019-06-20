@@ -6,7 +6,7 @@ class V2ApplicationController < ApplicationController
 
   before_action :swap_version
 
-  V1CONTROLLERS = %w(items users requests)
+  V1CONTROLLERS = %w(users requests)
 
   def swap_version
     if !Rails.env.test? && V1CONTROLLERS.include?(controller_name)
