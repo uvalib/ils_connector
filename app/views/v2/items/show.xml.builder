@@ -18,11 +18,7 @@ xml.item do
             xml.circulate 
             render(partial: 'v2/locations/show', locals: {builder: xml, type: "currentLocation", loc: V2::Location.find(copy['currentLocationID']) })
             render(partial: 'v2/locations/show', locals: {builder: xml, type: "homeLocation", loc: V2::Location.find(copy['homeLocationID']) })
-            xml.item_type do
-              #render 'item_type/show', xml: xml, location: copy['itemTypeID']
-              xml.id
-              xml.code
-            end
+            render(partial: 'v2/item_types/show', locals: {builder: xml, item_type: V2::ItemType.find("displayName", copy['itemTypeID']) })
             xml.lastCheckout
             xml.copy_number 
             xml.currentPeriodical
@@ -47,3 +43,15 @@ xml.item do
   end 
   xml.status
 end
+
+
+# {"titleID"=>333, "titleControlNumber"=>nil, "catalogFormatID"=>nil, "catalogFormatType"=>nil, "materialType"=>nil, 
+#   "baseCallNumber"=>nil, "author"=>nil, "title"=>nil, "sisacID"=>nil, "publisherName"=>nil, 
+#   "datePublished"=>nil, "yearOfPublication"=>nil, "extent"=>nil, "netLibraryID"=>nil, 
+#   "numberOfCallNumbers"=>nil, "numberOfTitleHolds"=>nil, "copiesOnOrder"=>nil, "outstandingCopiesOnOrder"=>nil, 
+#   "numberOfBoundwithLinks"=>nil, "callSummary"=>[], "TitleAvailabilityInfo"=>nil, "ISBN"=>[], "SICI"=>[], "UPC"=>[], 
+#   "OCLCControlNumber"=>nil, "TitleOrderInfo"=>[],
+#    "CallInfo"=>[{"libraryID"=>"MUSIC", "classificationID"=>"LC", "callNumber"=>"M2 .C8 no.43", "numberOfCopies"=>1, "boundParentAuthor"=>nil, 
+#       "boundParentTitle"=>nil, "ItemInfo"=>[{"itemID"=>"X002055251", "itemTypeID"=>"MUSI-SCORE", "currentLocationID"=>"STACKS", 
+#         "homeLocationID"=>"STACKS", "dueDate"=>nil, "recallDueDate"=>nil, "reshelvingLocationID"=>nil, "transitSourceLibraryID"=>nil, 
+#         "transitDestinationLibraryID"=>nil, "transitReason"=>nil, "transitDate"=>nil, "chargeable"=>false, "numberOfHolds"=>nil, "reserveCollectionID"=>nil, "reserveCirculationRule"=>nil, "mediaDeskID"=>nil, "fixedTimeBooking"=>false, "publicNote"=>nil, "staffNote"=>"{ * mus}", "itemCategories"=>[]}]}], "BibliographicInfo"=>nil, "MarcHoldingsInfo"=>[], "BoundwithLinkInfo"=>[]}
