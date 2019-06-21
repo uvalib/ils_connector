@@ -4,6 +4,4 @@ class V2::Library < ActiveYaml::Base
 
   set_root_path "app/data/"
   set_filename "libraries"
-
-
 end
