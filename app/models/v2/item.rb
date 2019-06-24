@@ -25,15 +25,76 @@ class V2::Item < SirsiBase
     end
   end
 
-  # RSRVSHADOW
-  def self.isShadowed?(item, holdingIdx)
+  # If all copies are shadowed, the holding is shadowed
+  def self.isHoldingShadowed?(holding)
+    # puts "==> IS HOLDING SHADOWED #{holding}"
+    holding['ItemInfo'].each do |cpy|
+      if isCopyShadowed?(cpy) == false
+        # puts "COPY IS NOT SHADOWED, SO HOLDING IS NOT SHADOWED"
+        return false
+      end
+    end
+    return true
   end
 
+  # A copy is shadowed if it has no location, or its location is shadowed
+  def self.isCopyShadowed?(copy)
+    # puts "=====>IS COPY SHADOWED #{copy}"
+    if copy['currentLocationID'].blank? || copy['homeLocationID'].blank? 
+      return true
+    end
+    currLoc = V2::Location.find(copy['currentLocationID'])
+    homeLoc = V2::Location.find(copy['homeLocationID'])
+    if copy['homeLocationID'] == "RSRVSHADOW"
+      # puts "SHADOWED! RSRVSHADOW"
+      return currLoc['shadowed']
+    end
+    return currLoc["shadowed"] || homeLoc["shadowed"]
+  end
+
+	#  Returns true only if there is an item can can be held, and if no copies are available.
   def self.isHoldable?(item, holdingIdx)
-    # TODO logic here
-    # https://github.com/uvalib/firehose/blob/438fc5bd4d7e1113ea56fb0bf5362bdf408fda11/src/main/java/edu/virginia/lib/firehose2/models/CatalogItem.java#L162
-    # NOTE: holds are for if something is checked out and you want it next, so if copies are available, can't hold
-    puts "COPIES AVAILABLE: #{item['TitleAvailabilityInfo']['totalCopiesAvailable']}"
-    return item['TitleAvailabilityInfo']['totalCopiesAvailable'] == 0
+    
+  end
+
+  def self.getHoldableInfo(item) 
+    # If all the call numbers are the same for all the holdings
+    # Ability(String name, String value, int message_code, String message)
+    out = {}
+    if sameCallNumbers(item) 
+      callNumber = item['CallInfo'].first['callNumber']
+      puts "HOLDABLE INFO; SAME CN #{callNumber}"
+		# 	if (getHoldableHolding(callNumber) == null) {
+		# 		return new Ability(Ability.CAN_HOLD, Ability.NO_VALUE, 3, "This item is not eligible for holds or recalls.");
+		# 	} else if (callNumberLocallyAvailableAndCirculating(callNumber)) {
+		# 		log.info("This catalog item is locally avaiable:");
+		# 		return new Ability(Ability.CAN_HOLD, Ability.NO_VALUE, 1, "A copy of this item is currently available.");
+		# 	} else {
+		# 		log.info("No copies are available, but one is holdable.");
+		# 		return new Ability(Ability.CAN_HOLD, Ability.YES_VALUE, 2, "Yes this catalog item can be held.");
+    # 	}
+    return {"code": "3", "name": "hold", "value": "no", "message": "This item is not eligible for holds or recalls!"}
+		else  
+      item['CallInfo'].each do |h|
+		# 		if (h.isHoldable() && !callNumberLocallyAvailableAndCirculating(h.getCallNumber()) ) {
+		# 			return new Ability(Ability.CAN_HOLD, Ability.MAYBE_VALUE, 4, "Some specific holdings can be held or recalled.");
+		# 		}
+      end
+      return {code: "3", name: "hold", value: "no", message: "This item is not eligible for holds or recalls."}
+    end
+  end
+
+  # return true if call numbers for all holding are the same
+  def self.sameCallNumbers(item) 
+    if item['CallInfo'].count < 2 
+       return true; 
+    end
+    callNumber = item['CallInfo'].first['callNumber']
+    item['CallInfo'].each do |h|
+      if h['callNumber'] != callNumber
+        return false;
+      end
+    end
+    return true
   end
 end
