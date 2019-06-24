@@ -52,12 +52,46 @@ class V2::Item < SirsiBase
     return currLoc["shadowed"] || homeLoc["shadowed"]
   end
 
-	#  Returns true only if there is an item can can be held, and if no copies are available.
-  def self.isHoldable?(item, holdingIdx)
-    
+  def self.circulate?(copy)
+    if copy['chargeable']
+      return "Y"
+    end
+    return "N"
   end
 
-  def self.getHoldableInfo(item) 
+	#  Returns true only if there is an item can can be held, and if no copies are available.
+  def self.isHoldable?(holding)
+    if isHoldingShadowed?(holding)
+      return false 
+    end
+
+    lib = V2::Library.find_by(code: holding['libraryID'])
+    if lib.holdable == false 
+      return false
+    end
+
+    hasHoldableItem = false
+    holding['ItemInfo'].each do |cpy|
+      itemType = V2::ItemType.find("displayName", cpy['itemTypeID'])
+      if itemType.blank?
+			  return false
+      end
+
+      currLoc = V2::Location.find(cpy['currentLocationID'])
+		  if currLoc.blank?
+			  return false
+      end
+    
+      item_t_id = itemType['policyNumber']
+ 		  if currLoc['holdable'] && cpy['chargeable'] == false && 
+         isCopyShadowed?(cpy) && V2::ItemType.holdable?(item_t_id)
+         hasHoldableItem = true
+      end
+    end
+    return hasHoldableItem
+  end
+
+  def self.getCanHold(item) 
     # If all the call numbers are the same for all the holdings
     # Ability(String name, String value, int message_code, String message)
     out = {}
