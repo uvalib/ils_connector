@@ -13,7 +13,7 @@ xml.catalogItem key: @item['titleID'] do
       xml.catalogKey @item['titleID']
 
       holding['ItemInfo'].each_with_index do |copy, cpy_idx|
-        xml.copy copyNumber: cpy_idx+1, currentPeriodical: "false", barcode: copy['itemID'], 
+        xml.copy copyNumber: cpy_idx+1, currentPeriodical: V2::Item.is_current_periodical?(copy), barcode: copy['itemID'], 
                  shadowed:  V2::Item.is_copy_shadowed?(copy) do
           xml.circulate V2::Item.circulate?(copy)
           render(partial: '/v2/locations/show', locals: {builder: xml, type: "currentLocation", loc: V2::Location.find(copy['currentLocationID']) })
@@ -24,8 +24,8 @@ xml.catalogItem key: @item['titleID'] do
 
       render(partial: '/v2/lists/library', locals: {builder: xml, lib: V2::Library.find_by(code: holding['libraryID']) })
 
-      xml.shelvingKey
+      xml.shelvingKey #UNKNOWN - not in API response
     end 
   end 
-  xml.status
+  xml.status # UNKNOW - not in API response
 end

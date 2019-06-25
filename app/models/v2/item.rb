@@ -101,6 +101,35 @@ class V2::Item < SirsiBase
     return has_holdable_item == true && has_available_item == false
   end
 
+  def self.is_current_periodical?(copy)
+    # Item types 20 and 21 refer to current periodicals.
+	  # NOTE however that an item is also considered a current periodical 
+    # if the items current location is set to cur-per (80 or 250)
+    item_type = V2::ItemType.find("displayName", copy['itemTypeID'])
+    if item_type.blank?
+      return false
+    end
+
+    type_id = item_type["policyNumber"].to_i
+    if type_id == 20 || type_id == 21 
+      return true 
+    end
+
+		# #  or return true if it is in a location that holds current periodicals
+		curr_loc = V2::Location.find(copy['currentLocationID'])
+    if curr_loc.blank?
+      return false
+    end
+    
+    loc_id = curr_loc['policyNumber'].to_i
+    if loc_id == 80 || loc_id == 250 
+      return true 
+    end
+
+		# at this point we couldn't find any reason to assume that this is a current periodical
+		return false
+	end
+
   def self.get_can_hold(item) 
     # If all the call numbers are the same for all the holdings
     # Ability(String name, String value, int message_code, String message)
