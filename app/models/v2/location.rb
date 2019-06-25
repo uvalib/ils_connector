@@ -23,6 +23,11 @@ class V2::Location < SirsiBase
      if locations.present?
        locations = locations.parsed_response.map {|l| l['fields']}
      end
+     locations.each do |l|
+        if !(l['shadowed'] == false && (l['onShelf'] || !l['holdable']))
+          puts "#{l['displayName']} UNAVAILABLE"
+        end
+     end
      locations
    end
    locations

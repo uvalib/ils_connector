@@ -5,7 +5,7 @@ xml.instruct!
 #
 xml.catalogItem key: @item['titleID'] do
   ## chargable == holdable ex- 100
-  render(partial: '/v2/items/holdable', locals: {builder: xml, hold: V2::Item.getCanHold(@item) })
+  render(partial: '/v2/items/can_hold', locals: {builder: xml, hold: V2::Item.getCanHold(@item) })
 
   @item['CallInfo'].each_with_index do |holding, idx|
     xml.holding callNumber: holding['callNumber'], callSequence: idx+1, 

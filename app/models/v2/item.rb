@@ -71,24 +71,34 @@ class V2::Item < SirsiBase
     end
 
     hasHoldableItem = false
+    hasAvailableItem = false
     holding['ItemInfo'].each do |cpy|
+      if isCopyShadowed?(cpy)
+        next
+      end
+
       itemType = V2::ItemType.find("displayName", cpy['itemTypeID'])
       if itemType.blank?
-			  return false
+			  next
       end
 
       currLoc = V2::Location.find(cpy['currentLocationID'])
 		  if currLoc.blank?
-			  return false
+			  next
+      end
+      if currLoc['shadowed']
+        next
       end
     
-      item_t_id = itemType['policyNumber']
- 		  if currLoc['holdable'] && cpy['chargeable'] == false && 
-         isCopyShadowed?(cpy) && V2::ItemType.holdable?(item_t_id)
+      item_holdable =  V2::ItemType.holdable?( itemType['policyNumber'] )
+ 		  if currLoc['holdable'] && cpy['chargeable'] && item_holdable
          hasHoldableItem = true
       end
+      if currLoc['onShelf'] || !item_holdable
+        hasAvailableItem = true
+      end
     end
-    return hasHoldableItem
+    return hasHoldableItem == true && hasAvailableItem == false
   end
 
   def self.getCanHold(item) 
