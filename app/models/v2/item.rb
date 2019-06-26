@@ -7,7 +7,7 @@ class V2::Item < SirsiBase
   end
 
   ## rest/standard/lookupTitleInfo?titleID=752166&includeItemInfo=true&includeCatalogingInfo=true
-  #       &includeAvailabilityInfo=true&includeFields=*&includeShadowed=BOTH
+  #       &includeAvailabilityInfo=true&includeFields=*&includeShadowed=NONE
   OLD_REQUEST_PARAMS= { json: 'true', includeItemInfo: 'true', includeCatalogingInfo: 'true',
     includeAvailabilityInfo: 'true', includeFields: '*', includeShadowed: 'BOTH'
   }
@@ -59,7 +59,7 @@ class V2::Item < SirsiBase
           copy["copyNumber"] = copy_resp["fields"]["copyNumber"]
           copy["itemTypeID"] = copy_resp["fields"]["itemType"]["key"]
           copy["shadowed"] = copy_resp["fields"]["shadowed"]
-          copy["circulate"] = copy_resp["fields"]["circulate"]
+          copy["chargeable"] = copy_resp["fields"]["circulate"]
           copy["homeLocationID"] = copy_resp["fields"]["homeLocation"]["key"]
           copy["currentLocationID"] = copy_resp["fields"]["currentLocation"]["key"]
           holding["ItemInfo"] << copy
@@ -72,13 +72,8 @@ class V2::Item < SirsiBase
 
   # If all copies are shadowed, the holding is shadowed
   def self.is_holding_shadowed?(holding)
-    # puts "==> IS HOLDING SHADOWED #{holding}"
-    if !holding['shadowed'].nil? && holding['shadowed']
-      return true
-    end
     holding['ItemInfo'].each do |cpy|
       if is_copy_shadowed?(cpy) == false
-        # puts "COPY IS NOT SHADOWED, SO HOLDING IS NOT SHADOWED"
         return false
       end
     end
@@ -87,21 +82,19 @@ class V2::Item < SirsiBase
 
   # A copy is shadowed if it has no location, or its location is shadowed
   def self.is_copy_shadowed?(copy)
-    # puts "=====>IS COPY SHADOWED #{copy}"
     if copy['currentLocationID'].blank? || copy['homeLocationID'].blank? 
       return true
     end
     curr_loc = V2::Location.find(copy['currentLocationID'])
     home_loc = V2::Location.find(copy['homeLocationID'])
     if copy['homeLocationID'] == "RSRVSHADOW"
-      # puts "SHADOWED! RSRVSHADOW"
       return curr_loc['shadowed']
     end
     return curr_loc["shadowed"] || home_loc["shadowed"]
   end
 
   def self.circulate?(copy)
-    if copy['circulate'] || copy['chargeable']
+    if copy['chargeable']
       return "Y"
     end
     return "N"
@@ -184,25 +177,68 @@ class V2::Item < SirsiBase
     out = {}
     if same_call_numbers(item) 
       call_num = item['CallInfo'].first['callNumber']
-      puts "HOLDABLE INFO; SAME CN #{call_num}"
-		# 	if getHoldableHolding(call_num) == null
-    #     return {name: "hold", value: "no", code: 3, message: "This item is not eligible for holds or recalls."}
-		# 	elsif callNumberLocallyAvailableAndCirculating(call_num)
-    #     return {name: "hold", value: "no", code: 1, message: "A copy of this item is currently available."}
-		# 	else
-		# 		log.info("No copies are available, but one is holdable.");
-		# 		return new Ability(Ability.CAN_HOLD, Ability.YES_VALUE, 2, "Yes this catalog item can be held.");
-    # 	end
-      return {name: "hold", value: "yes", code: 2, message: "Yes this catalog item can be held."}
+			if get_holdable_holding(item, call_num).nil?
+        return {name: "hold", value: "no", code: 3, message: "This item is not eligible for holds or recalls."}
+      elsif locally_available?(item, call_num)
+        return {name: "hold", value: "no", code: 1, message: "A copy of this item is currently available."}
+			else
+				return new Ability(Ability.CAN_HOLD, Ability.YES_VALUE, 2, "Yes this catalog item can be held.");
+    	end
 		else  
       item['CallInfo'].each do |h|
-				if is_holdable?(h) #  && !callNumberLocallyAvailableAndCirculating( h["callNumber"] )
+				if is_holdable?(h) && !locally_available?(item, h["callNumber"] )
           return {name: "hold", value: "maybe", code: 4, message: "This item is not eligible for holds or recalls."}
         end
       end
       return {name: "hold", value: "no", code: 3, message: "This item is not eligible for holds or recalls."}
     end
   end
+
+  # Get the first holding that matches the call num and is holdable
+  def self.get_holdable_holding(item, call_num) 
+    item['CallInfo'].each do |h|
+      if is_holdable?(h) && h["callNumber"] == call_num 
+        return h
+      end
+    end
+    return nil
+  end
+
+  # Return true if a copy is  available
+  def self.locally_available?(item, call_num)
+    item['CallInfo'].each do |h|
+      if h["callNumber"] != call_num 
+        next 
+      end
+
+      # Must be non-remote library
+      lib = V2::Library.find_by(code: holding['libraryID'])
+      if lib.nil? || !lib.nil? && lib.remote 
+        next
+      end
+
+      # must have a circulating, available copy
+      h['ItemInfo'].each do |copy|
+        if is_copy_shadowed?(copy)
+          next
+        end
+        if !copy['chargeable']
+          next
+        end
+
+        curr_loc = V2::Location.find(copy['currentLocationID'])
+        if curr_loc.blank? 
+          next
+        end
+        item_holdable =  V2::ItemType.holdable?( item_type['policyNumber'] )
+        if curr_loc['onShelf'] || !item_holdable
+          return true
+        end
+      end
+    end
+    return false
+  end
+
 
   # return true if call numbers for all holding are the same
   def self.same_call_numbers(item) 

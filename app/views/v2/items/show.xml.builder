@@ -1,8 +1,5 @@
 xml.instruct!
-# lookup with rest/standard/lookupTitleInfo?titleID=752166&includeItemInfo=true&callList=true
-#                                           &includeCatalogingInfo=true&includeOPACInfo=true&includeAvailabilityInfo=true
-#                                           &includeFields=*&includeOrderInfo=true&includeMarcHoldings=true&includeShadowed=BOTH
-#
+
 xml.catalogItem key: @item['titleID'] do
   render(partial: '/v2/items/can_hold', locals: {builder: xml, hold: V2::Item.get_can_hold(@item) })
 
