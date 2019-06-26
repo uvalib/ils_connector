@@ -15,7 +15,7 @@ xml.catalogItem key: @item['titleID'] do
           render(partial: '/v2/locations/show', locals: {builder: xml, type: "currentLocation", loc: V2::Location.find(copy['currentLocationID']) })
           render(partial: '/v2/locations/show', locals: {builder: xml, type: "homeLocation", loc: V2::Location.find(copy['homeLocationID']) })
           render(partial: '/v2/item_types/show', locals: {builder: xml, item_type: V2::ItemType.find("displayName", copy['itemTypeID']) })
-          xml.lastCheckout
+          xml.lastCheckout "2019-06-26T04:27:16-04:00"
         end 
       end
 
