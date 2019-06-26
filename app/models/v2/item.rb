@@ -1,19 +1,22 @@
 class V2::Item < SirsiBase
   base_uri env_credential(:sirsi_web_services_base)
 
-  ##rest/standard/lookupTitleInfo?titleID=752166&includeItemInfo=true&callList=true&includeCatalogingInfo=true
-  #     &includeOPACInfo=true&includeAvailabilityInfo=true&includeFields=*&includeOrderInfo=true
-  #     &includeMarcHoldings=true&includeShadowed=BOTH
-  REQUEST_PARAMS= { json: 'true', includeItemInfo: 'true', callList: 'true', includeCatalogingInfo: 'true',
-    includeOPACInfo: 'true', includeAvailabilityInfo: 'true', includeFields: '*', includeOrderInfo: 'true',
-    includeMarcHoldings: 'true', includeShadowed: 'BOTH'
+  def self.find item_id
+    old_find item_id
+    # new_find item_id
+  end
+
+  ## rest/standard/lookupTitleInfo?titleID=752166&includeItemInfo=true&includeCatalogingInfo=true
+  #       &includeAvailabilityInfo=true&includeFields=*&includeShadowed=BOTH
+  OLD_REQUEST_PARAMS= { json: 'true', includeItemInfo: 'true', includeCatalogingInfo: 'true',
+    includeAvailabilityInfo: 'true', includeFields: '*', includeShadowed: 'BOTH'
   }
 
-  def self.find item_id
+  def self.old_find item_id
     ensure_login do
       data = {}.with_indifferent_access
       response = get('/rest/standard/lookupTitleInfo',
-        query: REQUEST_PARAMS.merge(titleID: item_id),
+        query: OLD_REQUEST_PARAMS.merge(titleID: item_id),
         headers: auth_headers
       )
       if response['TitleInfo'].present? && response['TitleInfo'].one?
@@ -25,9 +28,54 @@ class V2::Item < SirsiBase
     end
   end
 
+  def self.new_find item_id
+    ensure_login do
+      item = {}.with_indifferent_access
+      item["titleID"] = item_id
+      item["CallInfo"] = []
+      response = get("/v1/catalog/bib/key/#{item_id}?includeFields=callList,*",
+        headers: auth_headers
+      )
+      item["shadowed"] = response["fields"]["shadowed"]
+      response["fields"]["callList"].each do |cl|
+        key = cl["key"]
+        call_resp = get("/v1/catalog/call/key/#{key}?includeFields=itemList,*",
+          headers: auth_headers
+        )
+        holding = {}.with_indifferent_access
+        holding["callNumber"] = call_resp["fields"]["dispCallNumber"]
+        holding["shelvingKey"] = call_resp["fields"]["sortCallNumber"]
+        holding["shadowed"] = call_resp["fields"]["shadowed"]
+        holding["libraryID"] = call_resp["fields"]["library"]["key"]
+        holding["ItemInfo"] = []
+
+        call_resp["fields"]["itemList"].each do |holding_copy|
+          copy_key = holding_copy["key"]
+          copy_resp = get("/v1/catalog/item/key/#{copy_key}",
+            headers: auth_headers
+          )
+          copy = {}.with_indifferent_access
+          copy["itemID"] = copy_resp["fields"]["barcode"]
+          copy["copyNumber"] = copy_resp["fields"]["copyNumber"]
+          copy["itemTypeID"] = copy_resp["fields"]["itemType"]["key"]
+          copy["shadowed"] = copy_resp["fields"]["shadowed"]
+          copy["circulate"] = copy_resp["fields"]["circulate"]
+          copy["homeLocationID"] = copy_resp["fields"]["homeLocation"]["key"]
+          copy["currentLocationID"] = copy_resp["fields"]["currentLocation"]["key"]
+          holding["ItemInfo"] << copy
+        end
+        item["CallInfo"] << holding
+      end
+      item
+    end
+  end
+
   # If all copies are shadowed, the holding is shadowed
   def self.is_holding_shadowed?(holding)
     # puts "==> IS HOLDING SHADOWED #{holding}"
+    if !holding['shadowed'].nil? && holding['shadowed']
+      return true
+    end
     holding['ItemInfo'].each do |cpy|
       if is_copy_shadowed?(cpy) == false
         # puts "COPY IS NOT SHADOWED, SO HOLDING IS NOT SHADOWED"
@@ -53,7 +101,7 @@ class V2::Item < SirsiBase
   end
 
   def self.circulate?(copy)
-    if copy['chargeable']
+    if copy['circulate'] || copy['chargeable']
       return "Y"
     end
     return "N"
@@ -137,23 +185,22 @@ class V2::Item < SirsiBase
     if same_call_numbers(item) 
       call_num = item['CallInfo'].first['callNumber']
       puts "HOLDABLE INFO; SAME CN #{call_num}"
-		# 	if (getHoldableHolding(call_num) == null) {
-		# 		return new Ability(Ability.CAN_HOLD, Ability.NO_VALUE, 3, "This item is not eligible for holds or recalls.");
-		# 	} else if (callNumberLocallyAvailableAndCirculating(call_num)) {
-		# 		log.info("This catalog item is locally avaiable:");
-		# 		return new Ability(Ability.CAN_HOLD, Ability.NO_VALUE, 1, "A copy of this item is currently available.");
-		# 	} else {
+		# 	if getHoldableHolding(call_num) == null
+    #     return {name: "hold", value: "no", code: 3, message: "This item is not eligible for holds or recalls."}
+		# 	elsif callNumberLocallyAvailableAndCirculating(call_num)
+    #     return {name: "hold", value: "no", code: 1, message: "A copy of this item is currently available."}
+		# 	else
 		# 		log.info("No copies are available, but one is holdable.");
 		# 		return new Ability(Ability.CAN_HOLD, Ability.YES_VALUE, 2, "Yes this catalog item can be held.");
-    # 	}
-    return {"code": "3", "name": "hold", "value": "no", "message": "This item is not eligible for holds or recalls!"}
+    # 	end
+      return {name: "hold", value: "yes", code: 2, message: "Yes this catalog item can be held."}
 		else  
       item['CallInfo'].each do |h|
-		# 		if (h.is_holdable() && !callNumberLocallyAvailableAndCirculating(h.getCallNumber()) ) {
-		# 			return new Ability(Ability.CAN_HOLD, Ability.MAYBE_VALUE, 4, "Some specific holdings can be held or recalled.");
-		# 		}
+				if is_holdable?(h) #  && !callNumberLocallyAvailableAndCirculating( h["callNumber"] )
+          return {name: "hold", value: "maybe", code: 4, message: "This item is not eligible for holds or recalls."}
+        end
       end
-      return {code: "3", name: "hold", value: "no", message: "This item is not eligible for holds or recalls."}
+      return {name: "hold", value: "no", code: 3, message: "This item is not eligible for holds or recalls."}
     end
   end
 

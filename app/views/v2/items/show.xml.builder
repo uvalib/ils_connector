@@ -4,7 +4,6 @@ xml.instruct!
 #                                           &includeFields=*&includeOrderInfo=true&includeMarcHoldings=true&includeShadowed=BOTH
 #
 xml.catalogItem key: @item['titleID'] do
-  ## chargable == holdable ex- 100
   render(partial: '/v2/items/can_hold', locals: {builder: xml, hold: V2::Item.get_can_hold(@item) })
 
   @item['CallInfo'].each_with_index do |holding, idx|
@@ -19,13 +18,18 @@ xml.catalogItem key: @item['titleID'] do
           render(partial: '/v2/locations/show', locals: {builder: xml, type: "currentLocation", loc: V2::Location.find(copy['currentLocationID']) })
           render(partial: '/v2/locations/show', locals: {builder: xml, type: "homeLocation", loc: V2::Location.find(copy['homeLocationID']) })
           render(partial: '/v2/item_types/show', locals: {builder: xml, item_type: V2::ItemType.find("displayName", copy['itemTypeID']) })
+          xml.lastCheckout
         end 
       end
 
       render(partial: '/v2/lists/library', locals: {builder: xml, lib: V2::Library.find_by(code: holding['libraryID']) })
-
-      xml.shelvingKey #UNKNOWN - not in API response
+      
+      k = holding["shelvingKey"]
+      if k.blank?
+        k = holding["callNumber"]
+      end
+      xml.shelvingKey k
     end 
   end 
-  xml.status # UNKNOW - not in API response
+  xml.status  0 # UNKNOWN - not in API response, in Firehose, catalogItem.set/getStatus is never called. Seems like always 0
 end
