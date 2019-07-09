@@ -9,16 +9,16 @@ class V2::Item < SirsiBase
   ## rest/standard/lookupTitleInfo?titleID=752166&includeItemInfo=true&includeCatalogingInfo=true
   #       &includeAvailabilityInfo=true&includeFields=*&includeShadowed=NONE
   OLD_REQUEST_PARAMS= { json: 'true', includeItemInfo: 'true', includeCatalogingInfo: 'true',
-    includeAvailabilityInfo: 'true', includeFields: '*', includeShadowed: 'NONE'
+                        includeAvailabilityInfo: 'true', includeFields: '*', includeShadowed: 'NONE'
   }
 
   def self.old_find item_id
     ensure_login do
       data = {}.with_indifferent_access
       response = get('/rest/standard/lookupTitleInfo',
-        query: OLD_REQUEST_PARAMS.merge(titleID: item_id),
-        headers: auth_headers
-      )
+                     query: OLD_REQUEST_PARAMS.merge(titleID: item_id),
+                     headers: auth_headers
+                    )
       if response['TitleInfo'].present? && response['TitleInfo'].one?
         data = response['TitleInfo'].first
       else
@@ -34,14 +34,14 @@ class V2::Item < SirsiBase
       item["titleID"] = item_id
       item["CallInfo"] = []
       response = get("/v1/catalog/bib/key/#{item_id}?includeFields=callList,*",
-        headers: auth_headers
-      )
+                     headers: auth_headers
+                    )
       item["shadowed"] = response["fields"]["shadowed"]
       response["fields"]["callList"].each do |cl|
         key = cl["key"]
         call_resp = get("/v1/catalog/call/key/#{key}?includeFields=itemList,*",
-          headers: auth_headers
-        )
+                        headers: auth_headers
+                       )
         holding = {}.with_indifferent_access
         holding["callNumber"] = call_resp["fields"]["dispCallNumber"]
         holding["shelvingKey"] = call_resp["fields"]["sortCallNumber"]
@@ -52,8 +52,8 @@ class V2::Item < SirsiBase
         call_resp["fields"]["itemList"].each do |holding_copy|
           copy_key = holding_copy["key"]
           copy_resp = get("/v1/catalog/item/key/#{copy_key}",
-            headers: auth_headers
-          )
+                          headers: auth_headers
+                         )
           copy = {}.with_indifferent_access
           copy["itemID"] = copy_resp["fields"]["barcode"]
           copy["copyNumber"] = copy_resp["fields"]["copyNumber"]
@@ -100,7 +100,7 @@ class V2::Item < SirsiBase
     return "N"
   end
 
-	#  Returns true only if there is an item can can be held, and if no copies are available.
+  #  Returns true only if there is an item can can be held, and if no copies are available.
   def self.is_holdable?(holding)
     if is_holding_shadowed?(holding)
       return false 
@@ -120,20 +120,20 @@ class V2::Item < SirsiBase
 
       item_type = V2::ItemType.find("displayName", cpy['itemTypeID'])
       if item_type.blank?
-			  next
+        next
       end
 
       curr_loc = V2::Location.find(cpy['currentLocationID'])
-		  if curr_loc.blank?
-			  next
+      if curr_loc.blank?
+        next
       end
       if curr_loc['shadowed']
         next
       end
-    
+
       item_holdable =  V2::ItemType.holdable?( item_type['policyNumber'] )
- 		  if curr_loc['holdable'] && cpy['chargeable'] && item_holdable
-         has_holdable_item = true
+      if curr_loc['holdable'] && cpy['chargeable'] && item_holdable
+        has_holdable_item = true
       end
       if curr_loc['onShelf'] || !item_holdable
         has_available_item = true
@@ -144,7 +144,7 @@ class V2::Item < SirsiBase
 
   def self.is_current_periodical?(copy)
     # Item types 20 and 21 refer to current periodicals.
-	  # NOTE however that an item is also considered a current periodical 
+    # NOTE however that an item is also considered a current periodical 
     # if the items current location is set to cur-per (80 or 250)
     item_type = V2::ItemType.find("displayName", copy['itemTypeID'])
     if item_type.blank?
@@ -156,20 +156,20 @@ class V2::Item < SirsiBase
       return true 
     end
 
-		# #  or return true if it is in a location that holds current periodicals
-		curr_loc = V2::Location.find(copy['currentLocationID'])
+    # #  or return true if it is in a location that holds current periodicals
+    curr_loc = V2::Location.find(copy['currentLocationID'])
     if curr_loc.blank?
       return false
     end
-    
+
     loc_id = curr_loc['policyNumber'].to_i
     if loc_id == 80 || loc_id == 250 
       return true 
     end
 
-		# at this point we couldn't find any reason to assume that this is a current periodical
-		return false
-	end
+    # at this point we couldn't find any reason to assume that this is a current periodical
+    return false
+  end
 
   def self.get_can_hold(item) 
     # If all the call numbers are the same for all the holdings
@@ -177,16 +177,16 @@ class V2::Item < SirsiBase
     out = {}
     if same_call_numbers(item) 
       call_num = item['CallInfo'].first['callNumber']
-			if get_holdable_holding(item, call_num).nil?
+      if get_holdable_holding(item, call_num).nil?
         return {name: "hold", value: "no", code: 3, message: "This item is not eligible for holds or recalls."}
       elsif locally_available?(item, call_num)
         return {name: "hold", value: "no", code: 1, message: "A copy of this item is currently available."}
-			else
-				return new Ability(Ability.CAN_HOLD, Ability.YES_VALUE, 2, "Yes this catalog item can be held.");
-    	end
-		else  
+      else
+        return {name: "hold", value: "yes", code: 2, message: "Yes this catalog item can be held." }
+      end
+    else  
       item['CallInfo'].each do |h|
-				if is_holdable?(h) && !locally_available?(item, h["callNumber"] )
+        if is_holdable?(h) && !locally_available?(item, h["callNumber"] )
           return {name: "hold", value: "maybe", code: 4, message: "This item is not eligible for holds or recalls."}
         end
       end
@@ -243,7 +243,7 @@ class V2::Item < SirsiBase
   # return true if call numbers for all holding are the same
   def self.same_call_numbers(item) 
     if item['CallInfo'].count < 2 
-       return true; 
+      return true; 
     end
     call_num = item['CallInfo'].first['callNumber']
     item['CallInfo'].each do |h|
