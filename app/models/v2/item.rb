@@ -21,10 +21,11 @@ class V2::Item < SirsiBase
                      query: OLD_REQUEST_PARAMS.merge(titleID: item_id),
                      headers: auth_headers
                     )
-      if response['TitleInfo'].present? && response['TitleInfo'].one?
+      if response['TitleInfo'].present? && response['TitleInfo'].one? &&
+          response['TitleInfo'].first['titleControlNumber'].present?
         data = response['TitleInfo'].first
       else
-        # not found or more than one (should never happen?)
+        # not found
       end
       data
     end
