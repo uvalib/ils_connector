@@ -5,7 +5,7 @@ class V2::UsersController < V2ApplicationController
    if @user.present?
      render
    else
-     render :not_found
+     render plain: "User, #{user_params[:id]}, is not found", status: :not_found
    end
   end
 

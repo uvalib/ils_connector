@@ -3,59 +3,61 @@ Rails.application.routes.draw do
 
   devise_for :api_users, defaults: {format: :json}, controllers: {sessions: 'api_users/sessions'}
 
-  namespace :v1 do
-    resources :lists, path: '/list', only: [] do
-      collection do
-        get :libraries
-        get :locations
+  defaults format: :xml do
+    namespace :v1 do
+      resources :lists, path: '/list', only: [] do
+        collection do
+          get :libraries
+          get :locations
+        end
       end
-    end
-    resources :users, only: [:show] do
-      member do
-        get :checkouts
-        get :holds
-        get :reserves
+      resources :users, only: [:show] do
+        member do
+          get :checkouts
+          get :holds
+          get :reserves
+        end
       end
-    end
-    resources :requests, path: '/request', only: [] do
-      collection do
-        post :renew_all, path: '/renewAll'
-        post :renew
-        post :hold
+      resources :requests, path: '/request', only: [] do
+        collection do
+          post :renew_all, path: '/renewAll'
+          post :renew
+          post :hold
+        end
       end
+      resources :items, only: :show
     end
-    resources :items, only: :show
-  end
 
-  namespace :v2 do
-    resources :lists, path: '/list', only: [] do
-      collection do
-        get :libraries
-        get :locations
+    namespace :v2 do
+      resources :lists, path: '/list', only: [] do
+        collection do
+          get :libraries
+          get :locations
+        end
       end
-    end
-    resources :users, only: [:show] do
-      member do
-        get :checkouts
-        get :holds
-        get :reserves
+      resources :users, only: [:show] do
+        member do
+          get :checkouts
+          get :holds
+          get :reserves
+        end
       end
-    end
-    resources :requests, path: '/request', only: [] do
-      collection do
-        post :renew_all, path: '/renewAll'
-        post :renew
-        post :hold
+      resources :requests, path: '/request', only: [] do
+        collection do
+          post :renew_all, path: '/renewAll'
+          post :renew
+          post :hold
+        end
       end
+      resources :items, only: [:show]
     end
-    resources :items, only: [:show]
-  end
 
 
-  # TODO
-  namespace :v3 do
-    resources :ivy_requests, only: [:create, :index]
-  end
+    # TODO
+    namespace :v3 do
+      resources :ivy_requests, only: [:create, :index]
+    end
+  end #format to xml
 
   resources :healthcheck, only: [ :index ]
   resources :version, only: [ :index ]

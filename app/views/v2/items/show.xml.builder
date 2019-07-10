@@ -1,4 +1,4 @@
-xml.instruct!
+xml.instruct! :xml, encoding: 'UTF-8', standalone: 'yes'
 
 xml.catalogItem key: @item['titleID'] do
   render(partial: '/v2/items/can_hold', locals: {builder: xml, hold: V2::Item.get_can_hold(@item) })

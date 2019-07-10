@@ -3,6 +3,8 @@ class V2::Item < SirsiBase
 
   def self.find item_id
     old_find item_id
+
+    # new_find uses Sirsi's newer api, requires nested calls and is too slow
     # new_find item_id
   end
 
@@ -243,7 +245,7 @@ class V2::Item < SirsiBase
   # return true if call numbers for all holding are the same
   def self.same_call_numbers(item) 
     if item['CallInfo'].count < 2 
-      return true; 
+      return true;
     end
     call_num = item['CallInfo'].first['callNumber']
     item['CallInfo'].each do |h|
