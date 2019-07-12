@@ -106,6 +106,7 @@ class V2::Item < SirsiBase
   #  Returns true only if there is an item can can be held, and if no copies are available.
   def self.is_holdable?(holding)
     if is_holding_shadowed?(holding)
+      Rails.logger.info "Holding is not holdable because it is shadowed"
       return false 
     end
 
@@ -135,7 +136,7 @@ class V2::Item < SirsiBase
       end
 
       item_holdable =  V2::ItemType.holdable?( item_type['policyNumber'] )
-      if curr_loc['holdable'] && cpy['chargeable'] && item_holdable
+      if curr_loc['holdable'] && item_holdable
         has_holdable_item = true
       end
       if curr_loc['onShelf'] || !item_holdable
@@ -203,8 +204,12 @@ class V2::Item < SirsiBase
 
   # Get the first holding that matches the call num and is holdable
   def self.get_holdable_holding(item, call_num) 
+    Rails.logger.info "GetHoldableHolding for #{call_num}"
     item['CallInfo'].each do |h|
-      if is_holdable?(h) && h["callNumber"] == call_num 
+      next if h["callNumber"] != call_num 
+      Rails.logger.info "#{h.to_json} matches #{call_num}. Is it holdable?"
+      if is_holdable?(h) 
+        Rails.logger.info "Yes; Holable holding found"
         return h
       end
     end
@@ -219,7 +224,7 @@ class V2::Item < SirsiBase
       end
 
       # Must be non-remote library
-      lib = V2::Library.find_by(code: holding['libraryID'])
+      lib = V2::Library.find_by(code: h['libraryID'])
       if lib.nil? || !lib.nil? && lib.remote 
         next
       end

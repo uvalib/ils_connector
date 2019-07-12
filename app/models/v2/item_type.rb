@@ -27,7 +27,13 @@ class V2::ItemType < SirsiBase
 
   def self.holdable?(policy_num) 
     @@holdable ||= get_holdable
-    return @@holdable[policy_num.to_i]
+    if @@holdable[policy_num.to_i]
+      Rails.logger.info("Item type #{policy_num} is holdable")
+      return true
+    end
+
+    Rails.logger.info("Item type #{policy_num} is NOT holdable")
+    return false
   end
 
   def self.find(key = 'policyNumber', value)
