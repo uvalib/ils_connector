@@ -16,15 +16,15 @@ xml.user computingId: @user[:alternateID], sirsiId: @user[:barcode], key: @user[
   xml.pin @user[:pin]
   xml.preferredlanguage 1
   xml.profile @user[:profile][:key]
-  xml.statusId 
-  xml.totalCheckouts @user[:totalCheckouts]
+  xml.statusId nil
+  xml.totalCheckouts @user['patronCirculationInfo']['numberOfCheckouts']
   # user with holds: 115680605
   xml.totalHolds @user['patronCirculationInfo']['numberOfHolds']
   xml.totalOverdue @user['patronCirculationInfo']['estimatedOverdues']
   xml.totalRecalls 0
   # reserve example user: 391414679
   xml.totalReserves 0
-  xml.userCats
+  xml.userCats nil
 
 
   # CircRecord == Checkout
