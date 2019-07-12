@@ -11,7 +11,7 @@ xml.catalogItem key: @item['titleID'] do
       holding['ItemInfo'].each_with_index do |copy, cpy_idx|
         xml.copy copyNumber: cpy_idx+1, currentPeriodical: V2::Item.is_current_periodical?(copy), barCode: copy['itemID'], 
                  shadowed:  V2::Item.is_copy_shadowed?(copy) do
-          xml.circulate V2::Item.circulate?(copy)
+          xml.circulate V2::Item.circulate?(@item['TitleAvailabilityInfo'], copy)
           render(partial: '/v2/locations/show', locals: {builder: xml, type: "currentLocation", loc: V2::Location.find(copy['currentLocationID']) })
           render(partial: '/v2/locations/show', locals: {builder: xml, type: "homeLocation", loc: V2::Location.find(copy['homeLocationID']) })
           render(partial: '/v2/item_types/show', locals: {builder: xml, item_type: V2::ItemType.find("displayName", copy['itemTypeID']) })

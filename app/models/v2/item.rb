@@ -96,9 +96,12 @@ class V2::Item < SirsiBase
     return curr_loc["shadowed"] || home_loc["shadowed"]
   end
 
-  def self.circulate?(copy)
+  def self.circulate?(title_availability, copy)
     if copy['chargeable']
       return "Y"
+    end
+    if title_availability[ 'holdable']
+      return "M"
     end
     return "N"
   end
@@ -136,7 +139,7 @@ class V2::Item < SirsiBase
       end
 
       item_holdable =  V2::ItemType.holdable?( item_type['policyNumber'] )
-      if curr_loc['holdable'] && item_holdable
+      if curr_loc['holdable'] && item_holdable #&& CIRCULATE != NO FIXME
         has_holdable_item = true
       end
       if curr_loc['onShelf'] || !item_holdable
