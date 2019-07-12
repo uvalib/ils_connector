@@ -38,9 +38,9 @@ Rails.application.routes.draw do
       resources :users, only: [:show] do
         member do
           # firehose used the same response for these
-          get :checkouts, to: :show
-          get :holds, to: :show
-          get :reserves, to: :show
+          get :checkouts, action: :show
+          get :holds, action: :show
+          get :reserves, action: :show
         end
       end
       resources :requests, path: '/request', only: [] do
