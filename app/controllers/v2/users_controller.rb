@@ -1,5 +1,7 @@
 class V2::UsersController < V2ApplicationController
 
+  # holds, checkouts, and reserves all route to show
+
   def show
    @user = V2::User.find(user_params[:id])
    if @user.present?
@@ -7,21 +9,6 @@ class V2::UsersController < V2ApplicationController
    else
      render plain: "User, #{user_params[:id]}, is not found", status: :not_found
    end
-  end
-
-  def checkouts
-    checkouts = V2::Checkout.new(user_params)
-    render xml: checkouts.to_xml
-  end
-
-  def holds
-    holds = V2::Hold.new(user_params)
-    render xml: holds.to_xml
-  end
-
-  def reserves
-    reserves = V2::Reserve.new(user_params)
-    render xml: reserves.to_xml
   end
 
 
