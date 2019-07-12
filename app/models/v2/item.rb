@@ -178,7 +178,7 @@ class V2::Item < SirsiBase
     # If all the call numbers are the same for all the holdings
     # Ability(String name, String value, int message_code, String message)
     out = {}
-    Raila.logger.info("Can #{item.to_json} be held?")
+    Rails.logger.info("Can #{item.to_json} be held?")
     if same_call_numbers(item) 
       call_num = item['CallInfo'].first['callNumber']
       Rails.logger.info "All holdings have same call number #{call_num}"
