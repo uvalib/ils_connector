@@ -13,8 +13,11 @@ class V2::RequestsController < V2ApplicationController
   def renew
     # params checkoutKey, computingId
     # checkoutKey is the catalog key without the u or pda prefix
-    # NOTE this does not seem to be called by virgo. Just return an not implemented 
-    render plain: "Single item renew is not implemented", status: :not_implemented
+    begin 
+      render xml: V2::Request.renew_item(params[:computingId], params[:checkoutKey])
+    rescue Exception => e  
+      render plain: e.message, status: :bad_request
+    end
   end
 
   def hold

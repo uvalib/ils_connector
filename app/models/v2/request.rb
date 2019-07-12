@@ -1,9 +1,35 @@
 class V2::Request < SirsiBase
    base_uri env_credential(:sirsi_web_services_base)
 
-   def self.renew_all(computing_id)
-      renew_cnt = 0
-      error = ""
+   def self.renew_item(computing_id, item_id)
+      user_barcode = get_user_barcode(computing_id)
+      if user_barcode.blank? 
+         raise "User #{computing_id} not found"
+      end
+
+      ensure_login do
+         # Now use barcode to call old API lookupPatronInfo
+         response = get("/rest/patron/lookupPatronInfo?includePatronCheckoutInfo=ALL&userID=#{user_barcode}",
+            headers: auth_headers
+         )
+
+         # iterate checked out items and issue a renew call for the item that 
+         # matches the passed item_id
+         response["patronCheckoutInfo"].each do |co| 
+            if co['titleKey'] == item_id 
+               payload = { itemBarcode: barcode }
+               return post("/v1/circulation/circRecord/renew",
+                  body: payload,
+                  headers: auth_headers
+               )
+            end
+         end
+      end
+
+      raise "User #{computing_id}, item #{item_id} not found"
+   end
+
+   def self.get_user_barcode(computing_id)
       ensure_login do
          # FIRST get the user barcode from computingID
          Rails.logger.info "Lookup user barcode for #{computing_id}"
@@ -22,7 +48,22 @@ class V2::Request < SirsiBase
           end
           user_barcode = results.first['fields']['barcode']
           Rails.logger.info "User #{computing_id} barcode is #{user_barcode}"
+          return user_barcode
+      end
+      return nil
+   end
 
+   # Renew all checkouts for a user. Returns the renewed count or raises and exception for failures
+   def self.renew_all(computing_id)
+      # FIRST get the user barcode from computingID
+      user_barcode = get_user_barcode(computing_id)
+      if user_barcode.blank? 
+         raise "User #{computing_id} not found"
+      end
+
+      renew_cnt = 0
+      error = ""
+      ensure_login do
          # Now use barcode to call old API lookupPatronInfo
          response = get("/rest/patron/lookupPatronInfo?includePatronCheckoutInfo=ALL&userID=#{user_barcode}",
             headers: auth_headers
