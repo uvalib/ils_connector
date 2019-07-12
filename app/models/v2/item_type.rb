@@ -14,6 +14,7 @@ class V2::ItemType < SirsiBase
       @@items << i['fields']
     end
     @@holdable ||= get_holdable
+    @@items
   end
 
   def self.get_holdable 
