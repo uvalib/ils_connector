@@ -21,6 +21,10 @@ class V2::RequestsController < V2ApplicationController
   end
 
   def hold
+    # @FormParam("computingId")        String computingId,
+    # @FormParam("catalogId") 	     String catalogId,
+    # @FormParam("pickupLibraryId") 	 String libraryId,
+    # @FormParam("callNumber")    	 String callNumber)
   end
 
 

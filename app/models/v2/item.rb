@@ -178,9 +178,12 @@ class V2::Item < SirsiBase
     # If all the call numbers are the same for all the holdings
     # Ability(String name, String value, int message_code, String message)
     out = {}
+    Raila.logger.info("Can #{item.to_json} be held?")
     if same_call_numbers(item) 
       call_num = item['CallInfo'].first['callNumber']
+      Rails.logger.info "All holdings have same call number #{call_num}"
       if get_holdable_holding(item, call_num).nil?
+        Rails.logger.info "#{call_num} has no holdable holdings"
         return {name: "hold", value: "no", code: 3, message: "This item is not eligible for holds or recalls."}
       elsif locally_available?(item, call_num)
         return {name: "hold", value: "no", code: 1, message: "A copy of this item is currently available."}
@@ -188,9 +191,10 @@ class V2::Item < SirsiBase
         return {name: "hold", value: "yes", code: 2, message: "Yes this catalog item can be held." }
       end
     else  
+      Rails.logger.info "Item has different call numbers"
       item['CallInfo'].each do |h|
         if is_holdable?(h) && !locally_available?(item, h["callNumber"] )
-          return {name: "hold", value: "maybe", code: 4, message: "This item is not eligible for holds or recalls."}
+          return {name: "hold", value: "maybe", code: 4, message: "Some specific holdings can be held or recalled."}
         end
       end
       return {name: "hold", value: "no", code: 3, message: "This item is not eligible for holds or recalls."}
