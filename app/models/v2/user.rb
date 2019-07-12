@@ -41,7 +41,7 @@ class V2::User < SirsiBase
     includePatronInfo: true,
     includePatronStatusInfo: true,
     includeUserSuspensionInfo: true,
-    includePatronHoldInfo: 'ACTIVE',
+    includePatronHoldInfo: 'ALL',
     includePatronFeeInfo: true,
     includeGroupInfo: true,
     includePatronCheckoutHistoryInfo: true

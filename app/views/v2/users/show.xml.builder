@@ -32,5 +32,10 @@ xml.user computingId: @user[:alternateID], sirsiId: @user[:barcode], key: @user[
     render partial: 'circ_record', locals: {builder: xml, circ_record: circ_record}
   end
 
-  #Holds next
+  @user['patronHoldInfo'].each do |hold|
+    render partial: 'v2/holds/show', locals: {builder: xml, hold: hold}
+  end
+
+
+
 end
