@@ -5,6 +5,7 @@ class V2::CircRecord < SirsiBase
       response = get("/v1/circulation/circRecord/key/#{id}",
                       headers: self.auth_headers
                     )
+      response.parsed_body
 
     end
   end
