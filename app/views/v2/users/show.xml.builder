@@ -32,5 +32,5 @@ xml.user computingId: @user[:alternateID], sirsiId: @user[:barcode], key: @user[
     render partial: 'circ_record', locals: {builder: xml, circ_record: circ_record}
   end
 
-xml.firehose @user.to_s
+  #Holds next
 end
