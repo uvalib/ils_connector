@@ -26,9 +26,9 @@ builder.checkout do
   end
   builder.circulationRule nil
   builder.dateCharged circ_record['checkoutDate']
-  builder.dueDate circ_record['dueDate']
-  builder.dateRecalled circ_record['recallDate']
-  builder.dateRenewed circ_record['lastRenewedDate']
+  builder.dueDate circ_record['dueDate'] || '1900-01-01T00:00:00-05:00'
+  builder.dateRecalled circ_record['recallDate'] || '1900-01-01T00:00:00-05:00'
+  builder.dateRenewed circ_record['lastRenewedDate'] || '1900-01-01T00:00:00-05:00'
   builder.key nil
   builder.numberOverdueNotices circ_record['overdueNoticesSent']
   builder.numberRecallNotices circ_record['recallNoticesSent']
