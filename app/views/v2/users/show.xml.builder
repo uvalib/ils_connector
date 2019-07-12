@@ -9,13 +9,13 @@ xml.user computingId: @user[:alternateID], sirsiId: @user[:barcode], key: @user[
   xml.givenName @user[:first_name]
   xml.initials @user[:initials]
   xml.surName @user[:last_name]
-  xml.title @user[:profile][:title]
+  xml.title @user[:title].try(:first)
   xml.libraryGroup 0
   xml.organizationalUnit @user[:department].try(:first)
   xml.physicalDelivery @user[:office].try(:first)
   xml.pin @user[:pin]
   xml.preferredlanguage 1
-  xml.profile @user[:profile][:key]
+  xml.profile @user[:profile][:key].titleize
   xml.statusId nil
   xml.totalCheckouts @user['patronCirculationInfo']['numberOfCheckouts']
   # user with holds: 115680605
