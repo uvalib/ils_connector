@@ -5,7 +5,8 @@ xml.catalogItem key: @item['titleID'] do
 
   @item['CallInfo'].each_with_index do |holding, idx|
     xml.holding callNumber: holding['callNumber'], callSequence: idx+1, 
-                holdable: V2::Item.is_holdable?(holding), shadowed:  V2::Item.is_holding_shadowed?(holding) do
+                holdable: V2::Item.is_holdable?(@item['TitleAvailabilityInfo'], holding), 
+                shadowed:  V2::Item.is_holding_shadowed?(holding) do
       xml.catalogKey @item['titleID']
 
       holding['ItemInfo'].each_with_index do |copy, cpy_idx|

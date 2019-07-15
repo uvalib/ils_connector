@@ -107,7 +107,7 @@ class V2::Item < SirsiBase
   end
 
   #  Returns true only if there is an item can can be held, and if no copies are available.
-  def self.is_holdable?(holding)
+  def self.is_holdable?(title_availability, holding)
     if is_holding_shadowed?(holding)
       Rails.logger.info "Holding is not holdable because it is shadowed"
       return false 
@@ -139,7 +139,7 @@ class V2::Item < SirsiBase
       end
 
       item_holdable =  V2::ItemType.holdable?( item_type['policyNumber'] )
-      if curr_loc['holdable'] && item_holdable #&& CIRCULATE != NO FIXME
+      if curr_loc['holdable'] && item_holdable && circulate?(title_availability, cpy)
         has_holdable_item = true
       end
       if curr_loc['onShelf'] || !item_holdable
@@ -197,7 +197,7 @@ class V2::Item < SirsiBase
     else  
       Rails.logger.info "Item has different call numbers"
       item['CallInfo'].each do |h|
-        if is_holdable?(h) && !locally_available?(item, h["callNumber"] )
+        if is_holdable?(item['TitleAvailabilityInfo'], h) && !locally_available?(item, h["callNumber"] )
           return {name: "hold", value: "maybe", code: 4, message: "Some specific holdings can be held or recalled."}
         end
       end
@@ -211,8 +211,8 @@ class V2::Item < SirsiBase
     item['CallInfo'].each do |h|
       next if h["callNumber"] != call_num 
       Rails.logger.info "#{h.to_json} matches #{call_num}. Is it holdable?"
-      if is_holdable?(h) 
-        Rails.logger.info "Yes; Holable holding found"
+      if is_holdable?(item['TitleAvailabilityInfo'], h) 
+        Rails.logger.info "Yes; Holdable holding found"
         return h
       end
     end
