@@ -6,7 +6,7 @@ class SirsiBase
 
   format :json
 
-  default_timeout 1
+  default_timeout 20
 
   # wrap api calls with this
   #

@@ -36,6 +36,26 @@ class V2::User < SirsiBase
 
   end
 
+  def self.check_pin barcode, pin
+    login_body = {'barcode' => barcode,
+             'password' => pin
+            }
+    response = post( "/v1/user/patron/authenticate",
+                    { body: login_body.to_json,
+                         headers: base_headers
+    })
+
+    if response.code == 200
+      return true
+    elsif response.code == 401
+      return false
+    else
+      raise 'Unexpected pin check response.'
+    end
+  end
+
+
+  private
 
   PATRON_INFO_PARAMS= {
     includePatronCheckoutInfo: 'ALL',
@@ -61,4 +81,5 @@ class V2::User < SirsiBase
       {}
     end
   end
+
 end

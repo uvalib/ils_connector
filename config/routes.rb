@@ -41,6 +41,7 @@ Rails.application.routes.draw do
           get :checkouts, action: :show
           get :holds, action: :show
           get :reserves, action: :show
+          get :check_pin
         end
       end
       resources :requests, path: '/request', only: [] do
