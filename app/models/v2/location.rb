@@ -12,6 +12,19 @@ class V2::Location < SirsiBase
     @@locations.find {|loc| loc['displayName'] == name }
   end
 
+  def self.get_library(id)
+    Rails.logger.info("Lookup library details for policy #{id}")
+    lib = {}
+    ensure_login do
+      libs = get("/v1/policy/library/simpleQuery?includeFields=*&policyNumber=#{id}",
+        headers: auth_headers
+      )
+      check_session(libs)
+      lib = libs.first
+    end
+    lib
+  end
+
  private
  def self.get_locations
    locations = []
