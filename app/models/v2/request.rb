@@ -12,6 +12,7 @@ class V2::Request < SirsiBase
          response = get("/rest/patron/lookupPatronInfo?includePatronCheckoutInfo=ALL&userID=#{user_barcode}",
             headers: auth_headers
          )
+         check_session(response)
 
          # iterate checked out items and issue a renew call for the item that 
          # matches the passed item_id

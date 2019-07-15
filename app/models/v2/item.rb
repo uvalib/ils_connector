@@ -21,6 +21,7 @@ class V2::Item < SirsiBase
                      query: OLD_REQUEST_PARAMS.merge(titleID: item_id),
                      headers: auth_headers
                     )
+      check_session(response)
       if response['TitleInfo'].present? && response['TitleInfo'].one? &&
           response['TitleInfo'].first['titleControlNumber'].present?
         data = response['TitleInfo'].first

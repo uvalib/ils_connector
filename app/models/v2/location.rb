@@ -20,6 +20,7 @@ class V2::Location < SirsiBase
                                 query: LOCATION_PARAMS,
                                 headers: auth_headers
                     )
+     check_session(locations)
      if locations.present?
        locations = locations.parsed_response.map {|l| l['fields']}
      end

@@ -8,6 +8,7 @@ class V2::ItemType < SirsiBase
               query: REQUEST_PARAMS,
               headers: auth_headers
     )
+    check_session(raw)
 
     @@items = []
     raw.each do |i|

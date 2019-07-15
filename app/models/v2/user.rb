@@ -11,8 +11,10 @@ class V2::User < SirsiBase
                                 query: REQUEST_PARAMS.merge(q: "ALT_ID:#{user_id}"),
                                 headers: self.auth_headers
                                )
+      check_session(response)
       results = response['result']
-      if results.none?
+
+      if results.nil? || results.none?
         Rails.logger.warn "User Not Found: #{user_id}"
         return nil
       end

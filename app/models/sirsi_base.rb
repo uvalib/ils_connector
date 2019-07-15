@@ -11,19 +11,26 @@ class SirsiBase
   # wrap api calls with this
   #
   def self.ensure_login
-    unless defined?(@@session_token)
-      login
-    end
-    yield
+    begin
+      if !defined?(@@session_token) || old_session?
+        login
+      end
+      yield
 
-  rescue => e
-    # catch a stale login?
-    # yield again to retry
-    Rails.logger.error e
-    return []
+    rescue => e
+      # catch a stale login?
+      if e.message == 'retry'
+        puts 'Retrying API call'
+        return yield
+      end
+
+      Rails.logger.error e
+      return []
+    end
   end
 
   def self.login
+    puts 'Logging in'
     login_body = {'login' => env_credential(:sirsi_user),
              'password' => env_credential(:sirsi_password)
             }
@@ -33,7 +40,7 @@ class SirsiBase
     })
 
     @@session_token = @@sirsi_user['sessionToken']
-    @@session_date = @@sirsi_user['date']
+    @@session_time = Time.now
   end
 
   def self.base_headers
@@ -46,6 +53,18 @@ class SirsiBase
 
   def self.auth_headers
     @@auth_headers = base_headers.merge({'x-sirs-sessionToken' => @@session_token})
+  end
+
+  def self.check_session response
+    if response.code == 401
+      puts 'Session timed out'
+      login
+      raise 'retry'
+    end
+  end
+
+  def self.old_session?
+    defined?(@@session_time) && (@@session_time < 1.hour.ago)
   end
 
 end
