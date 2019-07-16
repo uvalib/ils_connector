@@ -14,9 +14,12 @@ builder.course key: nil do
         builder.holding callNumber: reserve['callNumber'] do
           builder.catalogKey reserve['catalogKey']
           builder.copy barcode: reserve['itemID'] do
+            builder.currentLocation code: nil, id: nil do
+              builder.name ''
+            end
           end
+
           builder.itemId reserve['itemID']
-          builder.library nil
           builder.status nil
         end
       end
