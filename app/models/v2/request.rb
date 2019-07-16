@@ -56,7 +56,7 @@ class V2::Request < SirsiBase
          end
       end
 
-      raise "User #{computing_id}, item #{item_id} not found"
+      raise "User #{user_barcode}, item #{item_id} not found"
    end
 
    # Renew all checkouts for a user. Returns the renewed count or raises and exception for failures
@@ -74,7 +74,7 @@ class V2::Request < SirsiBase
          response["patronCheckoutInfo"].each do |co| 
             # get the barcode and use it to call POST /v1/circulation/circRecord/renew - params: "itemBarcode":"X032221008"
             barcode = co["itemID"]
-            Rails.logger.info "User #{computing_id} renewing #{barcode}"
+            Rails.logger.info "User #{user_barcode} renewing #{barcode}"
             payload = { itemBarcode: barcode }
             response = post("/v1/circulation/circRecord/renew",
                body: payload.to_json,
