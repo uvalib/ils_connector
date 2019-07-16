@@ -36,9 +36,9 @@ xml.user computingId: @user[:alternateID], sirsiId: @user[:barcode], key: @user[
     render partial: 'v2/holds/show', locals: {builder: xml, hold: hold}
   end
 
-  @user['courseReserves'].each do |course|
-    render partial: 'course_reserves', locals: {builder: xml, course: course}
-  end
+ @user['courseReserves'].each do |course|
+   render partial: 'course_reserves', locals: {builder: xml, course: course}
+ end
 
 
 

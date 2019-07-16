@@ -3,8 +3,8 @@ class V2::CourseReserve < SirsiBase
   def self.find user_barcode
     ensure_login do
       reserve_list = lookup_reserve_list(user_barcode)
-      if reserve_list.code != 200
-        return {}
+      if reserve_list.code != 200 || reserve_list['faultResponse'].present?
+        return {courseReserves: [], totalReserves: 0}
       end
 
       courses = []
@@ -41,7 +41,7 @@ class V2::CourseReserve < SirsiBase
     if response.code != 200 || response['faultResponse'].present?
       puts "Course lookup failed"
       puts response
-      return nil
+      return {reserveInfo: []}
     else
       return response
     end
