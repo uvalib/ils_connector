@@ -14,15 +14,11 @@ builder.course key: nil do
         builder.holding callNumber: reserve['callNumber'] do
           builder.catalogKey reserve['catalogKey']
           builder.copy barcode: reserve['itemID'] do
-            builder.currentLocation code: nil, id: nil do
-              builder.name ''
-            end
+            render(partial: '/v2/locations/show', locals: {builder: builder, type: "currentLocation", loc: V2::Location.find(reserve['currentLocation']) })
           end
 
           builder.itemId reserve['itemID']
-          builder.library code: nil, id: nil do
-            builder.name ''
-          end
+          render(partial: '/v2/lists/library', locals: {builder: builder, lib: V2::Library.find_by(code: reserve['library']) })
           builder.status nil
         end
       end

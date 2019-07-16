@@ -12,6 +12,9 @@ class V2::CourseReserve < SirsiBase
       reserve_list['reserveInfo'].each do |course|
          course_details = lookup_course(user_barcode, course['courseID'])
          if course_details.present?
+
+           course_details['reserveInfo'] = add_locations(course_details['reserveInfo'])
+
            courses << course_details
            total_reserves += course_details['totalHits']
          end
@@ -47,5 +50,20 @@ class V2::CourseReserve < SirsiBase
     end
   end
 
+  def self.add_locations reserve_list
+    reserve_list.map do |reserve|
+      holding = V2::Item.find(reserve['catalogKey'])
+      location_info = {}
 
+      holding['CallInfo'].each do |holding|
+        lib = holding['libraryID']
+        item = holding['ItemInfo'].find {|item| item['itemID'] == reserve['itemID']}
+        if item.present?
+          location_info = {'library' => lib, 'currentLocation' => item['currentLocationID']}
+          break
+        end
+      end
+      reserve.merge! location_info
+    end
+  end
 end
