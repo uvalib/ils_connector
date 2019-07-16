@@ -62,7 +62,6 @@ class V2::Request < SirsiBase
    # Renew all checkouts for a user. Returns the renewed count or raises and exception for failures
    def self.renew_all(user_barcode)
       renew_cnt = 0
-      error = ""
       ensure_login do
          # Use user_barcode to call old API lookupPatronInfo to get all checked out items
          response = get("/rest/patron/lookupPatronInfo?includePatronCheckoutInfo=ALL&userID=#{user_barcode}",
@@ -80,15 +79,8 @@ class V2::Request < SirsiBase
                body: payload.to_json,
                headers: auth_headers
             )
-            if response.code.to_i != 200 
-               error = response.body
-               break
-            end
             renew_cnt +=1
          end
-      end
-      if !error.blank?
-         raise error 
       end
       return renew_cnt
    end
