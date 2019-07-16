@@ -1,7 +1,7 @@
 active = hold['holdStatus'] == 2 ? true : false
-is_recall = hold['recallStatus'] == 'NO' ? false : true
+type = hold['recallStatus'] == 'NO' ? 'Hold' : 'Recall'
 
-builder.hold active: active, level: 'copy', type: is_recall do
+builder.hold active: active, level: 'copy', type: type do
   builder.catalogItem key: hold['titleKey'] do
     # most item info is not present in a hold
     builder.canHold nil
