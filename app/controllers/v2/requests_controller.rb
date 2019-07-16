@@ -51,7 +51,6 @@ class V2::RequestsController < V2ApplicationController
       render plain: "LibraryID #{lib_policy_id} not found", status: :bad_request
       return
     end
-    pickup_lib = {resource: lib_detail['resource'], key: lib_detail['key']}
 
     # Find item from catalogID
     catalog_id = params[:catalogId]
@@ -82,10 +81,10 @@ class V2::RequestsController < V2ApplicationController
       end
     end
     if item_barcode.blank? 
-      render plain: "Item #{call_num} not found", status: :bad_request
+      render plain: "Copy for #{call_num} not found", status: :bad_request
       return
     end
 
-    render plain: V2::Request.hold_item(user_barcode, pickup_lib, item_barcode)
+    render plain: V2::Request.hold_item(user_barcode, lib_detail["key"], item_barcode, call_num)
   end
 end

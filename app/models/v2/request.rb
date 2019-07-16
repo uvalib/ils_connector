@@ -20,16 +20,22 @@ class V2::Request < SirsiBase
       return nil
    end
 
-   def self.hold_item(user_barcode, pickup_lib, item_barcode )
-      # API: POST /v1/circulation/holdRecord/placeHold/
-      # Params: 
-      #    patronBarcode (lookup with get_user_barcode)
-      #    itemBarcode : lookup based on catalogID and/or callNumber
-      #    pickupLibrary REQUIRED -  "pickupLibrary": {"resource": "/policy/library", "key": "MAIN" }
-      #    holdType REQUIRED [TITLE, COPY] Holds are for a specific copy, so COPY for all
-      #    holdRange REQUIRED [SYSTEM, GROUP, LIBRARY] : guessing LIBRARY is the one
-      payload = {patronBarcode: user_barcode, itemBarcode: item_barcode, pickupLibrary: pickup_lib, holdType: "COPY", holdRange: "LIBRARY" }
-      return post("/v1/circulation/holdRecord/placeHold",
+   def self.hold_item(user_barcode, pickup_lib, call_number, item_barcode )
+      # API: POST /rest/request/createRequest
+      # Query Params: 
+      #    requestTypeID:  RECALL
+      #    userId: user barcode
+      #    itemID: barcode of item to request recall for
+      #    statusID: RECALL/HLD
+      #    callNumber: callnum
+      # The POST also requires a body. Example:
+      # { "requestEntry":[
+      #      {"entryID":"PICKUP_LIB","entryData":"ALDERMAN"},
+      #      {"engtryID":",VOLUME(S)","entryData":"A 67.18: FTEA 5-81"}
+      # ]}
+      payload = {entryID: "PICKUP_LIB", entryData: pickup_lib, engtryID: "VOLUME(S)", entryData: call_number}
+      qs = "requestTypeID=RECALL&statusID=RECALL/HLD&userID=#{user_barcode}&itemID=#{item_barcode}&callNumber=#{call_number}"
+      return post("/rest/request/createRequest?#{qs}",
          body: payload.to_json,
          headers: auth_headers
       )
