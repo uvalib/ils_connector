@@ -20,6 +20,9 @@ builder.course key: nil do
           end
 
           builder.itemId reserve['itemID']
+          builder.library code: nil, id: nil do
+            builder.name ''
+          end
           builder.status nil
         end
       end
