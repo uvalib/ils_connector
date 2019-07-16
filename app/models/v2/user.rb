@@ -31,6 +31,8 @@ class V2::User < SirsiBase
       #Lookup all CircRecords (Checkouts)
       data.merge! self.get_patron_info(data['barcode'])
 
+      data.merge! V2::CourseReserve.find(data['barcode'])
+
       data.with_indifferent_access
     end
 

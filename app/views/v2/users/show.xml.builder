@@ -23,7 +23,7 @@ xml.user computingId: @user[:alternateID], sirsiId: @user[:barcode], key: @user[
   xml.totalOverdue @user['patronCirculationInfo']['estimatedOverdues']
   xml.totalRecalls 0
   # reserve example user: 391414679
-  xml.totalReserves 0
+  xml.totalReserves  @user['totalReserves']
   xml.userCats nil
 
 
@@ -34,6 +34,10 @@ xml.user computingId: @user[:alternateID], sirsiId: @user[:barcode], key: @user[
 
   @user['patronHoldInfo'].each do |hold|
     render partial: 'v2/holds/show', locals: {builder: xml, hold: hold}
+  end
+
+  @user['courseReserves'].each do |course|
+    render partial: 'course_reserves', locals: {builder: xml, course: course}
   end
 
 
