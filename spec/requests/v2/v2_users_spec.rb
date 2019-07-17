@@ -25,17 +25,14 @@ RSpec.describe "V2::Users", type: :request do
       attributes = user.attributes.keys
       expect(attributes).to include('computingId', 'sirsiId', 'key')
 
-      lib_field_count = user.children.length
-      expect(lib_field_count).to eq(user_fields.count)
+      # expect the base list of attributes to be present
+      # does not include checkouts holds or course_reserves
+      user_fields.each do |field|
+        node = user.at_css field
+        expect(node).to be_present
+        #expect(node.text).to be_present
+      end
 
-     user_fields.each do |field|
-       node = user.at_css field
-       expect(node).to be_present
-       #expect(node.text).to be_present
-     end
-
-      v2_field_names = user.children.map(&:name)
-      expect( v2_field_names ).to match_array(user_fields)
 
     end
 
