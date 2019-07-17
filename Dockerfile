@@ -21,7 +21,7 @@ WORKDIR $APP_HOME
 ADD Gemfile Gemfile.lock .ruby-gemset ./
 RUN rm -rf tmp/cache/*
 
-RUN bundle install --jobs=4 --without=["development" "test"] --no-cache
+RUN bundle install --jobs=4 --without=["development" "test"] --no-cache --force
 
 # install the app and bundle
 COPY . $APP_HOME
