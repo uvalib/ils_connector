@@ -247,7 +247,7 @@ class V2::Item < SirsiBase
         if curr_loc.blank? 
           next
         end
-        item_type = V2::ItemType.find("displayName", cpy['itemTypeID'])
+        item_type = V2::ItemType.find("displayName", copy['itemTypeID'])
         if item_type.blank?
           next
         end
