@@ -21,7 +21,7 @@ xml.user computingId: @user[:alternateID], sirsiId: @user[:barcode], key: @user[
   # user with holds: 115680605
   xml.totalHolds @user['patronCirculationInfo']['numberOfHolds']
   xml.totalOverdue @user['patronCirculationInfo']['estimatedOverdues']
-  xml.totalRecalls 0
+  xml.totalRecalls @user['patronCirculationInfo']['numberOfRecalls']
   # reserve example user: 391414679
   xml.totalReserves  @user['totalReserves']
   xml.userCats nil

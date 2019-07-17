@@ -31,6 +31,8 @@ class V2::User < SirsiBase
       #Lookup all CircRecords (Checkouts)
       data.merge! self.get_patron_info(data['barcode'])
 
+      data['patronCirculationInfo'].merge! recall_count(data['patronCheckoutInfo'])
+
       data.merge! V2::CourseReserve.find(data['barcode'])
 
       data.with_indifferent_access
@@ -83,5 +85,14 @@ class V2::User < SirsiBase
       {}
     end
   end
+
+  def self.recall_count checkouts
+    count = 0
+    checkouts.each do |checkout|
+      count += 1 if checkout['recallDate'].present?
+    end
+    {numberOfRecalls: count}
+  end
+
 
 end
