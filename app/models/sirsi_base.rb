@@ -34,11 +34,11 @@ class SirsiBase
     login_body = {'login' => env_credential(:sirsi_user),
              'password' => env_credential(:sirsi_password)
             }
-    @@sirsi_user = get( "/rest/security/loginUser",
-                       { query: login_body,
-                         headers: base_headers
-    })
+    @@sirsi_user = post( "/v1/user/staff/login",
+                        body: login_body.to_json,
+                        headers: base_headers )
 
+    @@staffKey = @@sirsi_user['staffKey']
     @@session_token = @@sirsi_user['sessionToken']
     @@session_time = Time.now
   end
@@ -65,6 +65,13 @@ class SirsiBase
 
   def self.old_session?
     defined?(@@session_time) && (@@session_time < 1.hour.ago)
+  end
+
+  # used for healthcheck.
+  def self.account_info
+    ensure_login do
+      get("/v1/user/staff/key/#{@@staffKey}", headers: auth_headers)
+    end
   end
 
 end

@@ -15,10 +15,10 @@ class HealthcheckController < ApplicationController
   # the response
   class HealthCheckResponse
 
-    attr_accessor :database
+    attr_accessor :sirsi_connection
 
     def is_healthy?
-      database.healthy
+      @sirsi_connection.healthy
     end
   end
 
@@ -35,16 +35,23 @@ class HealthcheckController < ApplicationController
   def get_health_status
     status = {}
 
-    # check the database
-    connected = ActiveRecord::Base.connection_pool.with_connection { |con| con.active? }  rescue false
-    status[ :database ] = Health.new( connected, connected ? '' : 'Database connection error' )
+    # no database
+    #connected = ActiveRecord::Base.connection_pool.with_connection { |con| con.active? }  rescue false
+    #status[ :database ] = Health.new( connected, connected ? '' : 'Database connection error' )
 
+    sirsi_response = V2::SirsiBase.account_info
+    health = if sirsi_response.code == 200
+               Health.new(true, '')
+             else
+               Health.new(false, "Sirsi API Error: #{sirsi_response.code} - #{sirsi_response.body}")
+             end
+    status[:sirsi_connection] = health
     return( status )
   end
 
   def make_response( health_status )
     r = HealthCheckResponse.new
-    r.database = health_status[ :database ]
+    r.sirsi_connection = health_status[ :sirsi_connection ]
 
     return( r )
   end
