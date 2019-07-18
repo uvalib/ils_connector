@@ -1,13 +1,22 @@
-# This file is copied to spec/ when you run 'rails generate rspec:install'
 require 'spec_helper'
 ENV['RAILS_ENV'] ||= 'test'
 require File.expand_path('../../config/environment', __FILE__)
+# Remove the ActiveRecord constant, because it is autloaded by
+# ActiveStorage and not needed for our application. The presence
+# of the ActiveRecord constant causes rspec-rails to include
+# extra fixture support, which results in:
+#
+#   ActiveRecord::ConnectionNotEstablished:
+#     No connection pool with 'primary' found.
+#
+Object.send(:remove_const, :ActiveRecord)
+
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?
 require 'rspec/rails'
 # Add additional requires below this line. Rails is not loaded until this point!
 
-require 'devise/jwt/test_helpers'
+#require 'devise/jwt/test_helpers'
 require 'equivalent-xml'
 
 # configure shoulda matchers to use rspec as the test framework and full matcher libraries for rails
@@ -35,30 +44,30 @@ end
 
 # Checks for pending migrations and applies them before tests are run.
 # If you are not using ActiveRecord, you can remove this line.
-ActiveRecord::Migration.maintain_test_schema!
+#ActiveRecord::Migration.maintain_test_schema!
 
 Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 
 RSpec.configure do |config|
   # add `FactoryBot` methods
-  config.include FactoryBot::Syntax::Methods
+  #config.include FactoryBot::Syntax::Methods
 
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
   # examples within a transaction, remove the following line or assign false
   # instead of true.
-  config.use_transactional_fixtures = false
+  #config.use_transactional_fixtures = false
 
-  # Clean up the db after each run
-  config.before(:suite) do
-    DatabaseCleaner.strategy = :transaction
-    DatabaseCleaner.clean_with(:truncation)
-  end
+  ## Clean up the db after each run
+  #config.before(:suite) do
+  #  DatabaseCleaner.strategy = :transaction
+  #  DatabaseCleaner.clean_with(:truncation)
+  #end
 
-  config.around(:each) do |example|
-    DatabaseCleaner.cleaning do
-      example.run
-    end
-  end
+  #config.around(:each) do |example|
+  #  DatabaseCleaner.cleaning do
+  #    example.run
+  #  end
+  #end
 
   # RSpec Rails can automatically mix in different behaviours to your tests
   # based on their file location, for example enabling you to call `get` and
@@ -82,6 +91,7 @@ RSpec.configure do |config|
 
   config.include Requests::JsonHelpers, type: :request
 
-  config.include Devise::Test::IntegrationHelpers, type: :controller
-  config.include Devise::Test::IntegrationHelpers, type: :request
+# config.include Devise::Test::IntegrationHelpers, type: :controller
+# config.include Devise::Test::IntegrationHelpers, type: :request
 end
+

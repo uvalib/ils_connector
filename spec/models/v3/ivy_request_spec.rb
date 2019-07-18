@@ -2,6 +2,8 @@ require 'rails_helper'
 
 RSpec.describe V3::IvyRequest, type: :model do
 
+  before { skip }
+
   subject {build(:ivy_request)}
 
   it "is valid with valid attributes" do

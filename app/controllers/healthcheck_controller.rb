@@ -39,7 +39,7 @@ class HealthcheckController < ApplicationController
     #connected = ActiveRecord::Base.connection_pool.with_connection { |con| con.active? }  rescue false
     #status[ :database ] = Health.new( connected, connected ? '' : 'Database connection error' )
 
-    sirsi_response = V2::SirsiBase.account_info
+    sirsi_response = SirsiBase.account_info
     health = if sirsi_response.code == 200
                Health.new(true, '')
              else

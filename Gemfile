@@ -49,8 +49,6 @@ group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
 
-  gem 'sqlite3', '~> 1.4'
-
   # compares hashes. Used when comparing firehose responses to V2
   gem 'hashdiff'
   # compare xml
@@ -59,17 +57,16 @@ end
 
 group :production do
   # Mysql for intermediate data
-  gem 'mysql2'
+  # Not used
+  #gem 'mysql2'
 end
 
 group :test do
   gem 'rspec-rails'
-  gem 'rspec_api_documentation'
-  gem 'rspec-sidekiq'
-  gem 'factory_bot_rails'
+  #gem 'factory_bot_rails'
   gem 'shoulda-matchers'
   gem 'faker'
-  gem 'database_cleaner'
+  #gem 'database_cleaner'
 end
 
 group :development do

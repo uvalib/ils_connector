@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe V3::IvyRequestsController, type: :request do
+  before { skip }
   before do
     @user = create :api_user
     sign_in @user

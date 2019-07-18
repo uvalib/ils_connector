@@ -1,7 +1,8 @@
 Rails.application.routes.draw do
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
-  devise_for :api_users, defaults: {format: :json}, controllers: {sessions: 'api_users/sessions'}
+  # Not used - db removed for now
+  # devise_for :api_users, defaults: {format: :json}, controllers: {sessions: 'api_users/sessions'}
 
   defaults format: :xml do
     namespace :v1 do
@@ -56,9 +57,9 @@ Rails.application.routes.draw do
 
 
     # TODO
-    namespace :v3 do
-      resources :ivy_requests, only: [:create, :index]
-    end
+    #namespace :v3 do
+    #  resources :ivy_requests, only: [:create, :index]
+    #end
   end #format to xml
 
   resources :healthcheck, only: [ :index ]
