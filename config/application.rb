@@ -26,8 +26,9 @@ module IlsConnector
 
     ActiveModelSerializers.config.adapter = :json
 
-    config.active_job.queue_adapter = :sidekiq
+    #config.active_job.queue_adapter = :sidekiq
 
+    config.require_master_key = true
 
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration can go into files in config/initializers
@@ -47,5 +48,5 @@ end
 
 # Provides the credential value for a given key scoped to the current rails environment
 def env_credential key
-  Rails.application.credentials[Rails.env.to_sym][key.to_sym]
+    Rails.application.credentials[Rails.env.to_sym][key.to_sym]
 end
