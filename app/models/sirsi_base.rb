@@ -20,7 +20,7 @@ class SirsiBase
     rescue => e
       # catch a stale login?
       if e.message == 'retry'
-        puts 'Retrying API call'
+        Rails.logger.warn 'Retrying API call'
         return yield
       end
 
@@ -30,7 +30,7 @@ class SirsiBase
   end
 
   def self.login
-    puts 'Logging in'
+    Rails.logger.info 'Logging in'
     login_body = {'login' => env_credential(:sirsi_user),
              'password' => env_credential(:sirsi_password)
             }
@@ -57,7 +57,7 @@ class SirsiBase
 
   def self.check_session response
     if response.code == 401
-      puts 'Session timed out'
+      Rails.logger.info 'Session timed out'
       login
       raise 'retry'
     end
