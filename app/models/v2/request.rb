@@ -3,7 +3,7 @@ class V2::Request < SirsiBase
 
    def self.get_user_barcode(computing_id)
       ensure_login do
-         Rails.logger.info "Lookup user barcode for #{computing_id}"
+         Rails.logger.debug "Lookup user barcode for #{computing_id}"
          data = {}.with_indifferent_access
          response = get("/v1/user/patron/search?q=ALT_ID:#{computing_id}&includeFields=barcode",
             headers: auth_headers
@@ -14,7 +14,7 @@ class V2::Request < SirsiBase
             return nil
           end
           user_barcode = results.first['fields']['barcode']
-          Rails.logger.info "User #{computing_id} barcode is #{user_barcode}"
+          Rails.logger.debug "User #{computing_id} barcode is #{user_barcode}"
           return user_barcode
       end
       return nil
@@ -79,7 +79,7 @@ class V2::Request < SirsiBase
          response["patronCheckoutInfo"].each do |co| 
             # get the barcode and use it to call POST /v1/circulation/circRecord/renew - params: "itemBarcode":"X032221008"
             barcode = co["itemID"]
-            Rails.logger.info "User #{user_barcode} renewing #{barcode}"
+            Rails.logger.debug "User #{user_barcode} renewing #{barcode}"
             payload = { itemBarcode: barcode }
             response = post("/v1/circulation/circRecord/renew",
                body: payload.to_json,

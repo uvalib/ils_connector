@@ -111,12 +111,12 @@ class V2::Item < SirsiBase
   #  Returns true only if there is an item can can be held, and if no copies are available.
   def self.is_holdable?(title_availability, holding)
     if is_holding_shadowed?(holding)
-      Rails.logger.info "Holding is not holdable because it is shadowed"
-      return false 
+      Rails.logger.debug "Holding is not holdable because it is shadowed"
+      return false
     end
 
     lib = V2::Library.find_by(code: holding['libraryID'])
-    if lib.holdable == false 
+    if lib.holdable == false
       return false
     end
 
@@ -149,6 +149,7 @@ class V2::Item < SirsiBase
       end
     end
     return has_holdable_item == true && has_available_item == false
+
   end
 
   def self.is_current_periodical?(copy)
@@ -184,12 +185,12 @@ class V2::Item < SirsiBase
     # If all the call numbers are the same for all the holdings
     # Ability(String name, String value, int message_code, String message)
     out = {}
-    Rails.logger.info("Can #{item.to_json} be held?")
+    Rails.logger.debug("Can #{item.to_json} be held?")
     if same_call_numbers(item) 
       call_num = item['CallInfo'].first['callNumber']
-      Rails.logger.info "All holdings have same call number #{call_num}"
+      Rails.logger.debug "All holdings have same call number #{call_num}"
       if get_holdable_holding(item, call_num).nil?
-        Rails.logger.info "#{call_num} has no holdable holdings"
+        Rails.logger.debug "#{call_num} has no holdable holdings"
         return {name: "hold", value: "no", code: 3, message: "This item is not eligible for holds or recalls."}
       elsif locally_available?(item, call_num)
         return {name: "hold", value: "no", code: 1, message: "A copy of this item is currently available."}
@@ -197,7 +198,7 @@ class V2::Item < SirsiBase
         return {name: "hold", value: "yes", code: 2, message: "Yes this catalog item can be held." }
       end
     else  
-      Rails.logger.info "Item has different call numbers"
+      Rails.logger.debug "Item has different call numbers"
       item['CallInfo'].each do |h|
         if is_holdable?(item['TitleAvailabilityInfo'], h) && !locally_available?(item, h["callNumber"] )
           return {name: "hold", value: "maybe", code: 4, message: "Some specific holdings can be held or recalled."}
@@ -209,12 +210,12 @@ class V2::Item < SirsiBase
 
   # Get the first holding that matches the call num and is holdable
   def self.get_holdable_holding(item, call_num) 
-    Rails.logger.info "GetHoldableHolding for #{call_num}"
+    Rails.logger.debug "GetHoldableHolding for #{call_num}"
     item['CallInfo'].each do |h|
       next if h["callNumber"] != call_num 
-      Rails.logger.info "#{h.to_json} matches #{call_num}. Is it holdable?"
+      Rails.logger.debug "#{h.to_json} matches #{call_num}. Is it holdable?"
       if is_holdable?(item['TitleAvailabilityInfo'], h) 
-        Rails.logger.info "Yes; Holdable holding found"
+        Rails.logger.debug "Yes; Holdable holding found"
         return h
       end
     end

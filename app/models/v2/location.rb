@@ -13,7 +13,7 @@ class V2::Location < SirsiBase
   end
 
   def self.get_library(id)
-    Rails.logger.info("Lookup library details for policy #{id}")
+    Rails.logger.debug("Lookup library details for policy #{id}")
     lib = {}
     ensure_login do
       libs = get("/v1/policy/library/simpleQuery?includeFields=*&policyNumber=#{id}",

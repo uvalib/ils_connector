@@ -30,7 +30,7 @@ class SirsiBase
   end
 
   def self.login
-    Rails.logger.info 'Logging in'
+    Rails.logger.info 'Sirsi logging in'
     login_body = {'login' => env_credential(:sirsi_user),
              'password' => env_credential(:sirsi_password)
             }
@@ -57,7 +57,7 @@ class SirsiBase
 
   def self.check_session response
     if response.code == 401
-      Rails.logger.info 'Session timed out'
+      Rails.logger.info 'Sirsi session timed out'
       login
       raise 'retry'
     end
