@@ -1,5 +1,6 @@
 class SirsiBase
   # TODO: add caching https://www.codementor.io/ruby-on-rails/tutorial/how-to-build-a-robust-json-api-client-with-ruby-httparty
+  require 'benchmark'
 
   include HTTParty
   base_uri env_credential(:sirsi_web_services_base)
@@ -15,7 +16,13 @@ class SirsiBase
       if !defined?(@@session_token) || old_session?
         login
       end
-      yield
+
+      response = nil
+      time = Benchmark.realtime do
+        response = yield
+      end
+      Rails.logger.info "Sirsi Response: #{time * 1000}ms"
+      return response
 
     rescue => e
       # catch a stale login?
