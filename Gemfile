@@ -34,6 +34,8 @@ gem 'activemodel-serializers-xml'
 # State machine: https://github.com/aasm/aasm
 gem 'aasm'
 
+gem "lograge"
+
 # Use Redis adapter to run Action Cable in production
 # gem 'redis', '~> 3.0'
 # Use ActiveModel has_secure_password
