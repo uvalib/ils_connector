@@ -11,7 +11,7 @@ class V2::UserLDAP < V2
     if response.success?
       return response['user']
     else
-      raise "LDAP query failed: #{response.message}"
+      return {}
     end
 
   end
