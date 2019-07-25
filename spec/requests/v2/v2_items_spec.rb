@@ -11,8 +11,8 @@ RSpec.describe "V2::Items", type: :request do
       expect(response).to have_http_status(200)
     end
 
-    it 'matches the firehose response' do
-      firehose_response = V1::Item.new(item_id).as_json
+    it 'contains the correct values' do
+      #firehose_response = V1::Item.new(item_id).as_json
 
       v2_response = Hash.from_xml response.body
 
