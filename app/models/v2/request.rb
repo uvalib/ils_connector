@@ -8,6 +8,7 @@ class V2::Request < SirsiBase
          response = get("/v1/user/patron/search?q=ALT_ID:#{computing_id}&includeFields=barcode",
             headers: auth_headers
          )
+         check_session(response)
          results = response['result']
          if results.none?
             Rails.logger.warn "User Not Found: #{user_id}"
@@ -31,12 +32,22 @@ class V2::Request < SirsiBase
       # The POST also requires a body. Example:
       # { "requestEntry":[
       #      {"entryID":"PICKUP_LIB","entryData":"ALDERMAN"},
-      #      {"engtryID":",VOLUME(S)","entryData":"A 67.18: FTEA 5-81"}
+      #      {"entryID":",VOLUME(S)","entryData":"A 67.18: FTEA 5-81"}
       # ]}
-      payload = {entryID: "PICKUP_LIB", entryData: pickup_lib, engtryID: "VOLUME(S)", entryData: call_number}
-      qs = "requestTypeID=RECALL&statusID=RECALL/HLD&userID=#{user_barcode}&itemID=#{item_barcode}&callNumber=#{call_number}"
-      return post("/rest/request/createRequest?#{qs}",
-         body: payload.to_json,
+
+      qs = {requestTypeID: 'RECALL',
+        statusID: 'RECALL/HLD',
+        userID: user_barcode,
+        itemID: item_barcode,
+        entryID1: 'PICKUP_LIB',
+        entryData1: pickup_lib,
+        entryID2: 'VOLUME(S)',
+        entryData2: call_number
+      }
+
+      Rails.logger.debug "HOLD query: #{qs}"
+      return post("/rest/request/createRequest",
+                  query: qs,
          headers: auth_headers
       )
    end

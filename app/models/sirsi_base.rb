@@ -3,6 +3,7 @@ class SirsiBase
   require 'benchmark'
 
   include HTTParty
+  logger Rails.logger, :info
   base_uri env_credential(:sirsi_web_services_base)
 
   format :json

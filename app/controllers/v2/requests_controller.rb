@@ -46,8 +46,8 @@ class V2::RequestsController < V2ApplicationController
 
     # Lookup libray details based in policyID
     lib_policy_id = params[:pickupLibraryId]
-    lib_detail = V2::Location.get_library(lib_policy_id)
-    if lib_detail.blank? 
+    lib_detail = V2::Library.find_by id: lib_policy_id.to_i
+    if lib_detail.blank?
       render plain: "LibraryID #{lib_policy_id} not found", status: :bad_request
       return
     end
@@ -56,7 +56,7 @@ class V2::RequestsController < V2ApplicationController
     catalog_id = params[:catalogId]
     call_num = params[:callNumber]
     item = V2::Item.find(catalog_id)
-    if lib_detail.blank? 
+    if item.blank?
       render plain: "CatalogID #{catalog_id} not found", status: :bad_request
       return
     end
@@ -80,11 +80,11 @@ class V2::RequestsController < V2ApplicationController
         end
       end
     end
-    if item_barcode.blank? 
+    if item_barcode.blank?
       render plain: "Copy for #{call_num} not found", status: :bad_request
       return
     end
-                                      
-    render plain: V2::Request.hold_item(user_barcode, lib_detail["key"], call_num, item_barcode)
+
+    render plain: V2::Request.hold_item(user_barcode, lib_detail.code, call_num, item_barcode)
   end
 end
