@@ -95,7 +95,7 @@ class V2::Item < SirsiBase
     if copy['homeLocationID'] == "RSRVSHADOW"
       return curr_loc['shadowed']
     end
-    return curr_loc["shadowed"] || home_loc["shadowed"]
+    return curr_loc["shadowed"]
   end
 
   def self.circulate?(title_availability, copy)
