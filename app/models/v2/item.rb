@@ -12,7 +12,7 @@ class V2::Item < SirsiBase
   ## rest/standard/lookupTitleInfo?titleID=752166&includeItemInfo=true&includeCatalogingInfo=true
   #       &includeAvailabilityInfo=true&includeFields=*&includeShadowed=NONE
   OLD_REQUEST_PARAMS= { json: 'true', includeItemInfo: 'true', includeCatalogingInfo: 'true',
-                        includeAvailabilityInfo: 'true', includeFields: '*', includeShadowed: 'NONE'
+                        includeAvailabilityInfo: 'true', includeFields: '*', includeShadowed: 'BOTH'
   }
 
   def self.old_find item_id
