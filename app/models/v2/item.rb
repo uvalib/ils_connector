@@ -1,6 +1,6 @@
 class V2::Item < SirsiBase
   base_uri env_credential(:sirsi_web_services_base)
-  default_timeout 1
+  default_timeout 5
 
   def self.find item_id
     old_find item_id
