@@ -112,6 +112,12 @@
   holdable: true
   deliverable: false
   remote: false
+- id: 21
+  code: JAG
+  name: JAG
+  holdable: true
+  deliverable: true
+  remote: false
 - id: 22
   code: LEO
   name: LEO
