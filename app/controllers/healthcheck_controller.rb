@@ -39,12 +39,21 @@ class HealthcheckController < ApplicationController
     #connected = ActiveRecord::Base.connection_pool.with_connection { |con| con.active? }  rescue false
     #status[ :database ] = Health.new( connected, connected ? '' : 'Database connection error' )
 
-    sirsi_response = SirsiBase.account_info
-    health = if sirsi_response.code == 200
-               Health.new(true, '')
-             else
-               Health.new(false, "Sirsi API Error: #{sirsi_response.code} - #{sirsi_response.body}")
-             end
+    health = nil
+    begin
+      sirsi_response = SirsiBase.account_info
+      if sirsi_response != []
+         health = if sirsi_response.code == 200
+                    Health.new(true, '')
+                  else
+                    Health.new(false, "Sirsi API Error: #{sirsi_response.code} - #{sirsi_response.body}")
+                  end
+      else
+        health = Health.new( false, "Error connecting to, or authenticating with Sirsi" )
+      end
+    rescue => ex
+      health = Health.new( false, "Error: #{ex.class}" )
+    end
     status[:sirsi_connection] = health
     return( status )
   end
