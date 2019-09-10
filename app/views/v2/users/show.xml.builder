@@ -1,8 +1,8 @@
 xml.instruct!
 xml.user computingId: @user[:alternateID], sirsiId: @user[:barcode], key: @user[:key] do
   xml.barred @user[:standing][:key] == 'BARRED'
-  xml.bursarred false
-  xml.delinquent false
+  xml.bursarred false # not used
+  xml.delinquent @user[:standing][:key] == 'DELINQUENT'
   xml.description @user[:description].try(:first)
   xml.displayName @user[:display_name]
   xml.email @user[:email]
