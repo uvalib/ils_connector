@@ -62,6 +62,12 @@ Rails.application.routes.draw do
     #end
   end #format to xml
 
+  defaults format: :json do
+    namespace :v4 do
+      resources :availability, only: [:show]
+    end
+  end # format to json
+
   resources :healthcheck, only: [ :index ]
   resources :version, only: [ :index ]
 
