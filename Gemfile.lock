@@ -91,7 +91,7 @@ GEM
       nokogiri (>= 1.4.3)
     erubi (1.8.0)
     etc (1.0.1)
-    faker (2.3.0)
+    faker (2.4.0)
       i18n (~> 1.6.0)
     ffi (1.11.1)
     globalid (0.4.2)
