@@ -29,7 +29,6 @@ gem 'puma', '~> 4.0'
 
 # JSON API
 gem 'active_model_serializers', '~> 0.10.0'
-gem 'activemodel-serializers-xml'
 
 # State machine: https://github.com/aasm/aasm
 gem 'aasm'

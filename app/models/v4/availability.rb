@@ -1,30 +1,41 @@
 class V4::Availability < SirsiBase
+  include ActiveModel::Serializers::JSON
   base_uri env_credential(:sirsi_web_services_base)
   default_timeout 5
 
-  # PLACEHOLDER BELOW - Copied from V2::Item
+  attr_accessor :title_id, :data, :holdings
 
-  def self.find item_id
-    old_find item_id
-
-    # new_find uses Sirsi's newer api, requires nested calls and is too slow
-    # new_find item_id
-  end
-
-  ## rest/standard/lookupTitleInfo?titleID=752166&includeItemInfo=true&includeCatalogingInfo=true
-  #       &includeAvailabilityInfo=true&includeFields=*&includeShadowed=NONE
-  OLD_REQUEST_PARAMS= { json: 'true', includeItemInfo: 'true', includeCatalogingInfo: 'true',
-                        includeAvailabilityInfo: 'true', includeFields: '*', includeShadowed: 'BOTH'
+  COLUMNS = {library: 'Library',
+             currentLocation: 'Current Location',
+             callNumber: 'Call Number',
+             available: "Availability"
   }
 
-  def self.old_find item_id
-    ensure_login do
-      data = {}.with_indifferent_access
-      response = get('/rest/standard/lookupTitleInfo',
-                     query: OLD_REQUEST_PARAMS.merge(titleID: item_id),
-                     headers: auth_headers
+  def initialize id
+    self.title_id = id
+    self.data = find
+    holdings = process_response
+
+  end
+  def self.model_name
+    'Availability'
+  end
+
+  REQUEST_PARAMS= { json: 'true', includeItemInfo: 'true',
+                    includeCatalogingInfo: 'true',
+                    includeAvailabilityInfo: 'true',
+                    includeFields: '*', includeShadowed: 'BOTH'
+  }
+
+
+  def find
+    self.class.ensure_login do
+      data = {}
+      response = self.class.get('/rest/standard/lookupTitleInfo',
+                     query: REQUEST_PARAMS.merge(titleID: title_id),
+                     headers: self.class.auth_headers
                     )
-      check_session(response)
+      self.class.check_session(response)
       if response['TitleInfo'].present? && response['TitleInfo'].one? &&
           response['TitleInfo'].first['titleControlNumber'].present?
         data = response['TitleInfo'].first
@@ -35,45 +46,25 @@ class V4::Availability < SirsiBase
     end
   end
 
-  def self.new_find item_id
-    ensure_login do
-      item = {}.with_indifferent_access
-      item["titleID"] = item_id
-      item["CallInfo"] = []
-      response = get("/v1/catalog/bib/key/#{item_id}?includeFields=callList,*",
-                     headers: auth_headers
-                    )
-      item["shadowed"] = response["fields"]["shadowed"]
-      response["fields"]["callList"].each do |cl|
-        key = cl["key"]
-        call_resp = get("/v1/catalog/call/key/#{key}?includeFields=itemList,*",
-                        headers: auth_headers
-                       )
-        holding = {}.with_indifferent_access
-        holding["callNumber"] = call_resp["fields"]["dispCallNumber"]
-        holding["shelvingKey"] = call_resp["fields"]["sortCallNumber"]
-        holding["shadowed"] = call_resp["fields"]["shadowed"]
-        holding["libraryID"] = call_resp["fields"]["library"]["key"]
-        holding["ItemInfo"] = []
+  def process_response
+    holding_data = data['CallInfo']
 
-        call_resp["fields"]["itemList"].each do |holding_copy|
-          copy_key = holding_copy["key"]
-          copy_resp = get("/v1/catalog/item/key/#{copy_key}",
-                          headers: auth_headers
-                         )
-          copy = {}.with_indifferent_access
-          copy["itemID"] = copy_resp["fields"]["barcode"]
-          copy["copyNumber"] = copy_resp["fields"]["copyNumber"]
-          copy["itemTypeID"] = copy_resp["fields"]["itemType"]["key"]
-          copy["shadowed"] = copy_resp["fields"]["shadowed"]
-          copy["chargeable"] = copy_resp["fields"]["circulate"]
-          copy["homeLocationID"] = copy_resp["fields"]["homeLocation"]["key"]
-          copy["currentLocationID"] = copy_resp["fields"]["currentLocation"]["key"]
-          holding["ItemInfo"] << copy
-        end
-        item["CallInfo"] << holding
-      end
-      item
+    self.holdings = holding_data.map do |holding|
+      fields = []
+      fields << field_data('Library', holding['libraryID'])
+      fields << field_data('Call Number', holding['callNumber'])
+      fields << field_data('Availability', 'n/a')
+      { id: holding['callNumber'],
+        fields: fields
+      }
     end
   end
+  def field_data name, value, visible=true, type='text'
+    {name: name,
+     value: value,
+     visible: visible,
+     type: type
+    }
+  end
+
 end

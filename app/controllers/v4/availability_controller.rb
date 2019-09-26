@@ -1,8 +1,10 @@
-class V4::ItemsController < V4ApplicationController
+class V4::AvailabilityController < V4ApplicationController
   def show
-   @item = V4::Item.find(item_params[:id])
+   @item = V4::Availability.new(item_params[:id])
    if @item.present? == false
      render plain: "Item #{item_params[:id]} is not found", status: :not_found
+   else
+     render json: @item
    end
   end
 
