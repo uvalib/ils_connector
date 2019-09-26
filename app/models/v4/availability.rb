@@ -5,11 +5,6 @@ class V4::Availability < SirsiBase
 
   attr_accessor :title_id, :data, :holdings
 
-  COLUMNS = {library: 'Library',
-             currentLocation: 'Current Location',
-             callNumber: 'Call Number',
-             available: "Availability"
-  }
 
   def initialize id
     self.title_id = id
@@ -46,6 +41,11 @@ class V4::Availability < SirsiBase
     end
   end
 
+  COLUMNS = {library: 'Library',
+#             currentLocation: 'Current Location',
+             callNumber: 'Call Number',
+             available: "Availability"
+  }.freeze
   def process_response
     holding_data = data['CallInfo']
 
