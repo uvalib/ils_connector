@@ -6,32 +6,34 @@ class V4::User < SirsiBase
       user = {}.with_indifferent_access
       ldap = V2::UserLDAP.find( user_id )
       if ldap.blank? 
-         Rails.logger.warn "User #{user_id} in LDAP"
+         Rails.logger.warn "User #{user_id} not in LDAP"
+         ensure_login do
+            response = get("/v1/user/patron/search?q=ALT_ID:#{user_id}&includeFields=barcode,displayName,profile", 
+               headers: self.auth_headers)
+            check_session(response)
+            results = response['result']
+            if results.nil? || results.none?
+               Rails.logger.warn "User Not Found: #{user_id}"
+               return nil
+            end
+            if results.many?
+               Rails.logger.warn "More than one user found: #{user_id}"
+               return nil
+            end
+            fields = results.first["fields"]
+            user['displayName'] = fields['displayName']
+            user['profile'] = fields['profile']['key']
+         end
       else
          user['id'] = ldap['cid']
          user['title'] = ldap['title'].first
+         user['department'] = ldap['department'].first
+         user['profile'] = ldap['description'].first
          user['address'] = ldap['office'].first
          user['email'] = ldap['email']
+         user['displayName'] = ldap['display_name']
       end
 
-      ensure_login do
-         response = get("/v1/user/patron/search?q=ALT_ID:#{user_id}&includeFields=barcode,displayName,profile", 
-            headers: self.auth_headers)
-         check_session(response)
-         results = response['result']
-         if results.nil? || results.none?
-            Rails.logger.warn "User Not Found: #{user_id}"
-            return nil
-         end
-         if results.many?
-            Rails.logger.warn "More than one user found: #{user_id}"
-            return nil
-         end
-         fields = results.first["fields"]
-         user['displayName'] = fields['displayName']
-         user['profile'] = fields['profile']['key']
-         user['barcode'] = fields['barcode']
-      end
       return user
    end
 
