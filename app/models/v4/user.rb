@@ -58,7 +58,7 @@ class V4::User < SirsiBase
          response = get("/rest/patron/lookupPatronInfo?userID=#{barcode}&includePatronCheckoutInfo=ALL&json=true", 
             headers: self.auth_headers)
          response["patronCheckoutInfo"].each do |co|
-            checkouts << {id: co['titleKey'], title: co['title'], callNumber: co['callNumber'], 
+            checkouts << {id: co['titleKey'], title: co['title'], author: co['author'], callNumber: co['callNumber'], 
                library: co['itemLibraryDescription'], due: co['dueDate']}
          end
       end
