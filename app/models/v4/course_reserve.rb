@@ -58,22 +58,26 @@ class V4::CourseReserve < SirsiBase
          end
          response = get(url, headers: self.auth_headers)
          check_session(response)
+         list = nil
          if type == "USER_NAME"
             out['userID'] =  response['userID']
-            out['userName'] =  response['userDisplayName']
+            out['userName'] =  response['userName']
+            out['courses'] = []
+            list = out['courses']
          else 
             out['courseID'] =  response['courseID']
             out['courseName'] =  response['courseName']   
+            out['instructors'] = []
+            list = out['instructors']
          end
-         out['reserves'] = []
          response['reserveInfo'].each do |info|
             if type == "USER_NAME"
-               out['reserves'] << { 
+               list << { 
                   'courseID': info['courseID'],
                   'courseName': info['courseName']
                } 
             else  
-               out['reserves'] << { 
+               list << { 
                   'userID': info['userID'],
                   'userName': info['userDisplayName']
                }
