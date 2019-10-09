@@ -28,7 +28,7 @@ class V4::CourseReserve < SirsiBase
             if type == "USER_NAME"
                out << { 
                   'userID': info['userID'],
-                  'userDisplayName': info['userDisplayName']
+                  'userName': info['userDisplayName']
                }
             else  
                out << { 
@@ -75,7 +75,7 @@ class V4::CourseReserve < SirsiBase
             else  
                out['reserves'] << { 
                   'userID': info['userID'],
-                  'userDisplayName': info['userDisplayName']
+                  'userName': info['userDisplayName']
                }
             end
          end
