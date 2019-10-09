@@ -37,11 +37,6 @@ class V4::User < SirsiBase
       return user
    end
 
-   # <titleKey>
-   # <callNumber>
-   # <title>
-   # <checkoutLibraryDescription>
-   # <dueDate>
    def self.get_checkouts(user_id) 
       checkouts = []
       ensure_login do

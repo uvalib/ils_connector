@@ -71,6 +71,14 @@ Rails.application.routes.draw do
           get :checkouts
         end
       end
+      resources :course_reserves, :only => [] do
+        collection do
+          get :desks
+          get :search
+          get :list
+          get :details
+        end
+      end
     end
   end # format to json
 
