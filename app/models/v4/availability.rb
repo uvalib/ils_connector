@@ -5,13 +5,14 @@ class V4::Availability < SirsiBase
 
   attr_accessor :title_id, :data, :holdings
 
-
   def initialize id
-    self.title_id = id
+    # remove leading u if present
+    self.title_id = id.gsub(/^u/, '')
     self.data = find
     holdings = process_response
-
   end
+
+  # used to name the root node in ActiveModel::Serializers
   def self.model_name
     'Availability'
   end
@@ -21,7 +22,6 @@ class V4::Availability < SirsiBase
                     includeAvailabilityInfo: 'true',
                     includeFields: '*', includeShadowed: 'BOTH'
   }
-
 
   def find
     self.class.ensure_login do
@@ -46,6 +46,7 @@ class V4::Availability < SirsiBase
              callNumber: 'Call Number',
              available: "Availability"
   }.freeze
+
   def process_response
     holding_data = data['CallInfo']
 
@@ -53,12 +54,13 @@ class V4::Availability < SirsiBase
       fields = []
       fields << field_data('Library', holding['libraryID'])
       fields << field_data('Call Number', holding['callNumber'])
-      fields << field_data('Availability', 'n/a')
+      fields << field_data('Availability', availability_string(holding))
       { id: holding['callNumber'],
         fields: fields
       }
     end
   end
+
   def field_data name, value, visible=true, type='text'
     {name: name,
      value: value,
@@ -67,4 +69,8 @@ class V4::Availability < SirsiBase
     }
   end
 
+  # Generate the availability string based on items inside a holding
+  def availability_string holding
+    'Coming soon'
+  end
 end
