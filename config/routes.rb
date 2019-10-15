@@ -75,8 +75,6 @@ Rails.application.routes.draw do
         collection do
           get :desks
           get :search
-          get :list
-          get :details
         end
       end
     end
