@@ -26,6 +26,10 @@ class V4::CourseReserve < SirsiBase
          response = get(url, headers: self.auth_headers)
          check_session(response)
          results = response['result']
+         if results.blank? 
+            Rails.logger.warn "NO results found for #{type}?#{query}"
+            return out
+         end
          results.each do |info|
             fields = info['fields']
             reserve_info = fields['itemReserveInfoList'].first['fields']
