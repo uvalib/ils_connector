@@ -1,6 +1,6 @@
 class V4::CourseReserve < SirsiBase
    base_uri env_credential(:sirsi_web_services_base)
-   default_timeout 5
+   default_timeout 10
 
    def self.get_reserve_desks() 
       desks = []
@@ -18,8 +18,10 @@ class V4::CourseReserve < SirsiBase
    def self.search(type, query)
       out = []
       valid_statuses = ["ON RESERVE", "NOT ON RESERVE", "PICKUP", "COLLECT"]
-      fields = ["reserveCollection", "circulationRule", "title", "author",
-         "course{courseID,name}", "instructor{name}", "itemReserveInfoList{*,item{call{callNumber}}}"]
+      bad_status = ["FLAGGED"]
+      fields = ["reserveCollection{description}", "circulationRule{displayName,loanPeriod}", 
+         "title", "author","course{courseID,name}", "instructor{name}", 
+         "itemReserveInfoList{reserveStatus,item{call{callNumber}}}"]
       ensure_login do
          fl = "includeFields=#{fields.join(',')}"
          url = "/reserves/reserve/search?q=#{type}:#{query}&#{fl}"
@@ -34,7 +36,7 @@ class V4::CourseReserve < SirsiBase
             fields = info['fields']
             reserve_info = fields['itemReserveInfoList'].first['fields']
             reserve_status = reserve_info['reserveStatus']['key'].upcase.strip
-            if valid_statuses.include?(reserve_status) == false
+            if bad_status.include?(reserve_status)
                next   
                Rails.logger.info "Skipping #{fields} because reserve status is #{reserve_status}"
             end
@@ -47,8 +49,9 @@ class V4::CourseReserve < SirsiBase
             item_data = reserve_info['item']
             item[:catalogKey] =  "u"+item_data['key'].split(":").first
             item[:callNumber] =  item_data['fields']['call']['fields']['callNumber']
-            item[:reserveDesk] = fields['reserveCollection']['key']
-            item[:circulationRule] = fields['circulationRule']['key']
+            item[:reserveDesk] = fields['reserveCollection']['fields']['description']
+            item[:circulationRule] = fields['circulationRule']['fields']["displayName"]
+            item[:loanPeriod] = fields['circulationRule']['fields']["loanPeriod"]["key"]
             item[:copies] = 1
 
             # build a heirarchy based on type
