@@ -1,10 +1,8 @@
 class V2::Location < SirsiBase
+  include Refreshable
   base_uri env_credential(:sirsi_web_services_base)
 
   LOCATION_PARAMS = {key: '*', includeFields: '*'}
-  REFRESH_INTERVAL = 1.day
-  REFRESH_TIME = '3am'
-  REFRESH_ZONE = 'Eastern Time (US & Canada)'
 
   def self.all
     @@locations = nil if time_to_refresh?
@@ -36,14 +34,9 @@ class V2::Location < SirsiBase
     #  end
      locations
    end
-   @@next_update = Time.parse(REFRESH_TIME).in_time_zone(REFRESH_ZONE) + REFRESH_INTERVAL
-   Rails.logger.info "Loaded locations. Next update: #{@@next_update}"
+   reset_refresh_timer
    locations
  end
 
- def self.time_to_refresh?
-   return true if !defined?(@@next_update)
-   Time.current.in_time_zone(REFRESH_ZONE) >= @@next_update
- end
 
 end
