@@ -3,13 +3,13 @@ class V4::Availability < SirsiBase
   base_uri env_credential(:sirsi_web_services_base)
   default_timeout 5
 
-  attr_accessor :title_id, :data, :holdings
+  attr_accessor :title_id, :data, :items
 
   def initialize id
     # remove leading u if present
     self.title_id = id.gsub(/^u/, '')
     self.data = find
-    holdings = process_response
+    self.items = process_response
   end
 
   # used to name the root node in ActiveModel::Serializers
@@ -41,36 +41,72 @@ class V4::Availability < SirsiBase
     end
   end
 
-  COLUMNS = {library: 'Library',
-#             currentLocation: 'Current Location',
-             callNumber: 'Call Number',
-             available: "Availability"
+  # This is a mapping of field labels to their method name
+  VISIBLE_FIELDS = {"Library" => :library,
+            'Current Location' => :current_location,
+            'Call Number' => :call_number,
+            'Availability' => :availability
   }.freeze
 
   def process_response
     holding_data = data['CallInfo']
 
-    self.holdings = holding_data.map do |holding|
-      fields = []
-      fields << field_data('Library', holding['libraryID'])
-      fields << field_data('Call Number', holding['callNumber'])
-      fields << field_data('Availability', availability_string(holding))
-      { id: holding['callNumber'],
-        fields: fields
-      }
+    items = []
+    holding_data.map do |holding|
+      holding['ItemInfo'].each do |item|
+
+        fields = []
+        VISIBLE_FIELDS.each do |label, method|
+          fields << field_data(label, send(method, holding, item) )
+        end
+
+        items << { call_number: holding['callNumber'],
+          barcode: item['itemID'],
+          on_shelf: on_shelf(holding, item),
+          fields: fields
+        }
+      end
     end
+    items
   end
 
   def field_data name, value, visible=true, type='text'
-    {name: name,
-     value: value,
-     visible: visible,
-     type: type
+    { name: name,
+      value: value,
+      visible: visible,
+      type: type
     }
   end
 
-  # Generate the availability string based on items inside a holding
-  def availability_string holding
-    'Coming soon'
+  # Field methods below
+
+  def library holding, item
+    lib = V4::Library.find holding["libraryID"]
+    lib.description if lib
   end
+
+  def current_location holding, item
+    loc = V4::Location.find item["currentLocationID"]
+    loc.description if loc
+  end
+
+  def call_number holding, item
+    holding["callNumber"]
+  end
+
+  def availability holding, item
+    if on_shelf(holding, item)
+      "On Shelf"
+    else
+      "By Request"
+    end
+  end
+
+  def on_shelf holding, item
+    current_location = V4::Location.find item["currentLocationID"]
+    current_location.on_shelf
+  end
+
+  # end field methods
+
 end

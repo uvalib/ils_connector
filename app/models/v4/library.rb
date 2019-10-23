@@ -17,14 +17,9 @@ class V4::Library < SirsiBase
     @@libraries ||= get_libraries
   end
 
-  def self.find_by **args
-    finders = [:id, :key]
-    k, v = args.first
-    if args.many? || !finders.include?(k)
-      raise 'invalid finder'
-    end
+  def self.find key
     all.find do |lib|
-      lib.send(k) == v
+      lib.key == key
     end
   end
 
