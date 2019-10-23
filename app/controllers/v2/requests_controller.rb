@@ -4,15 +4,15 @@ class V2::RequestsController < V2ApplicationController
   def renew_all
     computing_id = params[:computingId]
     user_barcode = V2::Request.get_user_barcode(computing_id)
-    if user_barcode.blank? 
+    if user_barcode.blank?
       render plain: "User #{computing_id} not found", status: :bad_request
       return
     end
 
-    begin 
+    begin
       renew_cnt = V2::Request.renew_all( user_barcode )
       render plain: "#{renew_cnt} items renewed", status: :ok
-    rescue Exception => e  
+    rescue Exception => e
       render plain: e.message, status: :bad_request
     end
   end
@@ -27,9 +27,9 @@ class V2::RequestsController < V2ApplicationController
         return
     end
 
-    begin 
+    begin
       render plain: V2::Request.renew_item(user_barcode, params[:checkoutKey])
-    rescue Exception => e  
+    rescue Exception => e
       render plain: e.message, status: :bad_request
     end
   end
@@ -39,7 +39,7 @@ class V2::RequestsController < V2ApplicationController
     # Lookup user barcode from computingID
     computing_id = params[:computingId]
     user_barcode = V2::Request.get_user_barcode(computing_id)
-    if user_barcode.blank? 
+    if user_barcode.blank?
       render plain: "User #{computing_id} not found", status: :bad_request
       return
     end
@@ -64,10 +64,12 @@ class V2::RequestsController < V2ApplicationController
     # Find barcode from callnumber
     item_barcode = ""
     item["CallInfo"].each do |hold|
-      if hold["callNumber"] == call_num 
+      # Skip Special Collections - handled through Aeon
+      next if hold['libraryID'] == 'SPEC-COLL'
+      if hold["callNumber"] == call_num
         # found matching callnumber. Return barcode of first holdable copy
         hold["ItemInfo"].each do |cpy|
-          next if V2::Item.is_copy_shadowed?(cpy)  
+          next if V2::Item.is_copy_shadowed?(cpy)
 
           curr_loc = V2::Location.find(cpy['currentLocationID'])
           next if curr_loc.blank?
@@ -78,6 +80,7 @@ class V2::RequestsController < V2ApplicationController
             break
           end
         end
+        break if item_barcode.present?
       end
     end
     if item_barcode.blank?
