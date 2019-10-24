@@ -5,26 +5,7 @@ class V4::User < SirsiBase
    def self.find( user_id )
       user = {}.with_indifferent_access
       ldap = V2::UserLDAP.find( user_id )
-      if ldap.blank? 
-         Rails.logger.warn "User #{user_id} not in LDAP"
-         ensure_login do
-            response = get("/v1/user/patron/search?q=ALT_ID:#{user_id}&includeFields=barcode,displayName,profile", 
-               headers: self.auth_headers)
-            check_session(response)
-            results = response['result']
-            if results.nil? || results.none?
-               Rails.logger.warn "User Not Found: #{user_id}"
-               return nil
-            end
-            if results.many?
-               Rails.logger.warn "More than one user found: #{user_id}"
-               return nil
-            end
-            fields = results.first["fields"]
-            user['displayName'] = fields['displayName']
-            user['profile'] = fields['profile']['key']
-         end
-      else
+      if ldap.blank? == false
          user['id'] = ldap['cid']
          user['title'] = ldap['title'].first
          user['department'] = ldap['department'].first
@@ -32,6 +13,34 @@ class V4::User < SirsiBase
          user['address'] = ldap['office'].first
          user['email'] = ldap['email']
          user['displayName'] = ldap['display_name']
+
+         # description can be used to dertermine undergraduate status. Necessary 
+         # to determine if a user can make course reserves
+         if !ldap['description'].blank?
+            user['description'] = ldap['description'].first
+         end
+      else
+         Rails.logger.warn "User #{user_id} not in LDAP"
+      end
+
+      ensure_login do
+         response = get("/v1/user/patron/search?q=ALT_ID:#{user_id}&includeFields=barcode,displayName,profile{description},standing", 
+            headers: self.auth_headers)
+         check_session(response)
+         results = response['result']
+         if results.nil? || results.none?
+            Rails.logger.warn "User Not Found: #{user_id}"
+            return nil
+         end
+         if results.many?
+            Rails.logger.warn "More than one user found: #{user_id}"
+            return nil
+         end
+         fields = results.first["fields"]
+         user['barcode'] = fields['barcode']
+         user['displayName'] = fields['displayName']
+         user['profile'] = fields['profile']['fields']['description']
+         user['standing'] = fields['standing']['key']
       end
 
       return user
