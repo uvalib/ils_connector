@@ -15,11 +15,11 @@ RSpec.describe "V4::Availability", type: :request do
 
       v4_response = JSON.parse(response.body)['availability']
 
-      expect(v4_response.keys).to match_array(%w(title_id columns holdings))
+      expect(v4_response.keys).to match_array(%w(title_id columns items))
 
-      v4_response['holdings'].each do |holding|
-        holding['fields'].each do |item|
-          expect(item.keys).to match_array(%w(name value visible type))
+      v4_response['items'].each do |item|
+        item['fields'].each do |field|
+          expect(field.keys).to match_array(%w(name value visible type))
         end
       end
     end

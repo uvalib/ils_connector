@@ -105,6 +105,7 @@ class V4::Availability < SirsiBase
   def on_shelf holding, item
     library = V4::Library.find holding['libraryID']
     current_location = V4::Location.find item['currentLocationID']
+    # This might need to be ||
     library.on_shelf && current_location.on_shelf
   end
 

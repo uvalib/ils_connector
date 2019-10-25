@@ -40,8 +40,6 @@ class V4::Location < SirsiBase
     end
   end
 
-
-
   # Generate a list of String and/or Regexp against which a code value can be
   # matched.
   #
@@ -72,6 +70,7 @@ class V4::Location < SirsiBase
   REFERENCE_LOCATIONS = codes /REF/,  'FA-SLIDERF'
   DESK_LOCATIONS      = codes /DESK/, 'SERV-DSK'
   NON_CIRC_LOCATIONS  = (REFERENCE_LOCATIONS + DESK_LOCATIONS).freeze
+  IVY = codes /IVY/
 
   # @see Firehose::LocationMethods#hidden?
   HIDDEN_LOCATIONS =
@@ -123,5 +122,5 @@ class V4::Location < SirsiBase
 
   NOT_ON_SHELF = UNAVAILABLE_LOCATIONS + RESERVE_LOCATIONS + NON_CIRC_LOCATIONS +
     RESERVE_LIBRARIES + MEDIUM_RARE_LOCATIONS +
-    REMOTE_LIBRARIES + BY_REQUEST_LOCATIONS
+    REMOTE_LIBRARIES + BY_REQUEST_LOCATIONS + IVY
 end

@@ -12,7 +12,7 @@ class V4::Library < SirsiBase
   REMOTE = %w(SPEC_COLL MT-LAKE BLANDY)
   COURSE_RESERVE = %(ASTRONOMY SCI-ENG MATH CLEMONS FINE-ARTS LAW MUSIC PHYSICS)
 
-  NOT_ON_SHELF = %w(SPEC_COLL)
+  NOT_ON_SHELF = %w(SPEC-COLL IVY)
 
   def self.all
     @@libraries = nil if time_to_refresh?
