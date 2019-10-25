@@ -54,6 +54,7 @@ class V4::Availability < SirsiBase
     items = []
     holding_data.map do |holding|
       holding['ItemInfo'].each do |item|
+        next if hide_this_item?(item)
 
         fields = []
         VISIBLE_FIELDS.each do |label, method|
@@ -107,6 +108,10 @@ class V4::Availability < SirsiBase
     current_location = V4::Location.find item['currentLocationID']
     # This might need to be ||
     library.on_shelf && current_location.on_shelf
+  end
+
+  def hide_this_item? item
+    V4::Location::HIDDEN_LOCATIONS.include? item['currentLocationID']
   end
 
   # end field methods
