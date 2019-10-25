@@ -5,12 +5,14 @@ class V4::Library < SirsiBase
   base_uri env_credential(:sirsi_web_services_base)
   LIBRARY_PARAMS = {key: '*', includeFields: 'policyNumber,description'}
 
-  attr_accessor :id, :key, :description, :holdable, :remote, :deliverable, :course_reserve
+  attr_accessor :id, :key, :description, :on_shelf, :holdable, :remote, :deliverable, :course_reserve
 
   NON_HOLDABLE = %w(UVA-LIB SPEC_COLL EDUCATION MT-LAKE BLANDY LEO)
   NON_DELIVERABLE =  %w(UVA-LIB SPEC_COLL EDUCATION IVY MT-LAKE BLANDY MEDIA-CTR)
   REMOTE = %w(SPEC_COLL MT-LAKE BLANDY)
   COURSE_RESERVE = %(ASTRONOMY SCI-ENG MATH CLEMONS FINE-ARTS LAW MUSIC PHYSICS)
+
+  NOT_ON_SHELF = %w(SPEC_COLL)
 
   def self.all
     @@libraries = nil if time_to_refresh?
@@ -40,6 +42,7 @@ class V4::Library < SirsiBase
         lib.holdable = !NON_HOLDABLE.include?(lib.key)
         lib.deliverable = !NON_DELIVERABLE.include?(lib.key)
         lib.remote = REMOTE.include?(lib.key)
+        lib.on_shelf = !NOT_ON_SHELF.include?(lib.key)
         lib.course_reserve = COURSE_RESERVE.include?(lib.key)
         lib
       end

@@ -103,8 +103,9 @@ class V4::Availability < SirsiBase
   end
 
   def on_shelf holding, item
-    current_location = V4::Location.find item["currentLocationID"]
-    current_location.on_shelf
+    library = V4::Library.find holding['libraryID']
+    current_location = V4::Location.find item['currentLocationID']
+    library.on_shelf && current_location.on_shelf
   end
 
   # end field methods
