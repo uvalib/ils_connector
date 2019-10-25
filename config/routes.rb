@@ -64,7 +64,11 @@ Rails.application.routes.draw do
 
   defaults format: :json do
     namespace :v4 do
-      resources :availability, only: [:show]
+      resources :availability, only: [:show] do
+        collection do
+          get :list
+        end
+      end
       resources :users, only: [:show] do
         member do
           get :check_pin

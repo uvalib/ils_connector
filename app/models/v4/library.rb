@@ -2,6 +2,7 @@ class V4::Library < SirsiBase
   # V2 Library uses a yml file
   # V4 should try to move away from that as much as possible
   include Refreshable
+  include ActiveModel::Serializers::JSON
   base_uri env_credential(:sirsi_web_services_base)
   LIBRARY_PARAMS = {key: '*', includeFields: 'policyNumber,description'}
 
@@ -13,6 +14,12 @@ class V4::Library < SirsiBase
   COURSE_RESERVE = %(ASTRONOMY SCI-ENG MATH CLEMONS FINE-ARTS LAW MUSIC PHYSICS)
 
   NOT_ON_SHELF = %w(SPEC-COLL IVY)
+
+
+  # for serializer root node
+  def self.model_name
+    'library'
+  end
 
   def self.all
     @@libraries = nil if time_to_refresh?

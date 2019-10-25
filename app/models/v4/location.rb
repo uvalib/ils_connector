@@ -1,11 +1,16 @@
 class V4::Location < SirsiBase
 
+  include ActiveModel::Serializers::JSON
   include Refreshable
   base_uri env_credential(:sirsi_web_services_base)
   LOCATION_PARAMS = {key: '*', includeFields: 'key,policyNumber,description,shadowed'}
 
   attr_accessor :id, :key, :description, :on_shelf
 
+  # for serializer root node
+  def self.model_name
+    'location'
+  end
 
   def self.all
     @@locations = nil if time_to_refresh?

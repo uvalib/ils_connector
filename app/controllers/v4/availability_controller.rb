@@ -8,6 +8,11 @@ class V4::AvailabilityController < V4ApplicationController
    end
   end
 
+  def list
+    @list = V4::AvailabilityList.new
+    render json: @list
+  end
+
   private
   def item_params
     params.permit(:id, :format)
