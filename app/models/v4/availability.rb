@@ -54,7 +54,7 @@ class V4::Availability < SirsiBase
     items = []
     holding_data.map do |holding|
       holding['ItemInfo'].each do |item|
-        next if hide_this_item?(item)
+        next if hidden?(item)
 
         fields = []
         VISIBLE_FIELDS.each do |label, method|
@@ -63,7 +63,8 @@ class V4::Availability < SirsiBase
 
         items << { call_number: holding['callNumber'],
           barcode: item['itemID'],
-          on_shelf: on_shelf(holding, item),
+          on_shelf: on_shelf?(holding, item),
+          unavailable: unavailable?(item),
           fields: fields
         }
       end
@@ -96,21 +97,28 @@ class V4::Availability < SirsiBase
   end
 
   def availability holding, item
-    if on_shelf(holding, item)
+    if on_shelf?(holding, item)
       "On Shelf"
+    elsif unavailable? item
+      "Unavailable"
     else
       "By Request"
     end
   end
 
-  def on_shelf holding, item
+  def on_shelf? holding, item
     library = V4::Library.find holding['libraryID']
     current_location = V4::Location.find item['currentLocationID']
     # This might need to be ||
     library.on_shelf && current_location.on_shelf
   end
 
-  def hide_this_item? item
+  def unavailable? item
+    V4::Location::UNAVAILABLE_LOCATIONS.include? item['currentLocationID']
+  end
+
+  # Are not returned by this API
+  def hidden? item
     V4::Location::HIDDEN_LOCATIONS.include? item['currentLocationID']
   end
 

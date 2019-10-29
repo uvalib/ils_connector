@@ -70,15 +70,13 @@ class V4::Location < SirsiBase
     args.flatten.any? { |arg| code.match?(arg) }
   end
 
-  HOLD_LOCATIONS      = codes /HOLD/
-  RESERVE_LOCATIONS   = codes /RESV/, /RSRV/, /RESERVE/, 'PATFAMCOLL'
-  REFERENCE_LOCATIONS = codes /REF/,  'FA-SLIDERF'
-  DESK_LOCATIONS      = codes /DESK/, 'SERV-DSK'
-  NON_CIRC_LOCATIONS  = (REFERENCE_LOCATIONS + DESK_LOCATIONS).freeze
-  IVY = codes /IVY/
+  # Terminology Change for Virgo 4:
+  # We now want to provide most previously hidden fields and let the client decide
+  HIDDEN_LOCATIONS = codes 'INTERNET'
 
-  # @see Firehose::LocationMethods#hidden?
-  HIDDEN_LOCATIONS =
+  # Unavailable now means that an item is not on shelf nor requestable
+  # These are still shown for now.
+  UNAVAILABLE_LOCATIONS =
     codes(/LOST/, <<-HEREDOC.squish.split)
        UNKNOWN
        MISSING
@@ -86,12 +84,20 @@ class V4::Location < SirsiBase
        WITHDRAWN
        BARRED
        BURSARED
-       INTERNET
        ORD-CANCLD
      HEREDOC
 
-  # @see Firehose::Copy#available?
-  UNAVAILABLE_LOCATIONS =
+
+  HOLD_LOCATIONS      = codes /HOLD/
+  RESERVE_LOCATIONS   = codes /RESV/, /RSRV/, /RESERVE/, 'PATFAMCOLL'
+  REFERENCE_LOCATIONS = codes /REF/,  'FA-SLIDERF'
+  DESK_LOCATIONS      = codes /DESK/, 'SERV-DSK'
+  NON_CIRC_LOCATIONS  = (REFERENCE_LOCATIONS + DESK_LOCATIONS).freeze
+  IVY = codes /IVY/
+
+  # V3 Unavailable means not available to be checked out
+  # These are now basically "by request"
+  V3_UNAVAILABLE_LOCATIONS =
     codes(HOLD_LOCATIONS, HIDDEN_LOCATIONS, <<-HEREDOC.squish.split)
        CHECKEDOUT
        ON-ORDER
@@ -126,6 +132,6 @@ class V4::Location < SirsiBase
   NON_LEO_LIBRARIES = (RESERVE_LIBRARIES + REMOTE_LIBRARIES).freeze
 
   NOT_ON_SHELF = UNAVAILABLE_LOCATIONS + RESERVE_LOCATIONS + NON_CIRC_LOCATIONS +
-    RESERVE_LIBRARIES + MEDIUM_RARE_LOCATIONS +
+    RESERVE_LIBRARIES + MEDIUM_RARE_LOCATIONS + HIDDEN_LOCATIONS +
     REMOTE_LIBRARIES + BY_REQUEST_LOCATIONS + IVY
 end
