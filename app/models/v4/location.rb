@@ -5,7 +5,7 @@ class V4::Location < SirsiBase
   base_uri env_credential(:sirsi_web_services_base)
   LOCATION_PARAMS = {key: '*', includeFields: 'key,policyNumber,description,shadowed'}
 
-  attr_accessor :id, :key, :description, :on_shelf
+  attr_accessor :id, :key, :description, :on_shelf, :hidden, :unavailable
 
   # for serializer root node
   def self.model_name
@@ -38,6 +38,8 @@ class V4::Location < SirsiBase
         loc.key = resource['key']
         loc.description = resource['fields']['description']
         loc.on_shelf = !match?(loc.key, NOT_ON_SHELF)
+        loc.hidden = match?(loc.key, HIDDEN_LOCATIONS)
+        loc.unavailable = match?(loc.key, UNAVAILABLE_LOCATIONS)
         loc
       end
       reset_refresh_timer

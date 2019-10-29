@@ -114,12 +114,14 @@ class V4::Availability < SirsiBase
   end
 
   def unavailable? item
-    V4::Location::UNAVAILABLE_LOCATIONS.include? item['currentLocationID']
+    loc = V4::Location.find(item['currentLocationID'])
+    loc.unavailable if loc
   end
 
   # Are not returned by this API
   def hidden? item
-    V4::Location::HIDDEN_LOCATIONS.include? item['currentLocationID']
+    loc = V4::Location.find(item['currentLocationID'])
+    loc.hidden if loc
   end
 
   # end field methods
