@@ -9,7 +9,7 @@ class V4::Availability < SirsiBase
     # remove leading u if present
     self.title_id = id.gsub(/^u/, '')
     self.data = find
-    self.items = process_response
+    self.items = process_response if self.data.present?
   end
 
   # used to name the root node in ActiveModel::Serializers
