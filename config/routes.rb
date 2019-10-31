@@ -73,6 +73,7 @@ Rails.application.routes.draw do
         member do
           get :check_pin
           get :checkouts
+          get :bills
         end
       end
       resources :course_reserves, :only => [] do

@@ -79,4 +79,36 @@ class V4::User < SirsiBase
       end
       return checkouts
    end
+
+   def self.get_bills(user_id) 
+      bills = []
+      ensure_login do
+         # first convert ID to barcode...
+         response = get("/v1/user/patron/search?q=ALT_ID:#{user_id}&includeFields=barcode&json=true", 
+            headers: self.auth_headers)
+         check_session(response)
+         results = response['result']
+         if results.nil? || results.none? || results.many?
+            Rails.logger.warn "User Not Found: #{user_id}"
+            return nil
+         end
+         barcode = results.first["fields"]["barcode"]
+
+         q = "/rest/patron/lookupPatronInfo?userID=#{barcode}&json=true&includeFeeInfo=UNPAID_FEES"
+         response = get(q, headers: self.auth_headers)
+         check_session(response)
+         fees = response['feeInfo']
+         fees.each do |b|
+            itemInfo = b['feeItemInfo']
+            item = {id: itemInfo['titleKey'], barcode: itemInfo['itemID'], 
+               callNumber: itemInfo['callNumber'], type: itemInfo['itemTypeDescription'],
+               title: itemInfo['title'],  author: itemInfo['author']
+            }
+            bills << {reason: b['billReasonDescription'], amount: b['amount']['value'],
+               library: b['billLibraryDescription'], date: b['dateBilled'], item: item
+            }
+         end
+      end
+      return bills
+   end
 end

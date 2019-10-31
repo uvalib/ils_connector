@@ -25,6 +25,15 @@ class V4::UsersController < V4ApplicationController
       end
    end
 
+   def bills 
+      bills = V4::User.get_bills(user_params[:id])
+      if bills.nil? 
+         render plain: "#{user_params[:id]} not found", status: :not_found
+      else
+         render json: bills.to_json, status: :ok
+      end
+   end
+
    private
    def user_params
       params.permit(:id, :pin, :format)
