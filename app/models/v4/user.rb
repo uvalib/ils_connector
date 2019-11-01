@@ -1,6 +1,5 @@
 class V4::User < SirsiBase
    base_uri env_credential(:sirsi_web_services_base)
-   default_timeout 5
 
    def self.find( user_id )
       user = {}.with_indifferent_access
