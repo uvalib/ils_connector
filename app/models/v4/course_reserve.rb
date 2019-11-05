@@ -1,6 +1,5 @@
 class V4::CourseReserve < SirsiBase
    base_uri env_credential(:sirsi_web_services_base)
-   default_timeout 10
 
    def self.get_reserve_desks() 
       desks = []
