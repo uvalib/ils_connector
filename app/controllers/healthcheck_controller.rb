@@ -15,30 +15,32 @@ class HealthcheckController < ApplicationController
   # the response
   class HealthCheckResponse
 
-    attr_accessor :sirsi_connection
+    attr_accessor :sirsi_connection, :user_service
 
     def is_healthy?
       @sirsi_connection.healthy
+      @user_service.healthy
     end
   end
 
   # # GET /healthcheck
   # # GET /healthcheck.json
   def index
-    status = get_health_status( )
-    response = make_response( status )
+    response = make_response
     render json: response, :status => response.is_healthy? ? 200 : 500
   end
 
   private
 
-  def get_health_status
-    status = {}
+  def make_response
+    r = HealthCheckResponse.new
+    r.sirsi_connection = sirsi_health
+    r.user_service = user_service_health
 
-    # no database
-    #connected = ActiveRecord::Base.connection_pool.with_connection { |con| con.active? }  rescue false
-    #status[ :database ] = Health.new( connected, connected ? '' : 'Database connection error' )
+    return( r )
+  end
 
+  def sirsi_health
     health = nil
     begin
       sirsi_response = SirsiBase.account_info
@@ -54,15 +56,22 @@ class HealthcheckController < ApplicationController
     rescue => ex
       health = Health.new( false, "Error: #{ex.class}" )
     end
-    status[:sirsi_connection] = health
-    return( status )
   end
 
-  def make_response( health_status )
-    r = HealthCheckResponse.new
-    r.sirsi_connection = health_status[ :sirsi_connection ]
+  def user_service_health
+    health = nil
+    begin
+      health_response = V2::UserLDAP.healthcheck
+      health = if health_response.code == 200
+                 Health.new(true, '')
+               else
+                 Health.new(false, "User Service (LDAP) Error: #{env_credential(:userinfo_url)} - #{health_response.code} - #{health_response.body}")
+               end
 
-    return( r )
+    rescue => ex
+      health = Health.new( false, "Error: #{ex.class}" )
+    end
+    health
   end
 
 end

@@ -16,6 +16,11 @@ class V2::UserLDAP < V2
 
   end
 
+  def self.healthcheck
+    # auth is not necessary, but just in case...
+    response = get("/healthcheck",
+                   query: {auth: env_credential(:service_api_key)})
 
-
+    response
+  end
 end
