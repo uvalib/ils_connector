@@ -9,7 +9,6 @@ class V4::User < SirsiBase
          user['id'] = ldap['cid']
          user['title'] = ldap['title'].first if !ldap['title'].blank?
          user['department'] = ldap['department'].first if !ldap['department'].blank?
-         user['profile'] = ldap['description'].first if !ldap['description'].blank?
          user['address'] = ldap['office'].first if !ldap['office'].blank?
          user['email'] = ldap['email']
          user['displayName'] = ldap['display_name']
