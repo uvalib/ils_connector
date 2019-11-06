@@ -13,12 +13,12 @@ class SirsiBase
   # wrap api calls with this
   #
   def self.ensure_login
+    response = nil
     begin
       if !defined?(@@session_token) || old_session?
         login
       end
 
-      response = nil
       time = Benchmark.realtime do
         response = yield
       end
@@ -26,29 +26,40 @@ class SirsiBase
       return response
 
     rescue => e
-      # catch a stale login?
+      # login failed?
       if e.message == 'retry'
-        Rails.logger.warn 'Retrying API call'
+        Rails.logger.warn "Retrying #{response.uri}"
         return yield
       end
 
-      Rails.logger.error e
+      uri = response.present? ? response.uri : env_credential(:sirsi_web_services_base)
+      Rails.logger.error "#{uri} "
       return []
     end
   end
 
   def self.login
-    Rails.logger.info 'Sirsi logging in'
-    login_body = {'login' => env_credential(:sirsi_user),
-             'password' => env_credential(:sirsi_password)
-            }
-    @@sirsi_user = post( "/v1/user/staff/login",
-                        body: login_body.to_json,
-                        headers: base_headers )
+    begin
+      Rails.logger.info 'Sirsi logging in'
+      login_body = {'login' => env_credential(:sirsi_user),
+               'password' => env_credential(:sirsi_password)
+              }
+      @@sirsi_user = post( "/v1/user/staff/login",
+                          body: login_body.to_json,
+                          headers: base_headers )
+      raise if !@@sirsi_user.success?
 
-    @@staffKey = @@sirsi_user['staffKey']
-    @@session_token = @@sirsi_user['sessionToken']
-    @@session_time = Time.now
+      @@staffKey = @@sirsi_user['staffKey']
+      @@session_token = @@sirsi_user['sessionToken']
+      @@session_time = Time.now
+    rescue => e
+      if @@sirsi_user.present?
+        Rails.logger.error "Sirsi API Login Failed - #{@@sirsi_user.request.uri} #{@@sirsi_user.body}"
+      else
+        Rails.logger.error "Sirsi API Login Failed - #{env_credential(:sirsi_web_services_base)} "
+      end
+      raise
+    end
   end
 
   def self.base_headers
@@ -65,7 +76,7 @@ class SirsiBase
 
   def self.check_session response
     if response.code == 401
-      Rails.logger.info 'Sirsi session timed out'
+      Rails.logger.info "Sirsi request failed for #{response.request.uri} #{response.body}"
       login
       raise 'retry'
     end

@@ -1,7 +1,7 @@
 class V2::UserLDAP < V2
-
   include HTTParty
   base_uri env_credential(:userinfo_url)
+  default_timeout 15
 
 
   def self.find user_id
@@ -11,6 +11,7 @@ class V2::UserLDAP < V2
     if response.success?
       return response['user']
     else
+      Rails.logger.error "Failed Userinfo Request: #{response.request.uri} #{response.body}"
       return {}
     end
 

@@ -27,7 +27,12 @@ class HealthcheckController < ApplicationController
   # # GET /healthcheck.json
   def index
     response = make_response
-    render json: response, :status => response.is_healthy? ? 200 : 500
+    if response.is_healthy?
+      render json: response, :status => 200
+    else
+      Rails.logger.error "Healthcheck Failure: #{response}"
+      render json: response, :status => 500
+    end
   end
 
   private
@@ -48,7 +53,7 @@ class HealthcheckController < ApplicationController
          health = if sirsi_response.code == 200
                     Health.new(true, '')
                   else
-                    Health.new(false, "Sirsi API Error: #{sirsi_response.code} - #{sirsi_response.body}")
+                    Health.new(false, "Sirsi API Error: #{env_credential(:sirsi_web_services_base)} - #{sirsi_response.code} - #{sirsi_response.body}")
                   end
       else
         health = Health.new( false, "Error connecting to, or authenticating with Sirsi" )
@@ -69,7 +74,7 @@ class HealthcheckController < ApplicationController
                end
 
     rescue => ex
-      health = Health.new( false, "Error: #{ex.class}" )
+      health = Health.new( false, "User Service (LDAP) Error: #{env_credential(:userinfo_url)} - #{ex.class}" )
     end
     health
   end
