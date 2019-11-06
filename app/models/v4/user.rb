@@ -40,6 +40,12 @@ class V4::User < SirsiBase
          user['profile'] = fields['profile']['fields']['description']
          statusInfo = fields['patronStatusInfo']['fields']
          user['standing'] = statusInfo['standing']['key']
+         
+         # Per Stephanie Hunter, DELINQUENT not a vailid state. Workflows run 
+         # every night to wipe it out. If one gets missed, change it to OK here.
+         if user['standing'] == "DELINQUENT"
+            user['standing'] = "OK"
+         end
          user['amountOwed'] = statusInfo['amountOwed']['amount']
       end
 
