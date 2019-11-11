@@ -24,4 +24,21 @@ RSpec.describe "V4::Availability", type: :request do
       end
     end
   end
+  describe "Medium Rare Notice" do
+
+    let(:title_id) {'7018337'}
+    before do
+      get v4_availability_path(id: title_id, format: :json), headers: {'ACCEPT': 'application/json'}
+    end
+
+    it 'includes the notice' do
+      items = JSON.parse(response.body)['availability']['items']
+      items.each do |i|
+        if i.has_key? 'notice'
+          expect(i['notice']).to eq(V4::Location::MEDIUM_RARE_MESSAGE)
+        end
+      end
+
+    end
+  end
 end

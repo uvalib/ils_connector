@@ -23,6 +23,10 @@ class V4::Location < SirsiBase
     end
   end
 
+  def self.medium_rare? key
+    match? key, MEDIUM_RARE_LOCATIONS
+  end
+
   private
   def self.get_locations
     ensure_login do
@@ -123,6 +127,7 @@ class V4::Location < SirsiBase
 
   # @see Firehose::Copy#medium_rare?
   MEDIUM_RARE_LOCATIONS = codes 'LOCKEDSTKS'
+  MEDIUM_RARE_MESSAGE = "This item is medium rare and does not circulate. When you request this item from Ivy, it will be delivered to the Small Special Collections Library for you to use in the reading room only."
 
   # Libraries that do not have checkout (for UVA persons).
   RESERVE_LIBRARIES = codes %w(SPEC-COLL JAG)

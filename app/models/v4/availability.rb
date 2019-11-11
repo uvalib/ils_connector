@@ -65,6 +65,7 @@ class V4::Availability < SirsiBase
           barcode: item['itemID'],
           on_shelf: on_shelf?(holding, item),
           unavailable: unavailable?(item),
+          notice: notice_text(item),
           fields: fields
         }
       end
@@ -122,6 +123,12 @@ class V4::Availability < SirsiBase
   def hidden? item
     loc = V4::Location.find(item['currentLocationID'])
     loc.hidden if loc
+  end
+
+  def notice_text item
+    if V4::Location.medium_rare? item['currentLocationID']
+      V4::Location::MEDIUM_RARE_MESSAGE
+    end
   end
 
   # end field methods
