@@ -6,7 +6,7 @@ class V4::User < SirsiBase
       ldap = V2::UserLDAP.find( user_id )
       if ldap.blank? == false
          user['id'] = ldap['cid']
-         user['community'] = false
+         user['communityUser'] = false
          user['title'] = ldap['title'].first if !ldap['title'].blank?
          user['department'] = ldap['department'].first if !ldap['department'].blank?
          user['address'] = ldap['office'].first if !ldap['office'].blank?
@@ -19,8 +19,8 @@ class V4::User < SirsiBase
             user['description'] = ldap['description'].first
          end
       else
-         Rails.logger.infi "User #{user_id} not in LDAP; flagging as community user"
-         user['community'] = true
+         Rails.logger.info "User #{user_id} not in LDAP; flagging as community user"
+         user['communityUser'] = true
       end
 
       ensure_login do
