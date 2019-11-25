@@ -82,6 +82,12 @@ Rails.application.routes.draw do
           get :search
         end
       end
+      resources :requests, path: '/request', only: [] do
+        collection do
+          post :renew, path: '/renew'
+          post :renew_all, path: '/renewAll'
+        end
+      end
     end
   end # format to json
 
