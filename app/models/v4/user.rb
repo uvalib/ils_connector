@@ -76,6 +76,7 @@ class V4::User < SirsiBase
             author = co_call['bib']['fields']['author']
             library = cr_f['library']['fields']['description']
             checkouts << {id: co['bib']['key'], title: title, author: author,
+               barcode: co['barcode'],
                callNumber: co_call['callNumber'], library: library,
                due: cr_f['dueDate'], overDue: cr_f['overdue'],
                overdueFee: cr_f['estimatedOverdueAmount']['amount'],
