@@ -55,7 +55,7 @@ class V4::CourseReserve < SirsiBase
 
             # build a heirarchy based on type
             tgt_reserves = nil
-            if type == "INSTRUCTOR_NAME"
+            if type == "INSTRUCTOR_NAME" || type == "INSTRUCTOR_ID"
                # instructor centric: instructor->course->reserves
                tgt_inst = out.find{|ins| ins[:name] == instructor[:name]}
                if tgt_inst.blank? 
