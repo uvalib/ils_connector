@@ -23,7 +23,7 @@ class V4::CourseReserve < SirsiBase
          "itemReserveInfoList{reserveStatus,item{call{callNumber}}}"]
       ensure_login do
          fl = "includeFields=#{fields.join(',')}"
-         url = "/reserves/reserve/search?q=#{type}:#{query}&#{fl}"
+         url = "/reserves/reserve/search?q=#{type}:#{query}&#{fl}&ct=25"
          response = get(url, headers: self.auth_headers)
          check_session(response)
          results = response['result']
