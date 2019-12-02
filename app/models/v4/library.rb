@@ -35,7 +35,7 @@ class V4::Library < SirsiBase
   private
   def self.get_libraries
     ensure_login do
-      response = get('/v1/policy/library/simpleQuery',
+      response = get('/policy/library/simpleQuery',
                       query: LIBRARY_PARAMS,
                       headers: auth_headers
                      )

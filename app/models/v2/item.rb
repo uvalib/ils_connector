@@ -38,13 +38,13 @@ class V2::Item < SirsiBase
       item = {}.with_indifferent_access
       item["titleID"] = item_id
       item["CallInfo"] = []
-      response = get("/v1/catalog/bib/key/#{item_id}?includeFields=callList,*",
+      response = get("/catalog/bib/key/#{item_id}?includeFields=callList,*",
                      headers: auth_headers
                     )
       item["shadowed"] = response["fields"]["shadowed"]
       response["fields"]["callList"].each do |cl|
         key = cl["key"]
-        call_resp = get("/v1/catalog/call/key/#{key}?includeFields=itemList,*",
+        call_resp = get("/catalog/call/key/#{key}?includeFields=itemList,*",
                         headers: auth_headers
                        )
         holding = {}.with_indifferent_access
@@ -56,7 +56,7 @@ class V2::Item < SirsiBase
 
         call_resp["fields"]["itemList"].each do |holding_copy|
           copy_key = holding_copy["key"]
-          copy_resp = get("/v1/catalog/item/key/#{copy_key}",
+          copy_resp = get("/catalog/item/key/#{copy_key}",
                           headers: auth_headers
                          )
           copy = {}.with_indifferent_access

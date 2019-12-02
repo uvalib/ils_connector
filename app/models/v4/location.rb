@@ -30,7 +30,7 @@ class V4::Location < SirsiBase
   private
   def self.get_locations
     ensure_login do
-      response = get('/v1/policy/location/simpleQuery',
+      response = get('/policy/location/simpleQuery',
                       query: LOCATION_PARAMS,
                       headers: auth_headers
                      )

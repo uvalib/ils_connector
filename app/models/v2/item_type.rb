@@ -4,7 +4,7 @@ class V2::ItemType < SirsiBase
   REQUEST_PARAMS = {key: '*', includeFields: '*'}
 
   def self.all
-    raw = get('/v1/policy/itemType/simpleQuery',
+    raw = get('/policy/itemType/simpleQuery',
               query: REQUEST_PARAMS,
               headers: auth_headers
     )

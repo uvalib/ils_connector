@@ -7,7 +7,7 @@ class V2::User < SirsiBase
   def self.find user_id
     ensure_login do
       data = {}
-      response = get('/v1/user/patron/search',
+      response = get('/user/patron/search',
                                 query: REQUEST_PARAMS.merge(q: "ALT_ID:#{user_id}"),
                                 headers: self.auth_headers
                                )
@@ -44,7 +44,7 @@ class V2::User < SirsiBase
     login_body = {'barcode' => barcode,
              'password' => pin
             }
-    response = post( "/v1/user/patron/authenticate",
+    response = post( "/user/patron/authenticate",
                     { body: login_body.to_json,
                          headers: base_headers
     })

@@ -44,7 +44,7 @@ class SirsiBase
       login_body = {'login' => env_credential(:sirsi_user),
                'password' => env_credential(:sirsi_password)
               }
-      @@sirsi_user = post( "/v1/user/staff/login",
+      @@sirsi_user = post( "/user/staff/login",
                           body: login_body.to_json,
                           headers: base_headers )
       raise if !@@sirsi_user.success?
@@ -89,7 +89,7 @@ class SirsiBase
   # used for healthcheck.
   def self.account_info
     ensure_login do
-      get("/v1/user/staff/key/#{@@staffKey}", headers: auth_headers)
+      get("/user/staff/key/#{@@staffKey}", headers: auth_headers)
     end
   end
 

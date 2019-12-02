@@ -24,7 +24,7 @@ class V4::User < SirsiBase
       end
 
       ensure_login do
-         response = get("/v1/user/patron/search?q=ALT_ID:#{user_id}&includeFields=barcode,displayName,profile{description},patronStatusInfo{standing,amountOwed}", 
+         response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=barcode,displayName,profile{description},patronStatusInfo{standing,amountOwed}", 
             headers: self.auth_headers)
          check_session(response)
          results = response['result']
@@ -91,7 +91,7 @@ class V4::User < SirsiBase
       bills = []
       ensure_login do
          # first convert ID to barcode...
-         response = get("/v1/user/patron/search?q=ALT_ID:#{user_id}&includeFields=barcode&json=true", 
+         response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=barcode&json=true", 
             headers: self.auth_headers)
          check_session(response)
          results = response['result']

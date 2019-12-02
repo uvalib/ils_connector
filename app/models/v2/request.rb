@@ -5,7 +5,7 @@ class V2::Request < SirsiBase
       ensure_login do
          Rails.logger.debug "Lookup user barcode for #{computing_id}"
          data = {}.with_indifferent_access
-         response = get("/v1/user/patron/search?q=ALT_ID:#{computing_id}&includeFields=barcode",
+         response = get("/user/patron/search?q=ALT_ID:#{computing_id}&includeFields=barcode",
             headers: auth_headers
          )
          check_session(response)
@@ -65,7 +65,7 @@ class V2::Request < SirsiBase
          response["patronCheckoutInfo"].each do |co| 
             if co['titleKey'] == item_id 
                payload = { itemBarcode: barcode }
-               return post("/v1/circulation/circRecord/renew",
+               return post("/circulation/circRecord/renew",
                   body: payload.to_json,
                   headers: auth_headers
                )
@@ -88,11 +88,11 @@ class V2::Request < SirsiBase
 
          # iterate checked out items and issue a renew call for each
          response["patronCheckoutInfo"].each do |co| 
-            # get the barcode and use it to call POST /v1/circulation/circRecord/renew - params: "itemBarcode":"X032221008"
+            # get the barcode and use it to call POST /circulation/circRecord/renew - params: "itemBarcode":"X032221008"
             barcode = co["itemID"]
             Rails.logger.debug "User #{user_barcode} renewing #{barcode}"
             payload = { itemBarcode: barcode }
-            response = post("/v1/circulation/circRecord/renew",
+            response = post("/circulation/circRecord/renew",
                body: payload.to_json,
                headers: auth_headers
             )

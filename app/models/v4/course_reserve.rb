@@ -4,7 +4,7 @@ class V4::CourseReserve < SirsiBase
    def self.get_reserve_desks() 
       desks = []
       ensure_login do
-         url = "/v1/policy/reserveCollection/simpleQuery?key=*&includeFields=key,description"
+         url = "/policy/reserveCollection/simpleQuery?key=*&includeFields=key,description"
          response = get(url, headers: self.auth_headers)
          check_session(response)
          response.each do |r| 
