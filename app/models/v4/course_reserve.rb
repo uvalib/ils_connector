@@ -16,14 +16,12 @@ class V4::CourseReserve < SirsiBase
 
    def self.search(type, query)
       out = []
-      valid_statuses = ["ON RESERVE", "NOT ON RESERVE", "PICKUP", "COLLECT"]
-      bad_status = ["FLAGGED"]
       fields = ["reserveCollection{description}", "circulationRule{displayName,loanPeriod}", 
          "title", "author","course{courseID,name}", "instructor{name}", 
          "itemReserveInfoList{reserveStatus,item{call{callNumber}}}"]
       ensure_login do
          fl = "includeFields=#{fields.join(',')}"
-         url = "/reserves/reserve/search?q=#{type}:#{query}&#{fl}&ct=25"
+         url = "/reserves/reserve/search?q=#{type}:#{query}&#{fl}&ct=25&rw=1"
          response = get(url, headers: self.auth_headers)
          check_session(response)
          results = response['result']
@@ -31,18 +29,13 @@ class V4::CourseReserve < SirsiBase
             Rails.logger.warn "NO results found for #{type}?#{query}"
             return out
          end
-         results.each do |info|
+         results.each_with_index do |info, index|
             fields = info['fields']
             reserve_info = fields['itemReserveInfoList'].first['fields']
-            reserve_status = reserve_info['reserveStatus']['key'].upcase.strip
-            if bad_status.include?(reserve_status)
-               next   
-               Rails.logger.info "Skipping #{fields} because reserve status is #{reserve_status}"
-            end
 
             # extract raw reserve data into course, instructor and reserved item
             course = {id: fields['course']['fields']['courseID'], name: fields['course']['fields']['name']}              
-            instructor = {name: fields['instructor']['fields']['name']}   
+            instructor = {name: fields['instructor']['fields']['name']}  
 
             item = {title: fields['title'], author: fields['author']}
             item_data = reserve_info['item']
