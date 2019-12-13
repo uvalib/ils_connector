@@ -9,11 +9,10 @@ class V4::CourseReservesController < V4ApplicationController
       end
    end
 
-   # Search for reserves by instructor or course name. Returns a list of 
+   # Search for reserves by instructor or course name/ID. Returns a list of 
    # matching instructors or courses
    def search
-      # type: COURSE_NAME, COURSE_ID (not working) or USER_NAME (instructor)
-      hits = V4::CourseReserve.search(reserves_params[:type], reserves_params[:query])
+      hits = V4::CourseReserve.search(reserves_params[:type], reserves_params[:query], reserves_params[:page])
       if hits.blank?
          render plain: "Unable to find any matching course reserves", status: :not_found
          return
@@ -23,7 +22,7 @@ class V4::CourseReservesController < V4ApplicationController
 
    private
    def reserves_params
-      params.permit(:type, :id, :desk, :query, :format)
+      params.permit(:type, :id, :desk, :query, :page, :format)
    end
  end
  
