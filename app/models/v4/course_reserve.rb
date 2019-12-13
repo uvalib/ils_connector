@@ -16,6 +16,7 @@ class V4::CourseReserve < SirsiBase
 
    def self.search(type, query, page)
       out = {page: 1, count: 0, total: 0, more: false, hits: []}
+      page_size = 20
       page_num = 1
       if !page.blank?
          page_num =  page.to_i
@@ -26,7 +27,7 @@ class V4::CourseReserve < SirsiBase
          "itemReserveInfoList{reserveStatus,item{call{callNumber}}}"]
       ensure_login do
          fl = "includeFields=#{fields.join(',')}"
-         url = "/reserves/reserve/search?q=#{type}:#{query}&#{fl}&ct=20&rw=#{page_num}"
+         url = "/reserves/reserve/search?q=#{type}:#{query}&#{fl}&ct=#{page_size}&rw=#{(page_num-1)*page_size+1}"
          response = get(url, headers: self.auth_headers)
          check_session(response)
          results = response['result']
@@ -34,7 +35,7 @@ class V4::CourseReserve < SirsiBase
             Rails.logger.warn "NO results found for #{type}?#{query}"
             return out
          end
-         out[:page] = response['startRow']
+         out[:page] = page_num
          out[:total] = response['totalResults']
          out[:count] = results.length
          out[:more] = response['startRow'] * response['rowsPerPage'] < response['totalResults']
