@@ -107,6 +107,7 @@ class V4::Availability < SirsiBase
     end
   end
 
+
   def on_shelf? holding, item
     library = V4::Library.find holding['libraryID']
     current_location = V4::Location.find item['currentLocationID']
@@ -126,8 +127,30 @@ class V4::Availability < SirsiBase
   end
 
   def notice_text item
-    if V4::Location.medium_rare? item['currentLocationID']
-      V4::Location::MEDIUM_RARE_MESSAGE
+    note = if V4::Location.medium_rare? item['currentLocationID']
+             V4::Location::MEDIUM_RARE_MESSAGE
+           elsif note = course_reserve_note(item)
+             note
+           end
+    note
+  end
+
+  def course_reserve_note item
+    if item['reserveCirculationRule'] == 'RESERVE'
+      reserve_info = V4::CourseReserve.search_item item['itemID']
+
+      if reserve_info.present?
+        course = reserve_info['courseName']
+        course_id = reserve_info['courseID']
+        instructor = reserve_info['instructor']
+        response = []
+        response << "Course Name: #{course}" if course
+        response << "Course ID: #{reserve_info['courseID']}" if course_id
+        response << "Instructor: #{reserve_info['instructor']}" if instructor
+        return response.join "\n"
+      end
+    else
+      nil
     end
   end
 

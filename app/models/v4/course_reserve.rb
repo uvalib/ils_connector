@@ -1,7 +1,7 @@
 class V4::CourseReserve < SirsiBase
    base_uri env_credential(:sirsi_web_services_base)
 
-   def self.get_reserve_desks() 
+   def self.get_reserve_desks()
       desks = []
       ensure_login do
          url = "/policy/reserveCollection/simpleQuery?key=*&includeFields=key,description"
@@ -100,6 +100,23 @@ class V4::CourseReserve < SirsiBase
          end
       end
       return out
+   end
+
+   # accepts an item id and returns course reserve info
+   # The api supports a comma delimited list for item_id, but it's not used currently
+   # eg: item_id=3858570-1003,35007008464871
+   #
+   def self.search_item item_id
+     reserve = {}
+     options = { base_uri: env_credential(:sirsi_script_url),
+                 query: {item_id: item_id}
+     }
+     # actual login is not required for this url, still using this for error checking
+     ensure_login do
+       reserves = get("#{env_credential(:sirsi_script_url)}course_reserves", options)
+       reserve = reserves.parsed_response.try :first
+     end
+     reserve
    end
 end
 
