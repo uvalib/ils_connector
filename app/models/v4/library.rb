@@ -3,18 +3,11 @@ class V4::Library < SirsiBase
   # V4 should try to move away from that as much as possible
   include Refreshable
   include ActiveModel::Serializers::JSON
+  include OnShelf
   base_uri env_credential(:sirsi_web_services_base)
   LIBRARY_PARAMS = {key: '*', includeFields: 'policyNumber,description'}
 
-  attr_accessor :id, :key, :description, :on_shelf, :holdable, :remote, :deliverable, :course_reserve
-
-  NON_HOLDABLE = %w(UVA-LIB SPEC_COLL EDUCATION MT-LAKE BLANDY LEO)
-  NON_DELIVERABLE =  %w(UVA-LIB SPEC_COLL EDUCATION IVY MT-LAKE BLANDY MEDIA-CTR)
-  REMOTE = %w(SPEC_COLL MT-LAKE BLANDY)
-  COURSE_RESERVE = %(ASTRONOMY SCI-ENG MATH CLEMONS FINE-ARTS LAW MUSIC PHYSICS)
-
-  NOT_ON_SHELF = %w(SPEC-COLL IVY)
-
+  attr_accessor :id, :key, :description, :on_shelf
 
   # for serializer root node
   def self.model_name
@@ -46,11 +39,7 @@ class V4::Library < SirsiBase
         lib.id = resource['fields']['policyNumber']
         lib.key = resource['key']
         lib.description = resource['fields']['description']
-        lib.holdable = !NON_HOLDABLE.include?(lib.key)
-        lib.deliverable = !NON_DELIVERABLE.include?(lib.key)
-        lib.remote = REMOTE.include?(lib.key)
-        lib.on_shelf = !NOT_ON_SHELF.include?(lib.key)
-        lib.course_reserve = COURSE_RESERVE.include?(lib.key)
+        lib.on_shelf = OnShelf.library? lib.key
         lib
       end
       reset_refresh_timer
@@ -72,5 +61,11 @@ class V4::Library < SirsiBase
     mt_lake:  'Mountain Lake',
     at_sea:   'Semester at Sea',
   }.freeze
+
+  # From Virgo 3. possibly useful for requests
+  #NON_HOLDABLE = %w(UVA-LIB SPEC_COLL EDUCATION MT-LAKE BLANDY LEO)
+  #NON_DELIVERABLE =  %w(UVA-LIB SPEC_COLL EDUCATION IVY MT-LAKE BLANDY MEDIA-CTR)
+  #REMOTE = %w(SPEC_COLL MT-LAKE BLANDY)
+  #COURSE_RESERVE = %(ASTRONOMY SCI-ENG MATH CLEMONS FINE-ARTS LAW MUSIC PHYSICS)
 
 end

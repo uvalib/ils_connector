@@ -2,6 +2,7 @@ class V4::Location < SirsiBase
 
   include ActiveModel::Serializers::JSON
   include Refreshable
+  include OnShelf
   base_uri env_credential(:sirsi_web_services_base)
   LOCATION_PARAMS = {key: '*', includeFields: 'key,policyNumber,description,shadowed'}
 
@@ -41,7 +42,7 @@ class V4::Location < SirsiBase
         loc.id = resource['fields']['policyNumber']
         loc.key = resource['key']
         loc.description = resource['fields']['description']
-        loc.on_shelf = !match?(loc.key, NOT_ON_SHELF)
+        loc.on_shelf = OnShelf.location? loc.key
         loc.hidden = match?(loc.key, HIDDEN_LOCATIONS)
         loc.unavailable = match?(loc.key, UNAVAILABLE_LOCATIONS)
         loc
