@@ -9,7 +9,7 @@ module OnShelf
   end
   def self.location? loc
     self.load
-    @@on_shelf['libraries'].any? loc
+    @@on_shelf['locations'].any? loc
   end
 
   private
