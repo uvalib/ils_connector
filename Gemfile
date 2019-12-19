@@ -7,7 +7,7 @@ end
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '5.2.3'
+gem 'rails', '6.0.2.1'
 
 # Oracle for SIRSI connections - removed
 #gem 'activerecord-oracle_enhanced-adapter'
