@@ -28,6 +28,7 @@ class V4::CourseReserve < SirsiBase
       ensure_login do
          fl = "includeFields=#{fields.join(',')}"
          url = "/reserves/reserve/search?q=#{type}:#{query}&#{fl}&ct=#{page_size}&rw=#{(page_num-1)*page_size+1}"
+         Rails.logger.info "Course reserves request: #{url}"
          response = get(url, headers: self.auth_headers)
          check_session(response)
          results = response['result']
@@ -38,7 +39,7 @@ class V4::CourseReserve < SirsiBase
          out[:page] = page_num
          out[:total] = response['totalResults']
          out[:count] = results.length
-         out[:more] = response['startRow'] * response['rowsPerPage'] < response['totalResults']
+         out[:more] = response['startRow'] + results.length < response['totalResults']
          results.each_with_index do |info, index|
             fields = info['fields']
             reserve_info = fields['itemReserveInfoList'].first['fields']
