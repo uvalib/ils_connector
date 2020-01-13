@@ -16,6 +16,14 @@ class V4::UsersController < V4ApplicationController
       end
    end
 
+   def change_pin
+      if V4::User.change_pin(user_params[:id], user_params['current_pin'], user_params['new_pin'])
+         render plain: "changed", status: :ok 
+      else 
+         render plain: "failed", status: :not_found 
+      end
+   end
+
    def checkouts 
       checkouts = V4::User.get_checkouts(user_params[:id])
       if checkouts.nil? 
@@ -36,7 +44,7 @@ class V4::UsersController < V4ApplicationController
 
    private
    def user_params
-      params.permit(:id, :pin, :format)
+      params.permit(:id, :pin, :format, :current_pin, :new_pin)
    end
  end
  

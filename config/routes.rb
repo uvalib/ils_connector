@@ -72,6 +72,7 @@ Rails.application.routes.draw do
       resources :users, only: [:show] do
         member do
           get :check_pin
+          post :change_pin
           get :checkouts
           get :bills
         end

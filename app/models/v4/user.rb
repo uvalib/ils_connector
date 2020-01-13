@@ -54,6 +54,45 @@ class V4::User < SirsiBase
       return user
    end
 
+   def self.change_pin(user_id, old_pin, new_pin) 
+      Rails.logger.info("User #{user_id} attempt to change pin")
+      begin
+         Rails.logger.info "Logging in #{user_id}"
+         login_body = {'login' => user_id, 'password' => old_pin}
+         response = post( "/user/patron/login",
+            { body: login_body.to_json, headers: base_headers
+         })
+
+         if response.code == 200
+            session_token = response['sessionToken']
+            Rails.logger.info "User #{user_id} passed pin check"
+            pin_headers = base_headers
+            pin_headers['x-sirs-sessionToken'] = session_token
+            pin_body = { "currentPin": old_pin, "newPin": new_pin }
+            pin_resp = post( "/user/patron/changeMyPin",
+               { body: pin_body.to_json, headers: pin_headers
+            })
+            if pin_resp.code == 200
+               Rails.logger.error "User #{user_id} change pin success"
+               return true
+            else 
+               Rails.logger.error "User #{user_id} change pin failed: #{pin_resp.as_json}"
+               return false
+            end
+         elsif response.code == 401
+            Rails.logger.error "Login #{user_id} FAILED"
+            return false
+         else
+            Rails.logger.error "Login #{user_id} FAILED - unexpected response #{response.code}"
+            return false
+         end
+       rescue => e
+         Rails.logger.error "User #{user_id} change pin error #{e}"
+         return false
+       end
+      return true
+   end
+
    def self.get_checkouts(user_id) 
       checkouts = []
       ensure_login do
