@@ -123,7 +123,7 @@ class V4::Availability < SirsiBase
   # Are not returned by this API
   def hidden? item
     loc = V4::Location.find(item['currentLocationID'])
-    loc.shadowed if loc
+    loc.shadowed || loc.online if loc
   end
 
   def notice_text item
