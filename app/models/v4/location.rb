@@ -6,7 +6,7 @@ class V4::Location < SirsiBase
   base_uri env_credential(:sirsi_web_services_base)
   LOCATION_PARAMS = {key: '*', includeFields: 'key,policyNumber,description,shadowed'}
 
-  attr_accessor :id, :key, :description, :on_shelf, :hidden, :unavailable
+  attr_accessor :id, :key, :description, :on_shelf, :online, :unavailable, :shadowed
 
   # for serializer root node
   def self.model_name
@@ -43,8 +43,9 @@ class V4::Location < SirsiBase
         loc.key = resource['key']
         loc.description = resource['fields']['description']
         loc.on_shelf = OnShelf.location? loc.key
-        loc.hidden = match?(loc.key, HIDDEN_LOCATIONS)
+        loc.online = match?(loc.key, ONLINE_LOCATIONS)
         loc.unavailable = match?(loc.key, UNAVAILABLE_LOCATIONS)
+        loc.shadowed = resource['fields']['shadowed']
         loc
       end
       reset_refresh_timer
@@ -77,9 +78,7 @@ class V4::Location < SirsiBase
     args.flatten.any? { |arg| code.match?(arg) }
   end
 
-  # Terminology Change for Virgo 4:
-  # We now want to provide most previously hidden fields and let the client decide
-  HIDDEN_LOCATIONS = codes 'INTERNET'
+  ONLINE_LOCATIONS = codes 'INTERNET'
 
   # Unavailable now means that an item is not on shelf nor requestable
   # These are still shown for now.
@@ -105,7 +104,7 @@ class V4::Location < SirsiBase
   # V3 Unavailable means not available to be checked out
   # These are now basically "by request"
   V3_UNAVAILABLE_LOCATIONS =
-    codes(HOLD_LOCATIONS, HIDDEN_LOCATIONS, <<-HEREDOC.squish.split)
+    codes(HOLD_LOCATIONS,  <<-HEREDOC.squish.split)
        CHECKEDOUT
        ON-ORDER
        BINDERY
@@ -141,6 +140,6 @@ class V4::Location < SirsiBase
 
   NOT_ON_SHELF = UNAVAILABLE_LOCATIONS + V3_UNAVAILABLE_LOCATIONS +
     RESERVE_LOCATIONS + NON_CIRC_LOCATIONS +
-    RESERVE_LIBRARIES + MEDIUM_RARE_LOCATIONS + HIDDEN_LOCATIONS +
+    RESERVE_LIBRARIES + MEDIUM_RARE_LOCATIONS +
     REMOTE_LIBRARIES + BY_REQUEST_LOCATIONS + IVY
 end
