@@ -15,7 +15,7 @@ class V4::CourseReserve < SirsiBase
    end
 
    def self.search(type, query, page)
-      out = {page: 1, count: 0, total: 0, more: false, hits: []}
+      out = {success: true, page: 1, count: 0, total: 0, more: false, hits: []}
       page_size = 20
       page_num = 1
       if !page.blank?
@@ -30,6 +30,11 @@ class V4::CourseReserve < SirsiBase
          url = "/reserves/reserve/search?q=#{type}:#{query}&#{fl}&ct=#{page_size}&rw=#{(page_num-1)*page_size+1}"
          Rails.logger.info "Course reserves request: #{url}"
          response = get(url, headers: self.auth_headers)
+         if response.code == 500
+            Rails.logger.error "Course reserves request got a 500 from sirsi"
+            out[:success] = false
+            return out
+         end
          check_session(response)
          results = response['result']
          if results.blank? 

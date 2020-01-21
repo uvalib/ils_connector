@@ -13,6 +13,10 @@ class V4::CourseReservesController < V4ApplicationController
    # matching instructors or courses
    def search
       hits = V4::CourseReserve.search(reserves_params[:type], reserves_params[:query], reserves_params[:page])
+      if hits[:success] == false 
+         render plain: "SIRSI System error", status: :internal_server_error
+         return
+      end
       if hits.blank?
          render plain: "Unable to find any matching course reserves", status: :not_found
          return
