@@ -4,7 +4,7 @@ class V4::User < SirsiBase
    def self.find( user_id )
       user = {}.with_indifferent_access
       ldap = V2::UserLDAP.find( user_id )
-      if ldap.blank? == false
+      if ldap.present?
          user['id'] = ldap['cid']
          user['communityUser'] = false
          user['title'] = ldap['title'].first if !ldap['title'].blank?
@@ -38,7 +38,8 @@ class V4::User < SirsiBase
          end
          fields = results.first["fields"]
          user['barcode'] = fields['barcode']
-         user['displayName'] = fields['displayName']
+         # Don't override the name from LDAP
+         user['displayName'] ||= fields['displayName']
          user['profile'] = fields['profile']['fields']['description']
          statusInfo = fields['patronStatusInfo']['fields']
          user['standing'] = statusInfo['standing']['key']
