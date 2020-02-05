@@ -31,6 +31,15 @@ module IlsConnector
     config.require_master_key = true
 
     config.lograge.enabled = true
+    config.lograge.custom_options = lambda do |event|
+      {duration: event.duration.to_f.round,
+       exception: event.payload[:exception],
+       host: event.payload[:headers][:host],
+      }
+    end
+    config.lograge.formatter = ->(data) do
+      "#{"ERROR: " if data[:exception].present?}#{data[:status]} response for #{data[:method]} #{data[:host]}#{data[:path]} #{data[:duration]} ms #{data[:exception]}"
+    end
 
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration can go into files in config/initializers
