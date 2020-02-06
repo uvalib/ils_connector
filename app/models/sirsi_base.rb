@@ -22,7 +22,7 @@ class SirsiBase
       time = Benchmark.realtime do
         response = yield
       end
-      Rails.logger.info "Sirsi Response: #{time * 1000}ms"
+      Rails.logger.info "Sirsi Response: #{(time * 1000).round} mS"
       return response
 
     rescue => e
