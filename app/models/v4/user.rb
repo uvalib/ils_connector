@@ -24,7 +24,7 @@ class V4::User < SirsiBase
       end
 
       ensure_login do
-         response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=barcode,displayName,profile{description},patronStatusInfo{standing,amountOwed}", 
+         response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=barcode,displayName,profile{description},patronStatusInfo{standing,amountOwed}",
             headers: self.auth_headers)
          check_session(response)
          results = response['result']
@@ -157,5 +157,30 @@ class V4::User < SirsiBase
          end
       end
       return bills
+   end
+
+   # Gets a subset of user info needed to make a hold
+   def self.find_library user_id
+      ensure_login do
+
+        params = {q: "ALT_ID:#{user_id}",
+                  includeFields: 'library',
+                  json: true
+        }
+        response = get("/user/patron/search",
+                       query: params,
+                       headers: self.auth_headers)
+        check_session(response)
+        results = response['result']
+        if results.nil? || results.none? || results.many?
+          Rails.logger.warn "User Not Found: #{user_id}"
+          return {}
+        end
+        user = results.first
+
+        { key: user['key'],
+          library: user.dig('fields', 'library', 'key')
+        }
+      end
    end
 end

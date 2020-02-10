@@ -55,11 +55,10 @@ Rails.application.routes.draw do
       resources :items, only: [:show]
     end
 
+    #
+    # V3 was skipped so versions match with Virgo 4
+    #
 
-    # TODO
-    #namespace :v3 do
-    #  resources :ivy_requests, only: [:create, :index]
-    #end
   end #format to xml
 
   defaults format: :json do
@@ -89,6 +88,9 @@ Rails.application.routes.draw do
           post :renew_all, path: '/renewAll'
         end
       end
+
+      resources :holds, only: [:create]
+
     end
   end # format to json
 

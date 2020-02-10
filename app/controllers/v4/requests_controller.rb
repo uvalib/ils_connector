@@ -24,4 +24,3 @@ class V4::RequestsController < V4ApplicationController
       params.permit(:computing_id, :item_barcode, :format)
    end
  end
- 
