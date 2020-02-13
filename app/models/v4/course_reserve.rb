@@ -14,6 +14,50 @@ class V4::CourseReserve < SirsiBase
       return desks
    end
 
+   def self.validate(items) 
+      Rails.logger.info "Check ability to reserve #{items}"
+      out = []
+      ensure_login do
+         fields = "callList{itemList{itemType,library}}"
+         items.each do |id_str|
+            id = id_str.gsub(/^u/, '') 
+            url = "/catalog/bib/key/#{id}?includeFields=#{fields}"
+            response = get(url, headers: self.auth_headers)
+            check_session(response)
+            if response.code != 200
+               # if no response, just let it go thru as OK. it will be denied 
+               # by someone else later (once the request email is received) if necessary
+               next
+            end
+
+            can_reserve = true
+            response['fields']['callList'].each do |cl|  
+               cl['fields']['itemList'].each do |item|
+                  item_t = item['fields']['itemType']['key']
+                  lib = item['fields']['library']['key']
+                  if lib == "HEALTHSCI" || lib == "PEC-COLL"
+                     Rails.logger.info "Cannot reserve #{id_str}: invalid library #{lib}"
+                     can_reserve = false
+                  elsif lib == "LAW" && item_t == "VIDEO-DVD" 
+                     Rails.logger.info "Cannot reserve #{id_str}: DVDs is from LAW"
+                     can_reserve = false   
+                  end
+               end
+               if can_reserve == false 
+                  break
+               end
+            end
+
+            if can_reserve 
+               out << {id: id_str, reserve: true }
+            else 
+               out << {id: id_str, reserve: false }
+            end
+         end
+      end 
+      return out
+   end
+
    def self.search(type, query, page)
       out = {success: true, page: 1, count: 0, total: 0, more: false, hits: []}
       page_size = 20

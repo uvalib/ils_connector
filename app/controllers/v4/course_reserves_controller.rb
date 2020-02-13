@@ -24,9 +24,17 @@ class V4::CourseReservesController < V4ApplicationController
       render json: hits.as_json
    end
 
+   # A POST request containing a json array of requested items. Check each for ability 
+   # to be put on course reserve. If any fail, return them in the response
+   def validate
+      items = params["items"]
+      resp = V4::CourseReserve.validate(items)
+      render json: resp.as_json
+   end
+
    private
    def reserves_params
-      params.permit(:type, :id, :desk, :query, :page, :format)
+      params.permit(:type, :id, :desk, :query, :page, :format, :items)
    end
  end
  

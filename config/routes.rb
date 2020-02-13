@@ -80,6 +80,7 @@ Rails.application.routes.draw do
         collection do
           get :desks
           get :search
+          post :validate
         end
       end
       resources :requests, path: '/request', only: [] do
