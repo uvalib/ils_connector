@@ -246,6 +246,7 @@ DEPENDENCIES
   hashie
   httparty
   json
+  jwt
   listen (>= 3.0.5, < 3.2)
   lograge
   prometheus-client

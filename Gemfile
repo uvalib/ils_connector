@@ -88,3 +88,6 @@ gem 'prometheus-client'
 gem 'etc'
 gem 'json'
 gem 'bigdecimal'
+
+# service auth
+gem 'jwt'
