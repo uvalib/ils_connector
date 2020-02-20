@@ -35,7 +35,7 @@ class V4::CourseReserve < SirsiBase
                cl['fields']['itemList'].each do |item|
                   item_t = item['fields']['itemType']['key']
                   lib = item['fields']['library']['key']
-                  if lib == "HEALTHSCI" || lib == "PEC-COLL"
+                  if lib == "HEALTHSCI" || lib == "SPEC-COLL"
                      Rails.logger.info "Cannot reserve #{id_str}: invalid library #{lib}"
                      can_reserve = false
                   elsif lib == "LAW" && item_t == "VIDEO-DVD" 

@@ -22,7 +22,7 @@ class V2::RequestsController < V2ApplicationController
     # checkoutKey is the catalog key without the u or pda prefix
     computing_id = params[:computingId]
     user_barcode = V2::Request.get_user_barcode(computing_id)
-    if user_barcode.blank? 
+    if user_barcode.blank?
         render plain: "User #{computing_id} not found", status: :bad_request
         return
     end
