@@ -5,7 +5,7 @@ class V4::CourseReservesController < V4ApplicationController
       if desks.blank? 
          render plain: "Unable to retrieve reserve desks", status: :not_found
       else
-         render json: desks.as_json
+         render json: desks.to_json
       end
    end
 
@@ -21,20 +21,20 @@ class V4::CourseReservesController < V4ApplicationController
          render plain: "Unable to find any matching course reserves", status: :not_found
          return
       end
-      render json: hits.as_json
+      render json: hits.to_json
    end
 
    # A POST request containing a json array of requested items. Check each for ability 
    # to be put on course reserve. If any fail, return them in the response
    def validate
-      items = reserves_params["items"]
+      items = reserves_params[:items]
       resp = V4::CourseReserve.validate(items)
-      render json: resp.as_json
+      render json: resp.to_json
    end
 
    private
    def reserves_params
-      params.permit(:type, :id, :desk, :query, :page, :format, :items)
+     params.permit(:type, :id, :desk, :query, :page, :format, items: [])
    end
  end
  
