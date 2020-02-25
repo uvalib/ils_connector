@@ -30,7 +30,7 @@ class V4::CourseReserve < SirsiBase
                next
             end
 
-            can_reserve = true
+            can_reserve = false
             response['fields']['callList'].each do |cl|  
                cl['fields']['itemList'].each do |item|
                   item_t = item['fields']['itemType']['key']
@@ -41,10 +41,14 @@ class V4::CourseReserve < SirsiBase
                   elsif lib == "LAW" && item_t == "VIDEO-DVD" 
                      Rails.logger.info "Cannot reserve #{id_str}: DVDs is from LAW"
                      can_reserve = false   
+                  else  
+                     Rails.logger.info "Found item that is not a LAW DVD and is not HEALTHSCI or SC. Ok to reserve."
+                     can_reserve = true  
+                     break 
                   end
                end
-               if can_reserve == false 
-                  break
+               if can_reserve
+                  break 
                end
             end
 
