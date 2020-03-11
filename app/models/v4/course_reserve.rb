@@ -7,58 +7,58 @@ class V4::CourseReserve < SirsiBase
          url = "/policy/reserveCollection/simpleQuery?key=*&includeFields=key,description"
          response = get(url, headers: self.auth_headers)
          check_session(response)
-         response.each do |r| 
+         response.each do |r|
             desks << {id: r['key'], name: r['fields']['description'].gsub(/-/, ' ')}
          end
       end
       return desks
    end
 
-   def self.validate(items) 
+   def self.validate(items)
       Rails.logger.info "Check ability to reserve #{items}"
       out = []
       ensure_login do
          fields = "callList{itemList{itemType,library}}"
          items.each do |id_str|
-            id = id_str.gsub(/^u/, '') 
+            id = id_str.gsub(/^u/, '')
             url = "/catalog/bib/key/#{id}?includeFields=#{fields}"
             response = get(url, headers: self.auth_headers)
             check_session(response)
             if response.code != 200
-               # if no response, just let it go thru as OK. it will be denied 
+               # if no response, just let it go thru as OK. it will be denied
                # by someone else later (once the request email is received) if necessary
                next
             end
 
             can_reserve = false
-            response['fields']['callList'].each do |cl|  
+            response['fields']['callList'].each do |cl|
                cl['fields']['itemList'].each do |item|
                   item_t = item['fields']['itemType']['key']
                   lib = item['fields']['library']['key']
                   if lib == "HEALTHSCI" || lib == "SPEC-COLL"
                      Rails.logger.info "Cannot reserve #{id_str}: invalid library #{lib}"
                      can_reserve = false
-                  elsif lib == "LAW" && item_t == "VIDEO-DVD" 
+                  elsif lib == "LAW" && item_t == "VIDEO-DVD"
                      Rails.logger.info "Cannot reserve #{id_str}: DVDs is from LAW"
-                     can_reserve = false   
-                  else  
+                     can_reserve = false
+                  else
                      Rails.logger.info "Found item that is not a LAW DVD and is not HEALTHSCI or SC. Ok to reserve."
-                     can_reserve = true  
-                     break 
+                     can_reserve = true
+                     break
                   end
                end
                if can_reserve
-                  break 
+                  break
                end
             end
 
-            if can_reserve 
+            if can_reserve
                out << {id: id_str, reserve: true }
-            else 
+            else
                out << {id: id_str, reserve: false }
             end
          end
-      end 
+      end
       return out
    end
 
@@ -70,8 +70,8 @@ class V4::CourseReserve < SirsiBase
          page_num =  page.to_i
          page_num = 1 if page_num == 0
       end
-      fields = ["reserveCollection{description}", "circulationRule{displayName,loanPeriod}", 
-         "title", "author","course{courseID,name}", "instructor{name}", 
+      fields = ["reserveCollection{description}", "circulationRule{displayName,loanPeriod}",
+         "title", "author","course{courseID,name}", "instructor{name}",
          "itemReserveInfoList{reserveStatus,item{call{callNumber}}}"]
       ensure_login do
          fl = "includeFields=#{fields.join(',')}"
@@ -85,7 +85,7 @@ class V4::CourseReserve < SirsiBase
          end
          check_session(response)
          results = response['result']
-         if results.blank? 
+         if results.blank?
             Rails.logger.warn "NO results found for #{type}?#{query}"
             return out
          end
@@ -98,9 +98,9 @@ class V4::CourseReserve < SirsiBase
             reserve_info = fields['itemReserveInfoList'].first['fields']
 
             # extract raw reserve data into course, instructor and reserved item
-            course = {id: fields['course']['fields']['courseID'], name: fields['course']['fields']['name']}    
-            if !fields['instructor'].blank?         
-               instructor = {name: fields['instructor']['fields']['name']}  
+            course = {id: fields['course']['fields']['courseID'], name: fields['course']['fields']['name']}
+            if !fields['instructor'].blank?
+               instructor = {name: fields['instructor']['fields']['name']}
             else
                instructor = {name: "Unknown"}
             end
@@ -119,40 +119,40 @@ class V4::CourseReserve < SirsiBase
             if type == "INSTRUCTOR_NAME" || type == "INSTRUCTOR_ID"
                # instructor centric: instructor->course->reserves
                tgt_inst = out[:hits].find{|ins| ins[:name] == instructor[:name]}
-               if tgt_inst.blank? 
+               if tgt_inst.blank?
                   instructor[:courses] = []
                   out[:hits] << instructor
-                  tgt_inst = instructor 
+                  tgt_inst = instructor
                end
 
-               tgt_course = tgt_inst[:courses].find{|c| c[:id] == course[:id]} 
-               if tgt_course.blank? 
+               tgt_course = tgt_inst[:courses].find{|c| c[:id] == course[:id]}
+               if tgt_course.blank?
                   course[:reserves] = []
-                  tgt_course = course 
+                  tgt_course = course
                   tgt_inst[:courses] << tgt_course
                end
                tgt_reserves = tgt_course[:reserves]
             else
                # Course centric: course->instructor->reserves
                tgt_course = out[:hits].find { |c| c[:id] == course[:id] }
-               if tgt_course.blank? 
+               if tgt_course.blank?
                   course[:instructors] = []
                   out[:hits] << course
-                  tgt_course = course 
+                  tgt_course = course
                end
 
                tgt_inst = tgt_course[:instructors].find{|ins| ins[:name] == instructor[:name]}
-               if tgt_inst.blank? 
+               if tgt_inst.blank?
                   instructor[:reserves] = []
-                  tgt_inst = instructor 
+                  tgt_inst = instructor
                   tgt_course[:instructors] << tgt_inst
                end
                tgt_reserves = tgt_inst[:reserves]
-            end 
+            end
             existing = tgt_reserves.find { |r| r[:catalogKey] == item[:catalogKey] }
-            if existing.blank? 
-               tgt_reserves << item     
-            else 
+            if existing.blank?
+               tgt_reserves << item
+            else
                existing[:copies] += 1
             end
          end

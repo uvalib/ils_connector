@@ -11,12 +11,12 @@ class V2::Request < SirsiBase
          check_session(response)
          results = response['result']
          if results.none?
-            Rails.logger.warn "User Not Found: #{user_id}"
-            return nil
-          end
-          user_barcode = results.first['fields']['barcode']
-          Rails.logger.debug "User #{computing_id} barcode is #{user_barcode}"
-          return user_barcode
+           Rails.logger.warn "User Not Found: #{user_id}"
+           return nil
+         end
+         user_barcode = results.first['fields']['barcode']
+         Rails.logger.debug "User #{computing_id} barcode is #{user_barcode}"
+         return user_barcode
       end
       return nil
    end
@@ -65,10 +65,11 @@ class V2::Request < SirsiBase
          response["patronCheckoutInfo"].each do |co| 
             if co['titleKey'] == item_id 
                payload = { itemBarcode: barcode }
-               return post("/circulation/circRecord/renew",
+               response = post("/circulation/circRecord/renew",
                   body: payload.to_json,
                   headers: auth_headers
                )
+               return response
             end
          end
       end

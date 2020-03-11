@@ -83,7 +83,7 @@ Rails.application.routes.draw do
           post :validate
         end
       end
-      resources :requests, path: '/request', only: [] do
+      resources :checkouts, path: '/request', only: [] do
         collection do
           post :renew, path: '/renew'
           post :renew_all, path: '/renewAll'
