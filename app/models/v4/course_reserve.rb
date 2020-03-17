@@ -98,8 +98,12 @@ class V4::CourseReserve < SirsiBase
             reserve_info = fields['itemReserveInfoList'].first['fields']
 
             # extract raw reserve data into course, instructor and reserved item
-            course = {id: fields['course']['fields']['courseID'], name: fields['course']['fields']['name']}              
-            instructor = {name: fields['instructor']['fields']['name']}  
+            course = {id: fields['course']['fields']['courseID'], name: fields['course']['fields']['name']}    
+            if !fields['instructor'].blank?         
+               instructor = {name: fields['instructor']['fields']['name']}  
+            else
+               instructor = {name: "Unknown"}
+            end
 
             item = {title: fields['title'], author: fields['author']}
             item_data = reserve_info['item']
