@@ -89,9 +89,13 @@ Rails.application.routes.draw do
           post :renew_all, path: '/renewAll'
         end
       end
+      resources :requests, only: [] do
+        collection do
+          get :options
+          post :hold
+        end
 
-      resources :holds, only: [:create]
-
+      end
     end
   end # format to json
 
