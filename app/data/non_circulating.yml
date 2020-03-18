@@ -1,0 +1,21 @@
+libraries:
+  - SPEC-COLL
+  - JAG
+locations:
+  # Medium Rare
+  - LOCKEDSTKS
+  # Reserve Locations
+  - AS-RESV
+  - MU-RESV
+  - HS-RESERVE
+  - CHEM-RESV
+  - MA-RESV
+  - PHYS-RESV
+  - JAG-RESV
+  - RMC-RESV
+  - CLEM-RESV
+  - BP-RESV
+  - EDUC-RESV
+  - DARD-RESV
+  - FA-RESV
+  - SEL-RESV

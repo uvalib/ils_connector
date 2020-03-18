@@ -3,11 +3,11 @@ class V4::Library < SirsiBase
   # V4 should try to move away from that as much as possible
   include Refreshable
   include ActiveModel::Serializers::JSON
-  include OnShelf
+  include AvailabilityHelper
   base_uri env_credential(:sirsi_web_services_base)
   LIBRARY_PARAMS = {key: '*', includeFields: 'policyNumber,description'}
 
-  attr_accessor :id, :key, :description, :on_shelf
+  attr_accessor :id, :key, :description, :on_shelf, :non_circulating
 
   # for serializer root node
   def self.model_name
@@ -39,7 +39,8 @@ class V4::Library < SirsiBase
         lib.id = resource['fields']['policyNumber']
         lib.key = resource['key']
         lib.description = resource['fields']['description']
-        lib.on_shelf = OnShelf.library? lib.key
+        lib.on_shelf = AvailabilityHelper.on_shelf_library? lib.key
+        lib.non_circulating = AvailabilityHelper.non_circulating_library? lib.key
         lib
       end
       reset_refresh_timer

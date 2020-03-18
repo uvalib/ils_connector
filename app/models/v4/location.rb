@@ -2,11 +2,11 @@ class V4::Location < SirsiBase
 
   include ActiveModel::Serializers::JSON
   include Refreshable
-  include OnShelf
+  include AvailabilityHelper
   base_uri env_credential(:sirsi_web_services_base)
   LOCATION_PARAMS = {key: '*', includeFields: 'key,policyNumber,description,shadowed'}
 
-  attr_accessor :id, :key, :description, :on_shelf, :online, :unavailable, :shadowed
+  attr_accessor :id, :key, :description, :on_shelf, :online, :unavailable, :shadowed, :non_circulating
 
   # for serializer root node
   def self.model_name
@@ -42,7 +42,8 @@ class V4::Location < SirsiBase
         loc.id = resource['fields']['policyNumber']
         loc.key = resource['key']
         loc.description = resource['fields']['description']
-        loc.on_shelf = OnShelf.location? loc.key
+        loc.on_shelf = AvailabilityHelper.on_shelf_location? loc.key
+        loc.non_circulating = AvailabilityHelper.non_circulating_location? loc.key
         loc.online = match?(loc.key, ONLINE_LOCATIONS)
         loc.unavailable = match?(loc.key, UNAVAILABLE_LOCATIONS)
         loc.shadowed = resource['fields']['shadowed']
