@@ -24,7 +24,7 @@ class V4::User < SirsiBase
       end
 
       ensure_login do
-         response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=barcode,displayName,profile{description},patronStatusInfo{standing,amountOwed}",
+         response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=barcode,displayName,profile{description},patronStatusInfo{standing,amountOwed},library",
             headers: self.auth_headers)
          check_session(response)
          results = response['result']
@@ -43,6 +43,9 @@ class V4::User < SirsiBase
          user['profile'] = fields['profile']['fields']['description']
          statusInfo = fields['patronStatusInfo']['fields']
          user['standing'] = statusInfo['standing']['key']
+         if !fields['library'].blank?
+            user['homeLibrary'] = fields['library']['key']
+         end
          
          # Per Stephanie Hunter, DELINQUENT not a vailid state. Workflows run 
          # every night to wipe it out. If one gets missed, change it to OK here.
