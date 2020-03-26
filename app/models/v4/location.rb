@@ -28,6 +28,10 @@ class V4::Location < SirsiBase
     match? key, MEDIUM_RARE_LOCATIONS
   end
 
+  def circulating
+    !self.non_circulating
+  end
+
   private
   def self.get_locations
     ensure_login do

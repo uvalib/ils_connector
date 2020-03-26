@@ -25,6 +25,10 @@ class V4::Library < SirsiBase
     end
   end
 
+  def circulating
+    !self.non_circulating
+  end
+
   private
   def self.get_libraries
     ensure_login do
