@@ -63,15 +63,17 @@ class V4::CourseReserve < SirsiBase
    end
 
    def self.search(type, query, page)
-      out = {success: true, page: 1, count: 0, total: 0, more: false, hits: []}
-      page_size = 20
+      out = {success: true, more: false, page: 1, hits: []}
+      page_size = 10
       page_num = 1
       if !page.blank?
          page_num =  page.to_i
          page_num = 1 if page_num == 0
       end
+      out[:page] = page_num
+      
       fields = ["reserveCollection{description}", "circulationRule{displayName,loanPeriod}",
-         "title", "author","course{courseID,name}", "instructor{name}",
+         "title", "author", "stage", "course{courseID,name}", "instructor{name}",
          "itemReserveInfoList{reserveStatus,item{call{callNumber}}}"]
       ensure_login do
          fl = "includeFields=#{fields.join(',')}"
@@ -89,14 +91,26 @@ class V4::CourseReserve < SirsiBase
             Rails.logger.warn "NO results found for #{type}?#{query}"
             return out
          end
-         out[:page] = page_num
-         out[:total] = response['totalResults']
-         out[:count] = results.length
+
          out[:more] = response['startRow'] + results.length < response['totalResults']
+        
          results.each_with_index do |info, index|
             fields = info['fields']
             reserve_info = fields['itemReserveInfoList'].first['fields']
+            item_data = reserve_info['item']
+            cat_key = "u"+item_data['key'].split(":").first
 
+            if fields['stage'].blank? 
+               Rails.logger.error("#{cat_key} does not have stage. Skipping")
+               next 
+            end
+            stage = fields['stage']['key']
+            if stage != "ACTIVE"
+               Rails.logger.error("#{cat_key} has invalid stage #{stage}. Skipping")
+               next 
+            end 
+            
+            
             # extract raw reserve data into course, instructor and reserved item
             course = {id: fields['course']['fields']['courseID'], name: fields['course']['fields']['name']}
             if !fields['instructor'].blank?
@@ -106,8 +120,8 @@ class V4::CourseReserve < SirsiBase
             end
 
             item = {title: fields['title'], author: fields['author']}
-            item_data = reserve_info['item']
-            item[:catalogKey] =  "u"+item_data['key'].split(":").first
+            
+            item[:catalogKey] =  cat_key
             item[:callNumber] =  item_data['fields']['call']['fields']['callNumber']
             item[:reserveDesk] = fields['reserveCollection']['fields']['description']
             item[:circulationRule] = fields['circulationRule']['fields']["displayName"]
@@ -149,6 +163,7 @@ class V4::CourseReserve < SirsiBase
                end
                tgt_reserves = tgt_inst[:reserves]
             end
+
             existing = tgt_reserves.find { |r| r[:catalogKey] == item[:catalogKey] }
             if existing.blank?
                tgt_reserves << item
@@ -157,6 +172,7 @@ class V4::CourseReserve < SirsiBase
             end
          end
       end
+
       return out
    end
 
