@@ -3,13 +3,14 @@ class V4::Availability < SirsiBase
   base_uri env_credential(:sirsi_web_services_base)
   default_timeout 5
 
-  attr_accessor :title_id, :data, :items
+  attr_accessor :title_id, :data, :items, :request_options
 
   def initialize id
     # remove leading u if present
     self.title_id = id.gsub(/^u/, '')
     self.data = find
     self.items = process_response if self.data.present?
+    self.request_options = V4::Request::Type.determine_options(id)
   end
 
   # used to name the root node in ActiveModel::Serializers

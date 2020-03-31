@@ -4,4 +4,5 @@ class V4::AvailabilitySerializer < ActiveModel::Serializer
     V4::Availability::VISIBLE_FIELDS.keys
   end
   has_many :items
+  has_many :request_options
 end

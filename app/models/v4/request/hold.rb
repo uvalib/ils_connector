@@ -1,42 +1,29 @@
-class V4::Hold < SirsiBase
-  include ActiveModel::Validations
-  include ActiveModel::Serializers::JSON
-  base_uri env_credential(:sirsi_web_services_base)
-  default_timeout 5
+class V4::Request::Hold < V4::Request::Type
 
   PICKUP_LIBRARIES = %w(ALDERMAN CLEMONS DARDEN FINE-ARTS HEALTHSCI JAG LAW LEO MATH MUSIC PHYSICS SCI-ENG).freeze
 
-  attr_accessor :title_key, :pickup_library, :user_id, :user_key, :user_library, :response
+  # Standard fields are defined in V4::RequestOption
+  attr_accessor :pickup_library, :user_library
 
-  validates_presence_of :title_key, :pickup_library,
-    :user_id
+  validates_presence_of :user_library
   validates_inclusion_of :pickup_library, in: PICKUP_LIBRARIES, message: "%{value} is not a valid pickup library."
 
-
   def initialize options = {}
+    super(options)
 
-    # remove leading u
-    self.title_key = options[:title_key].delete_prefix 'u'
+    return if self.errors.any?
 
+    self.user_library = user[:homeLibrary]
     self.pickup_library = options[:pickup_library]
-    self.user_id = options[:user_id]
 
-    user = V4::User.find_library(user_id)
-    self.user_key = user[:key]
-    self.user_library = user[:library]
+    create_hold
+  end
 
-    if user.empty?
-      self.errors[:user_id] << "User not found."
-      return
-    end
-
-    if self.valid?
-      create_hold
-    else
-      # respond with errors
-      return
-    end
-
+  def label
+    'Request this Item'
+  end
+  def description
+    'Make a request to obtain this item from the library catalog.'
   end
 
 
@@ -74,7 +61,5 @@ class V4::Hold < SirsiBase
         return
       end
     end
-
-
   end
 end

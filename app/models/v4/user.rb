@@ -13,7 +13,7 @@ class V4::User < SirsiBase
          user['email'] = ldap['email']
          user['displayName'] = ldap['display_name']
 
-         # description can be used to dertermine undergraduate status. Necessary 
+         # description can be used to dertermine undergraduate status. Necessary
          # to determine if a user can make course reserves
          if !ldap['description'].blank?
             user['description'] = ldap['description'].first
@@ -38,6 +38,7 @@ class V4::User < SirsiBase
          end
          fields = results.first["fields"]
          user['barcode'] = fields['barcode']
+         user['key'] = fields['key']
          # Don't override the name from LDAP
          user['displayName'] ||= fields['displayName']
          user['profile'] = fields['profile']['fields']['description']
@@ -46,8 +47,8 @@ class V4::User < SirsiBase
          if !fields['library'].blank?
             user['homeLibrary'] = fields['library']['key']
          end
-         
-         # Per Stephanie Hunter, DELINQUENT not a vailid state. Workflows run 
+
+         # Per Stephanie Hunter, DELINQUENT not a vailid state. Workflows run
          # every night to wipe it out. If one gets missed, change it to OK here.
          if user['standing'] == "DELINQUENT"
             user['standing'] = "OK"
@@ -58,7 +59,7 @@ class V4::User < SirsiBase
       return user
    end
 
-   def self.change_pin(user_id, old_pin, new_pin) 
+   def self.change_pin(user_id, old_pin, new_pin)
       Rails.logger.info("User #{user_id} attempt to change pin")
       begin
          Rails.logger.info "Logging in #{user_id}"
@@ -79,7 +80,7 @@ class V4::User < SirsiBase
             if pin_resp.code == 200
                Rails.logger.error "User #{user_id} change pin success"
                return true
-            else 
+            else
                Rails.logger.error "User #{user_id} change pin failed: #{pin_resp.as_json}"
                return false
             end
@@ -97,11 +98,11 @@ class V4::User < SirsiBase
       return true
    end
 
-   def self.get_checkouts(user_id) 
+   def self.get_checkouts(user_id)
       checkouts = []
       ensure_login do
          incFields = "circRecordList{*,library{description},item{*,call{*,bib{callNumber,author,title}}}}"
-         response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=#{incFields}", 
+         response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=#{incFields}",
             headers: self.auth_headers)
          check_session(response)
          results = response['result']
@@ -130,11 +131,11 @@ class V4::User < SirsiBase
       return checkouts
    end
 
-   def self.get_bills(user_id) 
+   def self.get_bills(user_id)
       bills = []
       ensure_login do
          # first convert ID to barcode...
-         response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=barcode&json=true", 
+         response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=barcode&json=true",
             headers: self.auth_headers)
          check_session(response)
          results = response['result']
@@ -150,7 +151,7 @@ class V4::User < SirsiBase
          fees = response['feeInfo']
          fees.each do |b|
             itemInfo = b['feeItemInfo']
-            item = {id: itemInfo['titleKey'], barcode: itemInfo['itemID'], 
+            item = {id: itemInfo['titleKey'], barcode: itemInfo['itemID'],
                callNumber: itemInfo['callNumber'], type: itemInfo['itemTypeDescription'],
                title: itemInfo['title'],  author: itemInfo['author']
             }
