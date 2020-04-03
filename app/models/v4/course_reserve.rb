@@ -71,7 +71,7 @@ class V4::CourseReserve < SirsiBase
          page_num = 1 if page_num == 0
       end
       out[:page] = page_num
-      
+
       fields = ["reserveCollection{description}", "circulationRule{displayName,loanPeriod}",
          "title", "author", "stage", "course{courseID,name}", "instructor{name}",
          "itemReserveInfoList{reserveStatus,item{call{callNumber}}}"]
@@ -93,24 +93,24 @@ class V4::CourseReserve < SirsiBase
          end
 
          out[:more] = response['startRow'] + results.length < response['totalResults']
-        
+
          results.each_with_index do |info, index|
             fields = info['fields']
             reserve_info = fields['itemReserveInfoList'].first['fields']
             item_data = reserve_info['item']
             cat_key = "u"+item_data['key'].split(":").first
 
-            if fields['stage'].blank? 
+            if fields['stage'].blank?
                Rails.logger.error("#{cat_key} does not have stage. Skipping")
-               next 
+               next
             end
             stage = fields['stage']['key']
             if stage != "ACTIVE"
                Rails.logger.error("#{cat_key} has invalid stage #{stage}. Skipping")
-               next 
-            end 
-            
-            
+               next
+            end
+
+
             # extract raw reserve data into course, instructor and reserved item
             course = {id: fields['course']['fields']['courseID'], name: fields['course']['fields']['name']}
             if !fields['instructor'].blank?
@@ -120,7 +120,7 @@ class V4::CourseReserve < SirsiBase
             end
 
             item = {title: fields['title'], author: fields['author']}
-            
+
             item[:catalogKey] =  cat_key
             item[:callNumber] =  item_data['fields']['call']['fields']['callNumber']
             item[:reserveDesk] = fields['reserveCollection']['fields']['description']

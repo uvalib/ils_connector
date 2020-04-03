@@ -38,7 +38,7 @@ class V4::User < SirsiBase
          end
          fields = results.first["fields"]
          user['barcode'] = fields['barcode']
-         user['key'] = fields['key']
+         user['key'] = fields['patronStatusInfo']['key']
          # Don't override the name from LDAP
          user['displayName'] ||= fields['displayName']
          user['profile'] = fields['profile']['fields']['description']

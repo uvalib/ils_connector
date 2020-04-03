@@ -59,5 +59,5 @@ end
 
 # Provides the credential value for a given key scoped to the current rails environment
 def env_credential key
-  ENV[key.to_s.upcase] || Rails.application.credentials[Rails.env.to_sym][key.to_sym]
+  ENV[key.to_s.upcase] || Rails.application.credentials[Rails.env.to_sym][key.downcase.to_sym]
 end
