@@ -1,4 +1,4 @@
-class V4::Request::Type < SirsiBase
+class V4::Request::RequestBase < SirsiBase
   include ActiveModel::Validations
   include ActiveModel::Serializers::JSON
 
@@ -14,7 +14,7 @@ class V4::Request::Type < SirsiBase
     if options[:user_id]
       self.user_id = options[:user_id]
       self.user = V4::User.find(user_id)
-      if user.empty?
+      unless user.present?
         # Sirsi user not found
         self.errors[:user_id] << "does not have a Sirsi account"
         return
@@ -27,16 +27,11 @@ class V4::Request::Type < SirsiBase
     if options[:title_key]
       # remove leading u
       self.title_key = options[:title_key].delete_prefix 'u'
-      self.availability = V4::Availability.new(title_key)
+      #self.availability = V4::Availability.new(title_key)
     end
 
   end
 
-  def self.determine_options title_key
-    #V4::Request::Type::Hold
 
-    []
-
-  end
 
 end

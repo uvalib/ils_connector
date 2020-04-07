@@ -10,7 +10,7 @@ class V4::Availability < SirsiBase
     self.title_id = id.gsub(/^u/, '')
     self.data = find
     self.items = process_response if self.data.present?
-    self.request_options = V4::Request::Type.determine_options(id)
+    self.request_options = V4::Request::Options.new(self).list
   end
 
   # used to name the root node in ActiveModel::Serializers
@@ -21,6 +21,7 @@ class V4::Availability < SirsiBase
   REQUEST_PARAMS= { json: 'true', includeItemInfo: 'true',
                     includeCatalogingInfo: 'true',
                     includeAvailabilityInfo: 'true',
+                    includeCallNumberSummary: 'true',
                     includeFields: '*', includeShadowed: 'BOTH'
   }
 
@@ -67,7 +68,11 @@ class V4::Availability < SirsiBase
           on_shelf: on_shelf?(holding, item),
           unavailable: unavailable?(item),
           notice: notice_text(item),
-          fields: fields
+          fields: fields,
+          library: library(holding, item),
+          current_location: current_location(holding, item),
+          call_number: call_number(holding, item),
+          volume: volume(item)
         }
       end
     end
@@ -80,6 +85,14 @@ class V4::Availability < SirsiBase
       visible: visible,
       type: type
     }
+  end
+
+  def volume item
+    data['callSummary'].map do |call|
+      if call['itemID'] == item['itemID']
+        return call['analyticZ']
+      end
+    end
   end
 
   # Field methods below
@@ -107,7 +120,6 @@ class V4::Availability < SirsiBase
       "By Request"
     end
   end
-
 
   def on_shelf? holding, item
     library = V4::Library.find holding['libraryID']

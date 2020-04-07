@@ -1,4 +1,4 @@
-class V4::Request::Hold < V4::Request::Type
+class V4::Request::Hold < V4::Request::RequestBase
 
   PICKUP_LIBRARIES = %w(ALDERMAN CLEMONS DARDEN FINE-ARTS HEALTHSCI JAG LAW LEO MATH MUSIC PHYSICS SCI-ENG).freeze
 
@@ -43,7 +43,8 @@ class V4::Request::Hold < V4::Request::Type
 
       # Users set to LEO library are LEO-able
       # TODO incorporate LEO+
-      working_library = home_library == 'LEO' ? 'LEO' : 'UVA-LIB'
+      #working_library = home_library == 'LEO' ? 'LEO' : 'UVA-LIB'
+      working_library = 'UVA-LIB'
       headers = {'sd-working-libraryid' => working_library}
       hold_data = {
         holdType: 'TITLE',
