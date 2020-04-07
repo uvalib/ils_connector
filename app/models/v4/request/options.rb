@@ -24,9 +24,9 @@ class V4::Request::Options
     availability.items.each do |item|
 
       # Add selectable volume options
-      if !item[:on_shelf] &&
-        !item[:volume].present? &&
-        !item[:unavailable]
+      if user_requestable(item) &&
+        !item[:unavailable] &&
+        item[:volume].present?
 
         holdable_items << {
           itemBarcode: item[:barcode],
@@ -55,6 +55,16 @@ class V4::Request::Options
         item_options: holdable_items,
         create_path: Rails.application.routes.url_helpers.hold_v4_requests_path
       }
+    end
+  end
+
+  def user_requestable item
+    #TODO Check for LEO here
+    if true
+      return true
+    else
+      # normal users can only request when not on shelf
+      !item[:on_shelf]
     end
   end
 

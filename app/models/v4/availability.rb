@@ -91,13 +91,10 @@ class V4::Availability < SirsiBase
   end
 
   def volume item
-    data['callSummary'].map do |call|
-      if call['itemID'] == item['itemID']
-        call['analyticZ']
-      else
-        nil
-      end
-    end
+    vol_item = data['callSummary'].find do |call|
+      call['itemID'] == item['itemID']
+    end || {}
+    return vol_item['analyticZ']
   end
 
   # Field methods below
