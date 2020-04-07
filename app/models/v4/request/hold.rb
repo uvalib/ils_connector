@@ -23,14 +23,6 @@ class V4::Request::Hold < V4::Request::RequestBase
     end
   end
 
-  def label
-    'Request this Item'
-  end
-  def description
-    'Make a request to obtain this item from the library catalog.'
-  end
-
-
   private
   def send_hold
 
@@ -43,8 +35,8 @@ class V4::Request::Hold < V4::Request::RequestBase
 
       # Users set to LEO library are LEO-able
       # TODO incorporate LEO+
-      #working_library = home_library == 'LEO' ? 'LEO' : 'UVA-LIB'
-      working_library = 'UVA-LIB'
+      working_library = home_library == 'LEO' ? 'LEO' : 'UVA-LIB'
+      #working_library = 'UVA-LIB'
       headers = {'sd-working-libraryid' => working_library}
       hold_data = {
         holdType: 'TITLE',

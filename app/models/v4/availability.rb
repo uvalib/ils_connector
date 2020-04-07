@@ -9,8 +9,10 @@ class V4::Availability < SirsiBase
     # remove leading u if present
     self.title_id = id.gsub(/^u/, '')
     self.data = find
-    self.items = process_response if self.data.present?
-    self.request_options = V4::Request::Options.new(self).list
+    if data.present?
+      self.items = process_response if self.data.present?
+      self.request_options = V4::Request::Options.new(self).list
+    end
   end
 
   # used to name the root node in ActiveModel::Serializers
@@ -37,6 +39,7 @@ class V4::Availability < SirsiBase
           response['TitleInfo'].first['titleControlNumber'].present?
         data = response['TitleInfo'].first
       else
+        # TODO: ATO ends up here and has no info
         # not found
       end
       data
@@ -90,7 +93,9 @@ class V4::Availability < SirsiBase
   def volume item
     data['callSummary'].map do |call|
       if call['itemID'] == item['itemID']
-        return call['analyticZ']
+        call['analyticZ']
+      else
+        nil
       end
     end
   end
