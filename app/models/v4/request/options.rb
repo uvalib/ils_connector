@@ -29,7 +29,7 @@ class V4::Request::Options
         item[:volume].present?
 
         holdable_items << {
-          itemBarcode: item[:barcode],
+          barcode: item[:barcode],
           label: item[:volume]
         }
       end
@@ -42,7 +42,7 @@ class V4::Request::Options
       end
       if holdable_item
         holdable_items << {
-          itemBarcode: holdable_item[:barcode]
+          barcode: holdable_item[:barcode]
         }
       end
     end
@@ -50,6 +50,7 @@ class V4::Request::Options
     if holdable_items.any?
       return {
         type: :hold,
+        sign_in_required: true,
         button_label: "Request this unavailable item",
         description: '',
         item_options: holdable_items,

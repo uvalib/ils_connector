@@ -7,7 +7,7 @@ class V4::Request::Hold < V4::Request::RequestBase
 
   validates_inclusion_of :pickup_library, in: PICKUP_LIBRARIES, message: "%{value} is not a valid pickup library."
   validates_presence_of :home_library
-  validates_presence_of :item_barcode, message: "is required. Use the first item for title level requests"
+  validates_presence_of :item_barcode, message: "is required."
 
   def initialize options = {}
     super(options)
@@ -35,8 +35,8 @@ class V4::Request::Hold < V4::Request::RequestBase
 
       # Users set to LEO library are LEO-able
       # TODO incorporate LEO+
-      working_library = home_library == 'LEO' ? 'LEO' : 'UVA-LIB'
-      #working_library = 'UVA-LIB'
+      #working_library = home_library == 'LEO' ? 'LEO' : 'UVA-LIB'
+      working_library = 'UVA-LIB'
       headers = {'sd-working-libraryid' => working_library}
       hold_data = {
         holdType: 'TITLE',
