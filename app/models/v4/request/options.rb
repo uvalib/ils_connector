@@ -11,10 +11,11 @@ class V4::Request::Options
   private
   def determine_options
     self.list = []
+    if hold_info = get_hold_info
+      self.list << hold_info
+    end
 
-    self.list << get_hold_info
-
-    # this.list << other_request_types
+    # this.list << other_request_types_go_here
   end
 
   def get_hold_info
