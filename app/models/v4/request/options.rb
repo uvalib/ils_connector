@@ -53,7 +53,7 @@ class V4::Request::Options
       return {
         type: :hold,
         sign_in_required: true,
-        button_label: "Request this unavailable item",
+        button_label: "Request items",
         description: '',
         item_options: holdable_items,
         create_path: Rails.application.routes.url_helpers.hold_v4_requests_path
