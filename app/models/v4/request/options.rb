@@ -25,7 +25,7 @@ class V4::Request::Options
     availability.items.each do |item|
 
       # Add selectable volume options
-      if user_requestable(item) &&
+      if user_can_hold(item) &&
         !item[:unavailable] &&
         item[:volume].present?
 
@@ -39,11 +39,12 @@ class V4::Request::Options
     # if no Volume options are present, add the first holdable item
     if holdable_items.none?
       holdable_item = availability.items.find do |item|
-        !item[:on_shelf] && !item[:unavailable]
+        user_can_hold(item) && !item[:unavailable]
       end
       if holdable_item
         holdable_items << {
-          barcode: holdable_item[:barcode]
+          barcode: holdable_item[:barcode],
+          label: holdable_item[:call_number]
         }
       end
     end
@@ -60,9 +61,9 @@ class V4::Request::Options
     end
   end
 
-  def user_requestable item
-    #TODO Check for LEO here
-    if true
+  # LEO users can request on_shelf items
+  def user_can_hold item
+    if availability.jwt_user[:can_leo]
       return true
     else
       # normal users can only request when not on shelf

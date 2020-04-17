@@ -3,11 +3,12 @@ class V4::Availability < SirsiBase
   base_uri env_credential(:sirsi_web_services_base)
   default_timeout 5
 
-  attr_accessor :title_id, :data, :items, :request_options
+  attr_accessor :title_id, :data, :items, :request_options, :jwt_user
 
-  def initialize id
+  def initialize id, jwt_user
     # remove leading u if present
     self.title_id = id.gsub(/^u/, '')
+    self.jwt_user = jwt_user
     self.data = find
     if data.present?
       self.items = process_response if self.data.present?
