@@ -74,6 +74,7 @@ Rails.application.routes.draw do
           post :change_pin
           get :checkouts
           get :bills
+          get :holds
         end
       end
       resources :course_reserves, :only => [] do

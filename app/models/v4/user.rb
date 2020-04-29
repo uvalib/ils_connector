@@ -163,6 +163,41 @@ class V4::User < SirsiBase
       return bills
    end
 
+   def self.get_holds user_id
+
+      holds = []
+      ensure_login do
+         # first convert ID to barcode...
+         response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=holdRecordList{*,bib{key,title,author},item{barcode,currentLocation,library}}&json=true",
+            headers: self.auth_headers)
+         check_session(response)
+         results = response['result']
+         if results.nil? || results.none? || results.many?
+            Rails.logger.warn "User Not Found: #{user_id}"
+            return nil
+         end
+         hold_records = results.first["fields"]["holdRecordList"]
+         hold_records.each do |hold|
+            h = hold['fields']
+            holds << {
+               pickupLocation: h['pickupLibrary']['key'],
+               status: h['status'],
+               placedDate: h['placedDate'],
+               queueLength: h['queueLength'],
+               queuePosition: h['queuePosition'],
+
+               titleKey: h['bib']['key'],
+               title: h['bib']['fields']['title'],
+               author: h['bib']['fields']['author'],
+               barcode: h['item']['fields']['barcode'],
+               currentLocation: h['item']['fields']['currentLocation']['key'],
+               library: h['item']['fields']['library']['key']
+            }
+         end
+      end
+      {holds: holds}
+   end
+
    # Gets a subset of user info needed to make a hold
    def self.find_library user_id
       ensure_login do

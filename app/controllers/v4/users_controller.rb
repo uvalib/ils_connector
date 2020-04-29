@@ -1,7 +1,7 @@
 class V4::UsersController < V4ApplicationController
    def show
       user = V4::User.find(user_params[:id])
-      if user.nil? 
+      if user.nil?
          render plain: "#{user_params[:id]} not found", status: :not_found
       else
          render json: user.as_json
@@ -10,35 +10,44 @@ class V4::UsersController < V4ApplicationController
 
    def check_pin
       if V2::User.check_pin(user_params[:id], user_params['pin'])
-         render plain: "valid", status: :ok 
-      else 
-         render plain: "invalid", status: :not_found 
+         render plain: "valid", status: :ok
+      else
+         render plain: "invalid", status: :not_found
       end
    end
 
    def change_pin
       if V4::User.change_pin(user_params[:id], user_params['current_pin'], user_params['new_pin'])
-         render plain: "changed", status: :ok 
-      else 
-         render plain: "failed", status: :not_found 
+         render plain: "changed", status: :ok
+      else
+         render plain: "failed", status: :not_found
       end
    end
 
-   def checkouts 
+   def checkouts
       checkouts = V4::User.get_checkouts(user_params[:id])
-      if checkouts.nil? 
+      if checkouts.nil?
          render plain: "#{user_params[:id]} not found", status: :not_found
       else
          render json: checkouts.to_json, status: :ok
       end
    end
 
-   def bills 
+   def bills
       bills = V4::User.get_bills(user_params[:id])
-      if bills.nil? 
+      if bills.nil?
          render plain: "#{user_params[:id]} not found", status: :not_found
       else
          render json: bills.to_json, status: :ok
+      end
+   end
+
+   def holds
+      holds = V4::User.get_holds(user_params[:id])
+      if holds.empty?
+         render plain: "#{user_params[:id]} not found", status: :not_found
+      else
+         render json: holds.to_json, status: :ok
       end
    end
 
@@ -47,4 +56,3 @@ class V4::UsersController < V4ApplicationController
       params.permit(:id, :pin, :format, :current_pin, :new_pin)
    end
  end
- 
