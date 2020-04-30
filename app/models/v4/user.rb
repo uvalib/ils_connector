@@ -180,6 +180,7 @@ class V4::User < SirsiBase
          hold_records.each do |hold|
             h = hold['fields']
             holds << {
+               id: hold['key'],
                pickupLocation: h['pickupLibrary']['key'],
                status: h['status'],
                placedDate: h['placedDate'],

@@ -22,6 +22,15 @@ class V4::Request::Hold < V4::Request::RequestBase
       send_hold
     end
   end
+  def self.delete_hold id
+    ensure_login do
+      response = delete("/circulation/holdRecord/key/#{id}",
+                                 headers: auth_headers.merge(headers)
+                     )
+      check_session(response)
+      return response.code == 204
+    end
+  end
 
   private
   def send_hold

@@ -92,8 +92,8 @@ Rails.application.routes.draw do
       end
       resources :requests, only: [] do
         collection do
-          get :options
-          post :hold
+          post :hold, action: :create_hold
+          delete 'hold/:id', action: :delete_hold
         end
 
       end
