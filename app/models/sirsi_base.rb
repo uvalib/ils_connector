@@ -10,9 +10,9 @@ class SirsiBase
 
   default_timeout 20
 
-  # wrap api calls with this
+  # wrap api calls with this (we add the no_instrument attribute so we can filter certain responses from the log)
   #
-  def self.ensure_login
+  def self.ensure_login( no_instrument = false )
     response = nil
     begin
       if !defined?(@@session_token) || old_session?
@@ -22,7 +22,7 @@ class SirsiBase
       time = Benchmark.realtime do
         response = yield
       end
-      Rails.logger.info "Sirsi Response: #{(time * 1000).round} mS"
+      Rails.logger.info "Sirsi Response: #{(time * 1000).round} mS" unless no_instrument
       return response
 
     rescue => e
@@ -44,10 +44,13 @@ class SirsiBase
       login_body = {'login' => env_credential(:sirsi_user),
                'password' => env_credential(:sirsi_password)
               }
-      @@sirsi_user = post( "/user/staff/login",
-                          body: login_body.to_json,
-                          headers: base_headers )
+      time = Benchmark.realtime do
+        @@sirsi_user = post( "/user/staff/login",
+                            body: login_body.to_json,
+                            headers: base_headers )
+      end
       raise if !@@sirsi_user.success?
+      Rails.logger.info "Sirsi Response: #{(time * 1000).round} mS"
 
       @@staffKey = @@sirsi_user['staffKey']
       @@session_token = @@sirsi_user['sessionToken']
@@ -93,7 +96,8 @@ class SirsiBase
 
   # used for healthcheck.
   def self.account_info
-    ensure_login do
+    # dont want to log response times for heartbeats
+    ensure_login( no_instrument = true ) do
       get("/user/staff/key/#{@@staffKey}", headers: auth_headers)
     end
   end
