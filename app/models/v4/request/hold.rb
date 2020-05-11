@@ -44,8 +44,8 @@ class V4::Request::Hold < V4::Request::RequestBase
 
       # Users set to LEO library are LEO-able
       # TODO incorporate LEO+
-      #working_library = home_library == 'LEO' ? 'LEO' : 'UVA-LIB'
-      working_library = 'UVA-LIB'
+      working_library = home_library == 'LEO' ? 'LEO' : 'UVA-LIB'
+      #working_library = 'UVA-LIB'
       headers = {'sd-working-libraryid' => working_library}
       hold_data = {
         holdType: 'TITLE',
