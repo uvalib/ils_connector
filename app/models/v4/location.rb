@@ -85,7 +85,7 @@ class V4::Location < SirsiBase
 
   ONLINE_LOCATIONS = codes 'INTERNET'
 
-  # Unavailable now means that an item is not on shelf nor requestable
+  # Unavailable now means that an item is not on shelf nor holdable for anyone
   # These are still shown for now.
   UNAVAILABLE_LOCATIONS =
     codes(/LOST/, <<-HEREDOC.squish.split)
@@ -96,6 +96,7 @@ class V4::Location < SirsiBase
        BARRED
        BURSARED
        ORD-CANCLD
+       NOTORDERED
      HEREDOC
 
 

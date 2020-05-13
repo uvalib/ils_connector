@@ -98,6 +98,9 @@ Rails.application.routes.draw do
 
       end
     end
+    scope host: env_credential(:pda_base_url) do
+      post 'orders' => 'external#nil', as: :pda
+    end
   end # format to json
 
   resources :healthcheck, only: [ :index ]

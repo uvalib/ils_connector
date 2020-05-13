@@ -21,11 +21,15 @@ class V4::Availability < SirsiBase
     'Availability'
   end
 
-  REQUEST_PARAMS= { json: 'true', includeItemInfo: 'true',
+  REQUEST_PARAMS= { json: 'true',
+                    includeItemInfo: 'true',
                     includeCatalogingInfo: 'true',
                     includeAvailabilityInfo: 'true',
                     includeCallNumberSummary: 'true',
-                    includeFields: '*', includeShadowed: 'BOTH'
+                    includeFields: '*',
+                    includeShadowed: 'BOTH',
+                    includeBoundTogether: 'true',
+                    marcEntryID: '949,985,911'
   }
 
   def find
@@ -169,6 +173,40 @@ class V4::Availability < SirsiBase
       nil
     end
   end
+
+  # Begin fields for PDA service
+
+  def pda_hold_library
+    marc = data.dig('BibliographicInfo', 'MarcEntryInfo')
+    return nil if !marc
+    marc_field = marc.find {|m| m['entryID'] == '949'}
+    return marc_field['text']
+  end
+
+  def fund_code
+    marc = data.dig('BibliographicInfo', 'MarcEntryInfo')
+    return nil if !marc
+    marc_field = marc.find {|m| m['entryID'] == '985'}
+    return marc_field['text'].split(' ').first
+  end
+
+  def loan_type
+    marc = data.dig('BibliographicInfo', 'MarcEntryInfo')
+    return nil if !marc
+    marc_field = marc.find {|m| m['entryID'] == '985'}
+    return marc_field['text'].split(' ').last
+  end
+
+  # isbn specific to PDA service
+  def pda_isbn
+    marc = data.dig('BibliographicInfo', 'MarcEntryInfo')
+    return nil if !marc
+    marc_field = marc.find {|m| m['entryID'] == '911'}
+    return marc_field['text']
+  end
+
+  # End PDA fields
+
 
   # end field methods
 

@@ -1,5 +1,5 @@
 class V4::Request::Options
-  include ActionView::Helpers
+  include Rails.application.routes.url_helpers
 
   attr_accessor :list, :availability
 
@@ -11,9 +11,9 @@ class V4::Request::Options
   private
   def determine_options
     self.list = []
-    if hold_info = get_hold_info
-      self.list << hold_info
-    end
+    self.list << get_hold_info
+    self.list << get_ato_info
+    self.list.compact! # remove nil values
 
     # this.list << other_request_types_go_here
   end
@@ -56,7 +56,7 @@ class V4::Request::Options
         button_label: "Request items",
         description: '',
         item_options: holdable_items,
-        create_path: Rails.application.routes.url_helpers.hold_v4_requests_path
+        create_url: hold_v4_requests_path
       }
     end
   end
@@ -69,6 +69,27 @@ class V4::Request::Options
       # normal users can only request when not on shelf
       !item[:on_shelf]
     end
+  end
+
+  def get_ato_info
+    no_ato = availability.items.none? {|item| item[:current_location] == "Available to Order" }
+    return if no_ato
+
+    ato_item = {
+      catalog_key: availability.title_id,
+      isbn: availability.pda_isbn,
+      fund_code: availability.fund_code,
+      loan_type: availability.loan_type,
+      hold_library: availability.pda_hold_library
+    }
+    return {
+      type: :pda,
+      sign_in_required: true,
+      button_label: "Place Order",
+      description: 'This item is available to order.',
+      item_options: {},
+      create_url: pda_url(params: ato_item)
+    }
   end
 
 end
