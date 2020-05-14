@@ -71,7 +71,7 @@ class V4::Availability < SirsiBase
           fields << field_data(label, send(method, holding, item) )
         end
 
-        items << { call_number: holding['callNumber'],
+        items << {
           barcode: item['itemID'],
           on_shelf: on_shelf?(holding, item),
           unavailable: unavailable?(item),

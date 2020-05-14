@@ -76,25 +76,55 @@ class V4::Request::Options
     end
   end
 
+
+  HTTP_ERRORS = [
+    EOFError,
+    Errno::ECONNRESET,
+    Errno::ECONNREFUSED,
+    Errno::EINVAL,
+    Net::HTTPBadResponse,
+    Net::HTTPHeaderSyntaxError,
+    Net::ProtocolError,
+    Timeout::Error,
+  ]
+
   def get_ato_info
     no_ato = availability.items.none? {|item| item[:current_location] == "Available to Order" }
     return if no_ato
 
-    ato_item = {
-      catalog_key: availability.title_id,
-      isbn: availability.pda_isbn,
-      fund_code: availability.fund_code,
-      loan_type: availability.loan_type,
-      hold_library: availability.pda_hold_library
-    }
-    return {
-      type: :pda,
-      sign_in_required: true,
-      button_label: I18n.t('requests.pda.button_label'),
-      description: I18n.t('requests.pda.description'),
-      item_options: {},
-      create_url: pda_url(params: ato_item)
-    }
-  end
+    # check if there is already an order
+    begin
+      pda = HTTParty.get("#{env_credential(:pda_base_url)}/check/#{availability.title_id}",
+                          headers: {authorization: availability.jwt_user[:auth_token]})
 
+
+      if pda.not_found?
+        ato_item = {
+          catalog_key: availability.title_id,
+          isbn: availability.pda_isbn,
+          fund_code: availability.fund_code,
+          loan_type: availability.loan_type,
+          hold_library: availability.pda_hold_library
+        }
+        return {
+          type: :pda,
+          sign_in_required: true,
+          button_label: I18n.t('requests.pda.button_label'),
+          description: I18n.t('requests.pda.description'),
+          item_options: {},
+          create_url: pda_url(params: ato_item)
+        }
+      elsif pda.success?
+        # An order has already been made
+        return nil
+      else
+        # error
+        Rails.logger.error("PDA error: #{pda.response.body}")
+        return nil
+      end
+    rescue *HTTP_ERRORS => e
+      Rails.logger.error("PDA error: #{e}")
+      return nil
+    end
+  end
 end
