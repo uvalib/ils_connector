@@ -96,7 +96,6 @@ class V4::Location < SirsiBase
        BARRED
        BURSARED
        ORD-CANCLD
-       NOTORDERED
      HEREDOC
 
 

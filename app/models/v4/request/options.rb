@@ -25,8 +25,7 @@ class V4::Request::Options
     availability.items.each do |item|
 
       # Add selectable volume options
-      if user_can_hold(item) &&
-        !item[:unavailable] &&
+      if holdable_item?(item) &&
         item[:volume].present?
 
         holdable_items << {
@@ -39,7 +38,7 @@ class V4::Request::Options
     # if no Volume options are present, add the first holdable item
     if holdable_items.none?
       holdable_item = availability.items.find do |item|
-        user_can_hold(item) && !item[:unavailable]
+        holdable_item?(item)
       end
       if holdable_item
         holdable_items << {
@@ -59,6 +58,12 @@ class V4::Request::Options
         create_url: hold_v4_requests_path
       }
     end
+  end
+
+  def holdable_item? item
+    user_can_hold(item) &&
+    !item[:unavailable] &&
+    item[:current_location] != "Available to Order"
   end
 
   # LEO users can request on_shelf items
@@ -85,8 +90,8 @@ class V4::Request::Options
     return {
       type: :pda,
       sign_in_required: true,
-      button_label: "Place Order",
-      description: 'This item is available to order.',
+      button_label: I18n.t('requests.pda.button_label'),
+      description: I18n.t('requests.pda.description'),
       item_options: {},
       create_url: pda_url(params: ato_item)
     }
