@@ -22,6 +22,8 @@ class V4::Request::Hold < V4::Request::RequestBase
       send_hold
     end
   end
+
+  # deletes hold from Sirsi
   def self.delete_hold id
     ensure_login do
       response = delete("/circulation/holdRecord/key/#{id}",
@@ -75,6 +77,93 @@ class V4::Request::Hold < V4::Request::RequestBase
       end
       Rails.logger.info response
 
+    end
+  end
+
+  # Fill a hold by
+  # - Retrieve item info with barcode
+  # - TODO: Lookup Illiad user for address
+  # - Untransit Item
+  # - Checkout item to user
+  # Return data to print:
+  # Item Title, Item Author, ItemID, User’s Name, AltID, and Delivery Location
+  def self.fill_hold barcode
+    self.ensure_login do
+
+      output = {error_messages: []}
+
+      # working Library based on staff station location
+      # Item location is probably good for now
+      working_library = 'LEO'
+      headers = {'SD-Working-LibraryID' => working_library}
+
+      # Get Item
+      params = {includeFields: 'bib{title,author,currentLocation},transit{destinationLibrary,holdRecord{placedLibrary,pickupLibrary,patron{alternateID,displayName,barcode}}}'}
+      item_response = self.get("/catalog/item/barcode/#{barcode}",
+        query: params,
+        headers: self.auth_headers.merge(headers)
+        )
+      self.check_session(item_response)
+      if item_response['messageList'].present?
+        output[:error_messages].push *item_response['messageList']
+      end
+
+      output[:title] = item_response.parsed_response.dig('fields', 'bib', 'fields', 'title')
+      output[:author] = item_response.parsed_response.dig('fields', 'bib', 'fields', 'author')
+      output[:item_id] = barcode
+      has_transit = item_response.dig('fields', 'transit', 'key').present?
+      transit_destination = item_response.dig('fields', 'transit', 'fields', 'destinationLibrary', 'key')
+
+      #hold = item_response.parsed_response['fields']['holdRecordList'].first
+      hold = item_response.dig('fields','transit','fields','holdRecord')
+
+      if !hold
+        output[:error_messages].push "No hold for this item."
+        return output
+      end
+
+      output[:user_full_name] = hold.dig('fields', 'patron', 'fields', 'displayName')
+      output[:user_id] = hold.dig('fields', 'patron', 'fields', 'alternateID')
+      patron_barcode = hold.dig('fields', 'patron', 'fields', 'barcode')
+      #output[:delivery_location] = hold.dig('fields', 'placedLibrary', 'key')
+      output[:pickup_location] = hold.dig('fields', 'placedLibrary', 'key')
+
+      # for untransit and checkout, use the pickup location. This may need to be the items current location
+      headers = {'SD-Working-LibraryID' => transit_destination}
+
+      # Untransit if necessary
+      if has_transit
+        # untransit needs to happen at the delivery location
+        untransit_response = self.post("/circulation/transit/untransit",
+          body: {itemBarcode: barcode}.to_json,
+          headers: self.auth_headers.merge(headers)
+        )
+        self.check_session(untransit_response)
+        if untransit_response['currentStatus'] != 'ON_SHELF'
+          output[:error_messages].push *untransit_response['messageList']
+          Rails.logger.error("Untransit Error: #{untransit_response.parsed_response}")
+        end
+      end
+
+
+      # Checkout to user
+
+      # This overrides blocks on the user such as delequency and fines
+      # We might want to return an error instead so the user can see the issue.
+      override_header = {'SD-Prompt-Return' => 'CKOBLOCKS'}
+
+      checkout_response = self.post("/circulation/circRecord/checkOut",
+        body: { patronBarcode: patron_barcode,
+          itemBarcode: barcode
+        }.to_json,
+        headers: self.auth_headers.merge(headers).merge(override_header)
+      )
+
+      if !checkout_response.success?
+        output[:error_messages].push *checkout_response['messageList']
+      end
+
+      return output
     end
   end
 end

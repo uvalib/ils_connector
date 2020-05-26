@@ -90,7 +90,7 @@ class V4::Request::Options
 
   def get_ato_info
     no_ato = availability.items.none? {|item| item[:current_location] == "Available to Order" }
-    return if no_ato
+    return nil if no_ato
 
     # check if there is already an order
     begin

@@ -14,6 +14,11 @@ class V4::RequestsController < V4ApplicationController
     render json: {status: deleted}
   end
 
+  def fill_hold
+    hold = V4::Request::Hold.fill_hold(params[:barcode])
+    render json: hold.to_json
+  end
+
   private
   def hold_params
     params.permit :titleKey, :itemBarcode, :pickupLibrary, :userId

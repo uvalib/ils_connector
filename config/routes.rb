@@ -92,8 +92,14 @@ Rails.application.routes.draw do
       end
       resources :requests, only: [] do
         collection do
+          # creates a hold
           post :hold, action: :create_hold
+
+          # dev-only
           delete 'hold/:id', action: :delete_hold
+
+          # completes transit, checks out item
+          post 'fill_hold/:barcode', action: :fill_hold
         end
 
       end

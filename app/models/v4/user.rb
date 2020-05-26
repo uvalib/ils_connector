@@ -54,6 +54,12 @@ class V4::User < SirsiBase
             user['standing'] = "OK"
          end
          user['amountOwed'] = statusInfo['amountOwed']['amount']
+
+
+         # CanPurchase logic from Virgo3:
+         # account.barred?
+         # acct.faculty? || acct.instructor? || acct.staff? ||
+         #   acct.graduate? || acct.undergraduate?
       end
 
       return user
