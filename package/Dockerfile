@@ -1,7 +1,7 @@
 FROM ruby:2.5.5-alpine
 
 # Add necessary packages
-RUN apk --update add bash tzdata build-base nodejs sqlite-dev mariadb-dev zlib-dev libxml2-dev libxslt-dev libffi-dev ca-certificates
+RUN apk --update add bash tzdata build-base nodejs sqlite-dev mariadb-dev zlib-dev libxml2-dev libxslt-dev libffi-dev ca-certificates curl
 
 # Create the run user and group
 RUN addgroup --gid 18570 sse && adduser --uid 1984 docker -G sse -D
@@ -30,7 +30,7 @@ COPY . $APP_HOME
 RUN chown -R docker $APP_HOME && chgrp -R sse $APP_HOME
 
 # define port and startup script
-EXPOSE 3000
+EXPOSE 8080
 CMD scripts/entry.sh
 
 # move in the profile
