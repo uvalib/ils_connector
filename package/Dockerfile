@@ -11,7 +11,8 @@ ENV TZ=UTC
 RUN cp /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Add necessary gems
-RUN gem install bundler -v 2.1.4
+ENV BUNDLER_VERSION='2.1.4'
+RUN gem install bundler --no-document -v '2.1.4'
 
 # Specify home
 ENV APP_HOME /ils-connector
@@ -21,7 +22,8 @@ WORKDIR $APP_HOME
 ADD Gemfile Gemfile.lock .ruby-gemset ./
 RUN rm -rf tmp/cache/*
 
-RUN bundle install --jobs=4 --without=["development" "test"] --no-cache --force
+RUN bundle config set no-cache 'true'
+RUN bundle install --jobs=4 --without=["development" "test"] --redownload
 
 # install the app and bundle
 COPY . $APP_HOME
