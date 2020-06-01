@@ -1,4 +1,4 @@
-FROM ruby:2.5.5-alpine
+FROM ruby:2.7.1-alpine
 
 # Add necessary packages
 RUN apk --update add bash tzdata build-base nodejs sqlite-dev mariadb-dev zlib-dev libxml2-dev libxslt-dev libffi-dev ca-certificates curl
@@ -11,9 +11,9 @@ ENV TZ=UTC
 RUN cp /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Add necessary gems
-RUN gem install bundler -v 1.17.3
+RUN gem install bundler -v 2.1.4
 
-# Specify home 
+# Specify home
 ENV APP_HOME /ils-connector
 WORKDIR $APP_HOME
 
