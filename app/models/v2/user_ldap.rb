@@ -1,10 +1,10 @@
 class V2::UserLDAP < V2
   include HTTParty
   base_uri env_credential(:userinfo_url)
-  default_timeout 15
+  default_timeout 10
 
   def self.find user_id
-    
+
     # depending on how we are configured, use the right auth token
     auth = env_credential(:auth_shared_secret).nil? ? env_credential(:service_api_key) : auth_token( env_credential(:auth_shared_secret))
 

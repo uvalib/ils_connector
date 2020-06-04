@@ -8,7 +8,7 @@ class SirsiBase
 
   format :json
 
-  default_timeout 20
+  default_timeout 10
 
   # wrap api calls with this (we add the no_instrument attribute so we can filter certain responses from the log)
   #

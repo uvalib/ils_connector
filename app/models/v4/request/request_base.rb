@@ -3,7 +3,6 @@ class V4::Request::RequestBase < SirsiBase
   include ActiveModel::Serializers::JSON
 
   base_uri env_credential(:sirsi_web_services_base)
-  default_timeout 5
 
   attr_accessor :user_id, :user, :title_key, :availability
   validates_presence_of :user_id, :user
