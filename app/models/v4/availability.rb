@@ -163,7 +163,7 @@ class V4::Availability < SirsiBase
         course = reserve_info['courseName']
         course_id = reserve_info['courseID']
         instructor = reserve_info['instructor']
-        response = ["This item is on course reserve."]
+        response = ["This item is on course reserves so is available for limited use through the circulation desk."]
         response << "Course Name: #{course}" if course
         response << "Course ID: #{reserve_info['courseID']}" if course_id
         response << "Instructor: #{reserve_info['instructor']}" if instructor
