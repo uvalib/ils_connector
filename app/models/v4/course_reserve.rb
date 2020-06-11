@@ -187,7 +187,7 @@ class V4::CourseReserve < SirsiBase
      }
      # actual login is not required for this url, still using this for error checking
      ensure_login do
-       reserves = get("#{env_credential(:sirsi_script_url)}course_reserves", options)
+       reserves = get("/course_reserves", options)
        reserve = reserves.parsed_response.try :first
      end
      reserve
