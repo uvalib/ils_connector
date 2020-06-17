@@ -87,7 +87,7 @@ class V4::Request::Hold < V4::Request::RequestBase
   # - Checkout item to user
   # Return data to print:
   # Item Title, Item Author, ItemID, User’s Name, AltID, and Delivery Location
-  def self.fill_hold barcode
+  def self.fill_hold barcode, override_code
     self.ensure_login do
 
       output = {error_messages: []}
@@ -98,12 +98,13 @@ class V4::Request::Hold < V4::Request::RequestBase
       headers = {'SD-Working-LibraryID' => working_library}
 
       # Get Item
-      params = {includeFields: 'bib{title,author,currentLocation},transit{destinationLibrary,holdRecord{placedLibrary,pickupLibrary,patron{alternateID,displayName,barcode}}}'}
+      params = {includeFields: 'bib{title,author,currentLocation,holdRecordList{placedLibrary,pickupLibrary,patron{alternateID,displayName,barcode}}},transit{destinationLibrary}'}
       item_response = self.get("/catalog/item/barcode/#{barcode}",
         query: params,
         headers: self.auth_headers.merge(headers)
         )
       self.check_session(item_response)
+
       if item_response['messageList'].present?
         output[:error_messages].push *item_response['messageList']
       end
@@ -114,8 +115,8 @@ class V4::Request::Hold < V4::Request::RequestBase
       has_transit = item_response.dig('fields', 'transit', 'key').present?
       transit_destination = item_response.dig('fields', 'transit', 'fields', 'destinationLibrary', 'key')
 
-      #hold = item_response.parsed_response['fields']['holdRecordList'].first
-      hold = item_response.dig('fields','transit','fields','holdRecord')
+      hold = item_response.parsed_response.dig('fields', 'bib', 'fields', 'holdRecordList').first
+      #hold = item_response.dig('fields','transit','fields','holdRecord')
 
       if !hold
         output[:error_messages].push "No hold for this item."
@@ -125,39 +126,21 @@ class V4::Request::Hold < V4::Request::RequestBase
       output[:user_full_name] = hold.dig('fields', 'patron', 'fields', 'displayName')
       output[:user_id] = hold.dig('fields', 'patron', 'fields', 'alternateID')
       patron_barcode = hold.dig('fields', 'patron', 'fields', 'barcode')
-      #output[:delivery_location] = hold.dig('fields', 'placedLibrary', 'key')
-      output[:pickup_location] = hold.dig('fields', 'placedLibrary', 'key')
-
-      # for untransit and checkout, use the pickup location. This may need to be the items current location
-      headers = {'SD-Working-LibraryID' => transit_destination}
+      output[:pickup_library] = hold.dig('fields', 'pickupLibrary', 'key')
+      library = output[:pickup_library]
 
       # Untransit if necessary
       if has_transit
-        # untransit needs to happen at the delivery location
-        untransit_response = self.post("/circulation/transit/untransit",
-          body: {itemBarcode: barcode}.to_json,
-          headers: self.auth_headers.merge(headers)
-        )
-        self.check_session(untransit_response)
+        untransit_response = untransit_loop(barcode, override_code, library)
         if untransit_response['currentStatus'] != 'ON_SHELF'
-          output[:error_messages].push *untransit_response['messageList']
+          output[:error_messages].push *untransit_response['messageList'] || {message: untransit_response['currentStatus']}
           Rails.logger.error("Untransit Error: #{untransit_response.parsed_response}")
+          return output
         end
       end
 
-
       # Checkout to user
-
-      # This overrides blocks on the user such as delequency and fines
-      # We might want to return an error instead so the user can see the issue.
-      override_header = {'SD-Prompt-Return' => 'CKOBLOCKS'}
-
-      checkout_response = self.post("/circulation/circRecord/checkOut",
-        body: { patronBarcode: patron_barcode,
-          itemBarcode: barcode
-        }.to_json,
-        headers: self.auth_headers.merge(headers).merge(override_header)
-      )
+      checkout_response = checkout_loop(patron_barcode, barcode, library, override_code)
 
       if !checkout_response.success?
         output[:error_messages].push *checkout_response['messageList']
@@ -165,5 +148,70 @@ class V4::Request::Hold < V4::Request::RequestBase
 
       return output
     end
+  end
+
+  # retry sirsi call using the override code until it succeeds or the blocker cannot be overridden
+  def self.untransit_loop barcode, override_code, working_library
+    blocking_prompts = []
+    response = nil
+    # loop until the override code doesnt work anymore
+    while blocking_prompts.uniq.length == blocking_prompts.length do
+
+      override_header = 'CKOBLOCKS'
+      if blocking_prompts.any? && override_code.present?
+        override_header += ';' + blocking_prompts.join("/#{override_code};")
+      end
+
+      headers = {'SD-Working-LibraryID' => working_library,
+        'SD-Prompt-Return' => override_header
+      }
+      # untransit needs to happen at the delivery location
+      response = self.post("/circulation/transit/untransit",
+        body: {itemBarcode: barcode}.to_json,
+        headers: self.auth_headers.merge(headers)
+      )
+      self.check_session(response)
+
+      # Blocking prompt found
+      if response['promptRequired']
+        blocking_prompts << response.dig('dataMap', 'promptType')
+      else
+        break
+      end
+    end
+    return response
+  end
+
+
+  def self.checkout_loop(patron_barcode, item_barcode, working_library, override_code)
+    blocking_prompts = []
+    response = nil
+
+    # loop until the override code doesnt work anymore
+    while blocking_prompts.uniq.length == blocking_prompts.length do
+      override_header = 'CKOBLOCKS'
+      if blocking_prompts.any? && override_code.present?
+        override_header += ';' + blocking_prompts.join("/#{override_code};") + "/#{override_code};"
+      end
+      headers = {'SD-Working-LibraryID' => working_library,
+        'SD-Prompt-Return' => override_header
+      }
+
+      response = self.post("/circulation/circRecord/checkOut",
+        body: { patronBarcode: patron_barcode,
+          itemBarcode: item_barcode
+        }.to_json,
+        headers: self.auth_headers.merge(headers)
+      )
+      self.check_session(response)
+
+      # Blocking prompt found
+      if response['promptRequired'] && override_code.present?
+        blocking_prompts << response.dig('dataMap', 'promptType')
+      else
+        break
+      end
+    end
+    return response
   end
 end

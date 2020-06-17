@@ -15,7 +15,7 @@ class V4::RequestsController < V4ApplicationController
   end
 
   def fill_hold
-    hold = V4::Request::Hold.fill_hold(params[:barcode])
+    hold = V4::Request::Hold.fill_hold(params[:barcode], params[:override])
     render json: hold.to_json
   end
 
