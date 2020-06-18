@@ -173,8 +173,12 @@ class V4::User < SirsiBase
 
       holds = []
       ensure_login do
-         # first convert ID to barcode...
-         response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=holdRecordList{*,bib{key,title,author},item{barcode,currentLocation,library}}&json=true",
+         params = {q: "ALT_ID:#{user_id}",
+            includeFields: "holdRecordList{*,bib{title,author},item{barcode,currentLocation,library,transit{transitReason},call{dispCallNumber}}}",
+            json: true
+         }
+         response = get("/user/patron/search",
+            query: params,
             headers: self.auth_headers)
          check_session(response)
          results = response['result']
@@ -185,10 +189,21 @@ class V4::User < SirsiBase
          hold_records = results.first["fields"]["holdRecordList"]
          hold_records.each do |hold|
             h = hold['fields']
+            status = h['status'] == 'BEING_HELD' ? "AWAITING PICKUP since #{h['beingHeldDate']}" : h['status']
+            pickupLocation = h['pickupLibrary']['key'] == 'LEO' ? 'LEO delivery' : h['pickupLibrary']['key']
+
+            item_status = h.dig('item', 'fields', 'currentLocation', 'key')
+
+            if item_status == 'CHECKEDOUT' && h['recallStatus'] == 'RUSH'
+               item_status = 'CHECKED OUT, recalled from borrower.'
+
+            elsif item_status == 'INTRANSIT' && h.dig('item', 'fields', 'transit', 'fields', 'transitReason') == 'HOLD'
+               item_status = 'IN TRANSIT for hold'
+            end
             holds << {
                id: hold['key'],
-               pickupLocation: h['pickupLibrary']['key'],
-               status: h['status'],
+               pickupLocation: pickupLocation,
+               status: status,
                placedDate: h['placedDate'],
                queueLength: h['queueLength'],
                queuePosition: h['queuePosition'],
@@ -196,9 +211,8 @@ class V4::User < SirsiBase
                titleKey: h['bib']['key'],
                title: h['bib']['fields']['title'],
                author: h['bib']['fields']['author'],
-               barcode: h['item']['fields']['barcode'],
-               currentLocation: h['item']['fields']['currentLocation']['key'],
-               library: h['item']['fields']['library']['key']
+               callNumber: h['item']['fields']['call']['fields']['dispCallNumber'],
+               itemStatus: item_status,
             }
          end
       end
