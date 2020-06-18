@@ -98,7 +98,7 @@ class V4::Request::Hold < V4::Request::RequestBase
       headers = {'SD-Working-LibraryID' => working_library}
 
       # Get Item
-      params = {includeFields: 'bib{title,author,currentLocation,holdRecordList{placedLibrary,pickupLibrary,patron{alternateID,displayName,barcode}}},transit{destinationLibrary}'}
+      params = {includeFields: 'holdRecordList{placedLibrary,pickupLibrary,patron{alternateID,displayName,barcode}},bib{title,author,currentLocation},transit{destinationLibrary,holdRecord{placedLibrary,pickupLibrary,patron{alternateID,displayName,barcode}}}'}
       item_response = self.get("/catalog/item/barcode/#{barcode}",
         query: params,
         headers: self.auth_headers.merge(headers)
@@ -115,8 +115,10 @@ class V4::Request::Hold < V4::Request::RequestBase
       has_transit = item_response.dig('fields', 'transit', 'key').present?
       transit_destination = item_response.dig('fields', 'transit', 'fields', 'destinationLibrary', 'key')
 
-      hold = item_response.parsed_response.dig('fields', 'bib', 'fields', 'holdRecordList').first
-      #hold = item_response.dig('fields','transit','fields','holdRecord')
+      transit_hold = item_response.dig('fields','transit','fields','holdRecord')
+      item_hold = item_response.parsed_response.dig('fields', 'holdRecordList').first
+      hold = transit_hold || item_hold
+      Rails.logger.info("TransitHold: #{transit_hold} | FirstItemHold: #{item_hold}")
 
       if !hold
         output[:error_messages].push "No hold for this item."
