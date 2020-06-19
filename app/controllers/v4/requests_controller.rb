@@ -20,12 +20,12 @@ class V4::RequestsController < V4ApplicationController
   end
 
   def create_scan
-    hold_options = hold_params.to_h.merge({
+    scan_options = hold_params.to_h.merge({
       type: :scan,
       user_id: jwt_user[:user_id],
       }).transform_keys {|k| k.underscore.to_sym}
-    hold = V4::Request::Hold.new( hold_options )
-    render json: hold, root: 'hold', serializer: V4::HoldSerializer
+    scan = V4::Request::Hold.new( scan_options )
+    render json: scan, root: 'scan', serializer: V4::HoldSerializer
   rescue JWT::ExpiredSignature
     render json: {error: 'Session Expired'}, status: 401
   end
