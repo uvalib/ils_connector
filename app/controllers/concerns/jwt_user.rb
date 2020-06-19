@@ -10,7 +10,7 @@ module JWTUser
       v4_claims['auth_token'] = auth_token
       return v4_claims.transform_keys! {|k| k.underscore.to_sym} || {}
     else
-      nil
+      {}
     end
   end
 end

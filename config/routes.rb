@@ -100,6 +100,9 @@ Rails.application.routes.draw do
 
           # completes transit, checks out item
           post 'fill_hold/:barcode', action: :fill_hold
+
+          # Create a scan request
+          post :scan, action: :create_scan
         end
 
       end

@@ -1,7 +1,7 @@
 class V4::Request::Options
   include Rails.application.routes.url_helpers
 
-  attr_accessor :list, :availability
+  attr_accessor :list, :availability, :holdable_items
 
   def initialize(availability)
     self.availability = availability
@@ -10,8 +10,10 @@ class V4::Request::Options
 
   private
   def determine_options
+    determine_holdable_items
     self.list = []
     self.list << get_hold_info
+    self.list << get_scan_info
     self.list << get_ato_info
     self.list.compact! # remove nil values
 
@@ -19,7 +21,34 @@ class V4::Request::Options
   end
 
   def get_hold_info
-    holdable_items = []
+    if holdable_items.any?
+      return {
+        type: :hold,
+        sign_in_required: true,
+        button_label: "Request items",
+        description: 'Request an unavailable item or request LEO delivery.',
+        item_options: holdable_items,
+        create_url: hold_v4_requests_path
+      }
+    end
+  end
+
+  # Scans use the same holdable items list
+  def get_scan_info
+    if holdable_items.any?
+      return {
+        type: :scan,
+        sign_in_required: true,
+        button_label: "Request a scan",
+        description: 'Select a portion of this item to be scanned.',
+        item_options: holdable_items,
+        create_url: scan_v4_requests_path
+      }
+    end
+  end
+
+  def determine_holdable_items
+    self.holdable_items = []
 
     # Loop through each visible item
     availability.items.each do |item|
@@ -28,7 +57,7 @@ class V4::Request::Options
       if holdable_item?(item) &&
         item[:volume].present?
 
-        holdable_items << {
+        self.holdable_items << {
           barcode: item[:barcode],
           label: item[:volume]
         }
@@ -41,22 +70,11 @@ class V4::Request::Options
         holdable_item?(item)
       end
       if holdable_item
-        holdable_items << {
+        self.holdable_items << {
           barcode: holdable_item[:barcode],
           label: holdable_item[:call_number]
         }
       end
-    end
-
-    if holdable_items.any?
-      return {
-        type: :hold,
-        sign_in_required: true,
-        button_label: "Request items",
-        description: '',
-        item_options: holdable_items,
-        create_url: hold_v4_requests_path
-      }
     end
   end
 
