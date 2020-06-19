@@ -27,8 +27,7 @@ class V4::Request::Options
         sign_in_required: true,
         button_label: "Request items",
         description: 'Request an unavailable item or request LEO delivery.',
-        item_options: holdable_items,
-        create_url: hold_v4_requests_path
+        item_options: holdable_items
       }
     end
   end
@@ -41,8 +40,7 @@ class V4::Request::Options
         sign_in_required: true,
         button_label: "Request a scan",
         description: 'Select a portion of this item to be scanned.',
-        item_options: holdable_items,
-        create_url: scan_v4_requests_path
+        item_options: holdable_items
       }
     end
   end
