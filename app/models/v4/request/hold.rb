@@ -3,10 +3,10 @@ class V4::Request::Hold < V4::Request::RequestBase
   PICKUP_LIBRARIES = %w(ALDERMAN CLEMONS DARDEN FINE-ARTS HEALTHSCI JAG LAW LEO MATH MUSIC PHYSICS SCI-ENG).freeze
 
   # Standard fields are defined in V4::RequestOption
-  attr_accessor :pickup_library, :home_library, :item_barcode
+  attr_accessor :pickup_library, :working_library, :item_barcode, :is_scan, :comment
 
   validates_inclusion_of :pickup_library, in: PICKUP_LIBRARIES, message: "%{value} is not a valid pickup library."
-  validates_presence_of :home_library
+  validates_presence_of :working_library
   validates_presence_of :item_barcode, message: "is required."
 
   def initialize options = {}
@@ -14,9 +14,20 @@ class V4::Request::Hold < V4::Request::RequestBase
 
     return if self.errors.any?
 
-    self.home_library = user[:homeLibrary]
     self.pickup_library = options[:pickup_library]
     self.item_barcode = options[:item_barcode]
+
+    if options[:type] == :scan
+      self.is_scan = true
+      self.working_library = 'LEO'
+      self.comment = options[:illiad_tn]
+    else
+
+      # Users set to LEO library are LEO-able
+      # TODO incorporate LEO+
+      #working_library = 'UVA-LIB'
+      self.working_library = user[:homeLibrary] == 'LEO' ? 'LEO' : 'UVA-LIB'
+    end
 
     if self.valid?
       send_hold
@@ -44,10 +55,6 @@ class V4::Request::Hold < V4::Request::RequestBase
       # use the first itemID from the callSummary for the analyticZ the user chose.
       # Otherwise, use the first itemID from the CallInfo (in the lookupTitleInfo response).
 
-      # Users set to LEO library are LEO-able
-      # TODO incorporate LEO+
-      working_library = home_library == 'LEO' ? 'LEO' : 'UVA-LIB'
-      #working_library = 'UVA-LIB'
       headers = {'sd-working-libraryid' => working_library}
       hold_data = {
         holdType: 'TITLE',
@@ -59,6 +66,13 @@ class V4::Request::Hold < V4::Request::RequestBase
         itemBarcode: item_barcode,
         patronBarcode: user['barcode']
       }
+
+      if is_scan
+        # LEO Scan Patron
+        hold_data[:patronBarcode] = '999999462'
+        hold_data[:comment] = comment
+      end
+
       Rails.logger.info headers
       Rails.logger.info hold_data
       response = self.class.post('/circulation/holdRecord/placeHold?includeFields=holdRecord{*}',

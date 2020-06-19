@@ -5,7 +5,7 @@ class V4::Request::RequestBase < SirsiBase
   base_uri env_credential(:sirsi_web_services_base)
 
   attr_accessor :user_id, :user, :title_key, :availability
-  validates_presence_of :user_id, :user
+  validates_presence_of :user
 
   def initialize(options)
 
@@ -28,9 +28,5 @@ class V4::Request::RequestBase < SirsiBase
       self.title_key = options[:title_key].delete_prefix 'u'
       #self.availability = V4::Availability.new(title_key)
     end
-
   end
-
-
-
 end
