@@ -78,6 +78,7 @@ class V4::Availability < SirsiBase
           notice: notice_text(item),
           fields: fields,
           library: library(holding, item),
+          library_id: holding["libraryID"],
           current_location: current_location(holding, item),
           call_number: call_number(holding, item),
           volume: volume(item)
