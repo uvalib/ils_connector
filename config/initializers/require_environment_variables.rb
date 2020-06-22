@@ -2,17 +2,17 @@ Rails.application.config.before_initialize do
   if Rails.env.production?
     required_env = %w(
     SIRSI_WEB_SERVICES_BASE
-    SIRSI_USER
-    SIRSI_PASSWORD
-    SIRSI_CLIENT_ID
-    SIRSI_LIBRARY
     SIRSI_SCRIPT_URL
     USERINFO_URL
-    SERVICE_API_KEY
-    FIREHOSE_BASE_URL
     PDA_BASE_URL
     V4_JWT_KEY
     )
+    # To be included later
+    #SIRSI_USER
+    #SIRSI_PASSWORD
+    #SIRSI_CLIENT_ID
+    #SIRSI_LIBRARY
+    #SERVICE_API_KEY
     missing_list = []
     required_env.each do |required|
       if !ENV[required].present?
