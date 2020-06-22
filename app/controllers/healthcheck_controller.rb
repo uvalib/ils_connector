@@ -15,11 +15,12 @@ class HealthcheckController < ApplicationController
   # the response
   class HealthCheckResponse
 
-    attr_accessor :sirsi_connection, :user_service
+    attr_accessor :sirsi_connection, :user_service, :pda_service
 
     def is_healthy?
       @sirsi_connection.healthy
       @user_service.healthy
+      @pda_service.healthy
     end
   end
 
@@ -41,6 +42,7 @@ class HealthcheckController < ApplicationController
     r = HealthCheckResponse.new
     r.sirsi_connection = sirsi_health
     r.user_service = user_service_health
+    r.pda_service = pda_service_health
 
     return( r )
   end
@@ -75,6 +77,22 @@ class HealthcheckController < ApplicationController
 
     rescue => ex
       health = Health.new( false, "User Service (LDAP) Error: #{env_credential(:userinfo_url)} - #{ex.class}" )
+    end
+    health
+  end
+
+  def pda_service_health
+    health = nil
+    begin
+      health_response = HTTParty.get("#{env_credential(:pda_base_url)}/healthcheck")
+      health = if health_response.code == 200
+                 Health.new(true, '')
+               else
+                 Health.new(false, "PDA Service Error: #{env_credential(:pda_base_url)} - #{health_response.code} - #{health_response.body}")
+               end
+
+    rescue => ex
+      health = Health.new( false, "PDA Service Error: #{env_credential(:pda_base_url)} - #{ex.class}" )
     end
     health
   end
