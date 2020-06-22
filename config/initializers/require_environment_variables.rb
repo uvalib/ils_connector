@@ -24,7 +24,7 @@ Rails.application.config.before_configuration do
       end
     end
 
-    if missing_list
+    if missing_list.any?
       raise "Required environment variable(s) \"#{missing_list.to_sentence}\" not set."
     end
   end
