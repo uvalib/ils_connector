@@ -116,7 +116,6 @@ class V4::Request::Options
       pda = HTTParty.get("#{env_credential(:pda_base_url)}/check/#{availability.title_id}",
                           headers: {authorization: availability.jwt_user[:auth_token]})
 
-
       if pda.not_found?
         ato_item = {
           catalog_key: availability.title_id,
@@ -130,7 +129,7 @@ class V4::Request::Options
           sign_in_required: true,
           button_label: I18n.t('requests.pda.button_label'),
           description: I18n.t('requests.pda.description'),
-          item_options: {},
+          item_options: [],
           create_url: pda_url(params: ato_item)
         }
       elsif pda.success?
