@@ -55,6 +55,7 @@ class V4::Availability < SirsiBase
   VISIBLE_FIELDS = {"Library" => :library,
             'Current Location' => :current_location,
             'Call Number' => :call_number,
+            'Barcode' => :barcode,
             'Availability' => :availability
   }.freeze
 
@@ -117,6 +118,10 @@ class V4::Availability < SirsiBase
 
   def call_number holding, item
     holding["callNumber"]
+  end
+
+  def barcode holding, item
+    item["itemID"]
   end
 
   def availability holding, item
