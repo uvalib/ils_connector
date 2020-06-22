@@ -12,10 +12,6 @@ Rails.application.config.before_configuration do
     FIREHOSE_BASE_URL
     PDA_BASE_URL
     V4_JWT_KEY
-    DBHOST
-    DBNAME
-    DBUSER
-    DBPASSWD
     )
     missing_list = []
     required_env.each do |required|
