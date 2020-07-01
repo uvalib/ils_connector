@@ -98,7 +98,7 @@ class SirsiBase
   def self.account_info
     # dont want to log response times for heartbeats
     ensure_login( no_instrument = true ) do
-      get("/user/staff/key/#{@@staffKey}", headers: auth_headers, timeout: 2)
+      get("/user/staff/key/#{@@staffKey}", headers: auth_headers, timeout: 5)
     end
   end
 
