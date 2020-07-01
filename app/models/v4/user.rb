@@ -243,4 +243,26 @@ class V4::User < SirsiBase
         }
       end
    end
+
+   # Sirsi login with username and password
+   # Used with /v4/requests/fill_hold
+  def self.sirsi_staff_login auth
+    login_body = {login: auth[:username],
+                  password:  auth[:password]
+    }
+    sirsi_user = post("/user/staff/login",
+                      body: login_body.to_json,
+                      headers: base_headers )
+    if sirsi_user.success?
+      return sirsi_user
+
+    elsif sirsi_user.unauthorized?
+      return nil
+
+    else
+      # Other error
+      Rails.logger.error("Unexpected sirsi_staff_login error: #{sirsi_user.parsed_response}")
+      return nil
+    end
+  end
 end

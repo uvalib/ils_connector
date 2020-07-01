@@ -24,6 +24,15 @@ class V4::UsersController < V4ApplicationController
       end
    end
 
+   def sirsi_staff_login
+      user = V4::User.sirsi_staff_login(sirsi_login_params)
+      if user.present?
+         render json: user
+      else
+         render json: {error: "Invalid username or password."}, status: :unauthorized
+      end
+   end
+
    def checkouts
       checkouts = V4::User.get_checkouts(user_params[:id])
       if checkouts.nil?
@@ -53,6 +62,9 @@ class V4::UsersController < V4ApplicationController
 
    private
    def user_params
-      params.permit(:id, :pin, :format, :current_pin, :new_pin)
+      params.permit(:id, :pin, :format, :current_pin, :new_pin, :username, :password)
+   end
+   def sirsi_login_params
+      params.permit(:username, :password)
    end
  end

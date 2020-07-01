@@ -76,6 +76,9 @@ Rails.application.routes.draw do
           get :bills
           get :holds
         end
+        collection do
+          post :sirsi_staff_login
+        end
       end
       resources :course_reserves, :only => [] do
         collection do
