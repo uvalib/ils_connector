@@ -21,8 +21,7 @@ class V2::UserLDAP < V2
   end
 
   def self.healthcheck
-    # auth is not necessary, but just in case...
-    response = get("/healthcheck" )
+    response = get("/healthcheck", timeout: 2)
 
     response
   end
