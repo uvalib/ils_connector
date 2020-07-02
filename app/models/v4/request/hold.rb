@@ -94,80 +94,78 @@ class V4::Request::Hold < V4::Request::RequestBase
     end
   end
 
-  # Fill a hold by
+  # Fill a hold by using the provided staff session token
   # - Retrieve item info with barcode
-  # - TODO: Lookup Illiad user for address
   # - Untransit Item
   # - Checkout item to user
   # Return data to print:
   # Item Title, Item Author, ItemID, User’s Name, AltID, and Delivery Location
-  def self.fill_hold barcode, override_code
-    self.ensure_login do
+  def self.fill_hold barcode, override_code, staff_session_token
+    output = {error_messages: []}
 
-      output = {error_messages: []}
+    # Arbitrary working library needed just to look up the item.
+    working_library = 'LEO'
 
-      # working Library based on staff station location
-      # Item location is probably good for now
-      working_library = 'LEO'
-      headers = {'SD-Working-LibraryID' => working_library}
+    # Use the provided user's session token instead of the standard ils-connector account.
+    headers = { 'SD-Working-LibraryID' => working_library,
+                'x-sirs-sessionToken' => staff_session_token }
 
-      # Get Item
-      params = {includeFields: 'holdRecordList{placedLibrary,pickupLibrary,patron{alternateID,displayName,barcode}},bib{title,author,currentLocation},transit{destinationLibrary,holdRecord{placedLibrary,pickupLibrary,patron{alternateID,displayName,barcode}}}'}
-      item_response = self.get("/catalog/item/barcode/#{barcode}",
-        query: params,
-        headers: self.auth_headers.merge(headers)
-        )
-      self.check_session(item_response)
+    # Get Item
+    params = {includeFields: 'holdRecordList{placedLibrary,pickupLibrary,patron{alternateID,displayName,barcode}},bib{title,author,currentLocation},transit{destinationLibrary,holdRecord{placedLibrary,pickupLibrary,patron{alternateID,displayName,barcode}}}'}
+    item_response = self.get("/catalog/item/barcode/#{barcode}",
+      query: params,
+      headers: self.base_headers.merge(headers)
+      )
 
-      if item_response['messageList'].present?
-        output[:error_messages].push *item_response['messageList']
-      end
-
-      output[:title] = item_response.parsed_response.dig('fields', 'bib', 'fields', 'title')
-      output[:author] = item_response.parsed_response.dig('fields', 'bib', 'fields', 'author')
-      output[:item_id] = barcode
-      has_transit = item_response.dig('fields', 'transit', 'key').present?
-      transit_destination = item_response.dig('fields', 'transit', 'fields', 'destinationLibrary', 'key')
-
-      transit_hold = item_response.dig('fields','transit','fields','holdRecord')
-      item_hold = item_response.parsed_response.dig('fields', 'holdRecordList').first
-      hold = transit_hold || item_hold
-      Rails.logger.info("TransitHold: #{transit_hold} | FirstItemHold: #{item_hold}")
-
-      if !hold
-        output[:error_messages].push "No hold for this item."
-        return output
-      end
-
-      output[:user_full_name] = hold.dig('fields', 'patron', 'fields', 'displayName')
-      output[:user_id] = hold.dig('fields', 'patron', 'fields', 'alternateID')
-      patron_barcode = hold.dig('fields', 'patron', 'fields', 'barcode')
-      output[:pickup_library] = hold.dig('fields', 'pickupLibrary', 'key')
-      library = output[:pickup_library]
-
-      # Untransit if necessary
-      if has_transit
-        untransit_response = untransit_loop(barcode, override_code, library)
-        if untransit_response['currentStatus'] != 'ON_SHELF'
-          output[:error_messages].push *untransit_response['messageList'] || {message: untransit_response['currentStatus']}
-          Rails.logger.error("Untransit Error: #{untransit_response.parsed_response}")
-          return output
-        end
-      end
-
-      # Checkout to user
-      checkout_response = checkout_loop(patron_barcode, barcode, library, override_code)
-
-      if !checkout_response.success?
-        output[:error_messages].push *checkout_response['messageList']
-      end
-
+    if item_response.unauthorized? || item_response['messageList'].present?
+      output[:error_messages].push *item_response['messageList']
       return output
     end
-  end
+
+    output[:title] = item_response.parsed_response.dig('fields', 'bib', 'fields', 'title')
+    output[:author] = item_response.parsed_response.dig('fields', 'bib', 'fields', 'author')
+    output[:item_id] = barcode
+    has_transit = item_response.dig('fields', 'transit', 'key').present?
+    transit_destination = item_response.dig('fields', 'transit', 'fields', 'destinationLibrary', 'key')
+
+    transit_hold = item_response.dig('fields','transit','fields','holdRecord')
+    item_hold = item_response.parsed_response.dig('fields', 'holdRecordList').first
+    hold = transit_hold || item_hold
+    Rails.logger.info("TransitHold: #{transit_hold} | FirstItemHold: #{item_hold}")
+
+    if !hold
+      output[:error_messages].push "No hold for this item."
+      return output
+    end
+
+    output[:user_full_name] = hold.dig('fields', 'patron', 'fields', 'displayName')
+    output[:user_id] = hold.dig('fields', 'patron', 'fields', 'alternateID')
+    patron_barcode = hold.dig('fields', 'patron', 'fields', 'barcode')
+    output[:pickup_library] = hold.dig('fields', 'pickupLibrary', 'key')
+    library = output[:pickup_library]
+
+    # Untransit if necessary
+    if has_transit
+      untransit_response = untransit_loop(barcode, override_code, library, staff_session_token)
+      if untransit_response['currentStatus'] != 'ON_SHELF'
+        output[:error_messages].push *untransit_response['messageList'] || {message: untransit_response['currentStatus']}
+        Rails.logger.error("Untransit Error: #{untransit_response.parsed_response}")
+        return output
+      end
+    end
+
+    # Checkout to user
+    checkout_response = checkout_loop(patron_barcode, barcode, library, override_code, staff_session_token)
+
+    if !checkout_response.success?
+      output[:error_messages].push *checkout_response['messageList']
+    end
+
+    return output
+end
 
   # retry sirsi call using the override code until it succeeds or the blocker cannot be overridden
-  def self.untransit_loop barcode, override_code, working_library
+  def self.untransit_loop barcode, override_code, working_library, staff_session_token
     blocking_prompts = []
     response = nil
     # loop until the override code doesnt work anymore
@@ -179,12 +177,13 @@ class V4::Request::Hold < V4::Request::RequestBase
       end
 
       headers = {'SD-Working-LibraryID' => working_library,
-        'SD-Prompt-Return' => override_header
+        'SD-Prompt-Return' => override_header,
+        'x-sirs-sessionToken' => staff_session_token
       }
       # untransit needs to happen at the delivery location
       response = self.post("/circulation/transit/untransit",
         body: {itemBarcode: barcode}.to_json,
-        headers: self.auth_headers.merge(headers)
+        headers: self.base_headers.merge(headers)
       )
       self.check_session(response)
 
@@ -199,7 +198,7 @@ class V4::Request::Hold < V4::Request::RequestBase
   end
 
 
-  def self.checkout_loop(patron_barcode, item_barcode, working_library, override_code)
+  def self.checkout_loop(patron_barcode, item_barcode, working_library, override_code, staff_session_token)
     blocking_prompts = []
     response = nil
 
@@ -210,14 +209,15 @@ class V4::Request::Hold < V4::Request::RequestBase
         override_header += ';' + blocking_prompts.join("/#{override_code};") + "/#{override_code};"
       end
       headers = {'SD-Working-LibraryID' => working_library,
-        'SD-Prompt-Return' => override_header
+        'SD-Prompt-Return' => override_header,
+        'x-sirs-sessionToken' => staff_session_token
       }
 
       response = self.post("/circulation/circRecord/checkOut",
         body: { patronBarcode: patron_barcode,
           itemBarcode: item_barcode
         }.to_json,
-        headers: self.auth_headers.merge(headers)
+        headers: self.base_headers.merge(headers)
       )
       self.check_session(response)
 
