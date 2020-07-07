@@ -30,6 +30,11 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 en:
+  activerecord:
+    models:
+      hold: "Hold"
+    attributes:
+      hold:
   requests:
     pda:
       button_label: 'Order this Item'

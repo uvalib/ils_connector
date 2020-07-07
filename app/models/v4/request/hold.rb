@@ -7,7 +7,7 @@ class V4::Request::Hold < V4::Request::RequestBase
 
   validates_inclusion_of :pickup_library, in: PICKUP_LIBRARIES, message: "%{value} is not a valid pickup library."
   validates_presence_of :working_library
-  validates_presence_of :item_barcode, message: "is required."
+  validates_presence_of :item_barcode, message: "An item must be selected."
 
   def initialize options = {}
     super(options)
