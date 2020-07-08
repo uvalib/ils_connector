@@ -10,6 +10,7 @@ libraries:
   - MUSIC
   - PHYSICS
   - SCI-ENG
+  - SPEC-COLL
 
 locations:
   - AL-SCHOLAR
