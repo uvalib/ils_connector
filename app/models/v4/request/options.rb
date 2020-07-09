@@ -28,7 +28,7 @@ class V4::Request::Options
         type: :hold,
         sign_in_required: true,
         button_label: "Request items",
-        description: 'Request an unavailable item or request LEO delivery.',
+        description: 'Request an unavailable item or request delivery.',
         item_options: holdable_items
       }
     end
