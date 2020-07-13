@@ -5,7 +5,7 @@ class V4::Request::Hold < V4::Request::RequestBase
   # Standard fields are defined in V4::RequestOption
   attr_accessor :pickup_library, :working_library, :item_barcode, :is_scan, :comment
 
-  validates_inclusion_of :pickup_library, in: PICKUP_LIBRARIES, message: "%{value} is not a valid pickup library."
+#  validates_inclusion_of :pickup_library, in: PICKUP_LIBRARIES, message: "%{value} is not a valid pickup library."
   validates_presence_of :working_library
   validates_presence_of :item_barcode, message: "An item must be selected."
 
