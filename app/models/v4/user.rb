@@ -84,21 +84,21 @@ class V4::User < SirsiBase
                { body: pin_body.to_json, headers: pin_headers
             })
             if pin_resp.code == 200
-               Rails.logger.error "User #{user_id} change pin success"
+               Rails.logger.info "User #{user_id} change pin success"
                return true
             else
-               Rails.logger.error "User #{user_id} change pin failed: #{pin_resp.as_json}"
+               Rails.logger.warn "User #{user_id} change pin failed: #{pin_resp.as_json}"
                return false
             end
          elsif response.code == 401
-            Rails.logger.error "Login #{user_id} FAILED"
+            Rails.logger.info "Login #{user_id} FAILED"
             return false
          else
             Rails.logger.error "Login #{user_id} FAILED - unexpected response #{response.code}"
             return false
          end
        rescue => e
-         Rails.logger.error "User #{user_id} change pin error #{e}"
+         Rails.logger.warn "User #{user_id} change pin error #{e}"
          return false
        end
       return true

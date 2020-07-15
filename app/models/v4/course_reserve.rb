@@ -101,12 +101,12 @@ class V4::CourseReserve < SirsiBase
             cat_key = "u"+item_data['key'].split(":").first
 
             if fields['stage'].blank?
-               Rails.logger.error("#{cat_key} does not have stage. Skipping")
+               Rails.logger.warn("#{cat_key} does not have stage. Skipping")
                next
             end
             stage = fields['stage']['key']
             if stage != "ACTIVE"
-               Rails.logger.error("#{cat_key} has invalid stage #{stage}. Skipping")
+               Rails.logger.warn("#{cat_key} has invalid stage #{stage}. Skipping")
                next
             end
 
