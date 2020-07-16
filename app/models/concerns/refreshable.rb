@@ -6,7 +6,7 @@ module Refreshable
   # after receiving and storing the response, run `Model.reset_refresh_timer`
 
   REFRESH_INTERVAL = 1.day
-  REFRESH_TIME = '3am'
+  REFRESH_TIME = '4:30am'
   REFRESH_ZONE = 'Eastern Time (US & Canada)'
 
   module ClassMethods
