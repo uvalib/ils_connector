@@ -107,16 +107,16 @@ class V4::User < SirsiBase
    def self.get_checkouts(user_id)
       checkouts = []
       ensure_login do
-         incFields = "circRecordList{*,library{description},item{*,call{*,bib{callNumber,author,title}}}}"
+         # incFields = "circRecordList{*,library{description},item{*,call{*,bib{callNumber,author,title}}}}"
+         incFields = "circRecordList{dueDate, overdue, estimatedOverdueAmount, recalledDate, renewalDate, library{description}, item{barcode,call{callNumber,bib{author,title}}}}"
          response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=#{incFields}",
-            headers: self.auth_headers)
+            headers: self.auth_headers, timeout: 30)
          check_session(response)
          results = response['result']
          if results.nil? || results.none? || results.many?
             Rails.logger.warn "User Not Found: #{user_id}"
             return nil
          end
-
          circ = results.first['fields']['circRecordList']
          circ.each do |cr|
             cr_f = cr['fields']
