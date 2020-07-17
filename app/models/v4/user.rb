@@ -108,7 +108,7 @@ class V4::User < SirsiBase
       checkouts = []
       ensure_login do
          # incFields = "circRecordList{*,library{description},item{*,call{*,bib{callNumber,author,title}}}}"
-         incFields = "circRecordList{dueDate, overdue, estimatedOverdueAmount, recalledDate, renewalDate, library{description}, item{barcode,call{callNumber,bib{author,title}}}}"
+         incFields = "circRecordList{dueDate,overdue,estimatedOverdueAmount,recalledDate,renewalDate,library{description},item{barcode,call{callNumber,bib{key,author,title}}}}"
          response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=#{incFields}",
             headers: self.auth_headers, timeout: 30)
          check_session(response)
@@ -119,18 +119,23 @@ class V4::User < SirsiBase
          end
          circ = results.first['fields']['circRecordList']
          circ.each do |cr|
-            cr_f = cr['fields']
-            co = cr_f['item']['fields']
-            co_call = co['call']['fields']
-            title = co_call['bib']['fields']['title']
-            author = co_call['bib']['fields']['author']
-            library = cr_f['library']['fields']['description']
-            checkouts << {id: co['bib']['key'], title: title, author: author,
+            cr_f = cr.dig('fields')
+            co = cr_f.dig('item', 'fields')
+            co_call = co.dig('call', 'fields')
+            title = co_call.dig('bib', 'fields', 'title')
+            author = co_call.dig('bib', 'fields', 'author')
+            library = cr_f.dig('library', 'fields', 'description')
+            checkouts << {id: co_call.dig('bib', 'key'),
+               title: title,
+               author: author,
                barcode: co['barcode'],
-               callNumber: co_call['callNumber'], library: library,
-               due: cr_f['dueDate'], overDue: cr_f['overdue'],
-               overdueFee: cr_f['estimatedOverdueAmount']['amount'],
-               recallDate: cr_f['recalledDate'], renewDate: cr_f['renewalDate']
+               callNumber: co_call['callNumber'],
+               library: library,
+               due: cr_f['dueDate'],
+               overDue: cr_f['overdue'],
+               overdueFee: cr_f.dig('estimatedOverdueAmount', 'amount'),
+               recallDate: cr_f['recalledDate'],
+               renewDate: cr_f['renewalDate']
             }
          end
       end
