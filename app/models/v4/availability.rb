@@ -65,25 +65,29 @@ class V4::Availability < SirsiBase
     items = []
     holding_data.map do |holding|
       holding['ItemInfo'].each do |item|
-        next if hidden?(item)
+        begin
+          next if hidden?(item)
 
-        fields = []
-        VISIBLE_FIELDS.each do |label, method|
-          fields << field_data(label, send(method, holding, item) )
+          fields = []
+          VISIBLE_FIELDS.each do |label, method|
+            fields << field_data(label, send(method, holding, item) )
+          end
+
+          items << {
+            barcode: item['itemID'],
+            on_shelf: on_shelf?(holding, item),
+            unavailable: unavailable?(item),
+            notice: notice_text(item),
+            fields: fields,
+            library: library(holding, item),
+            library_id: holding["libraryID"],
+            current_location: current_location(holding, item),
+            call_number: call_number(holding, item),
+            volume: volume(item)
+          }
+        rescue NoMethodError => error
+          Rails.logger.error "Exception in Document #{title_id} - Item: #{item['itemID']} - #{error}\n#{error.backtrace.first}"
         end
-
-        items << {
-          barcode: item['itemID'],
-          on_shelf: on_shelf?(holding, item),
-          unavailable: unavailable?(item),
-          notice: notice_text(item),
-          fields: fields,
-          library: library(holding, item),
-          library_id: holding["libraryID"],
-          current_location: current_location(holding, item),
-          call_number: call_number(holding, item),
-          volume: volume(item)
-        }
       end
     end
     items
