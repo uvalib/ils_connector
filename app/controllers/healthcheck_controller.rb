@@ -18,8 +18,8 @@ class HealthcheckController < ApplicationController
     attr_accessor :sirsi_connection, :user_service, :pda_service
 
     def is_healthy?
-      @sirsi_connection.healthy
-      @user_service.healthy
+      @sirsi_connection.healthy &&
+      @user_service.healthy &&
       @pda_service.healthy
     end
   end
@@ -31,7 +31,7 @@ class HealthcheckController < ApplicationController
     if response.is_healthy?
       render json: response, :status => 200
     else
-      Rails.logger.error "Healthcheck Failure: #{response}"
+      Rails.logger.error "Healthcheck Failure: #{response.to_json}"
       render json: response, :status => 500
     end
   end
