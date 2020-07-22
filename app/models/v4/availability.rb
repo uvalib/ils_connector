@@ -159,8 +159,9 @@ class V4::Availability < SirsiBase
   def notice_text item
     note = if V4::Location.medium_rare? item['currentLocationID']
              V4::Location::MEDIUM_RARE_MESSAGE
-           elsif note = course_reserve_note(item)
-             note
+          # No Course reserve note for now
+          # elsif note = course_reserve_note(item)
+          #   note
            end
     note
   end
