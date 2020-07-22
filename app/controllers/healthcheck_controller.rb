@@ -32,7 +32,7 @@ class HealthcheckController < ApplicationController
       render json: response, :status => 200
     else
       Rails.logger.error "Healthcheck Failure: #{response.to_json}"
-      render json: response, :status => 500
+      render json: response, :status => 200
     end
   end
 
