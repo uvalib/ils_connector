@@ -63,6 +63,7 @@ class HealthcheckController < ApplicationController
     rescue => ex
       health = Health.new( false, "Error: #{ex.class}" )
     end
+    health
   end
 
   def user_service_health
