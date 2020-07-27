@@ -1,3 +1,4 @@
+# NOT USED
 class V3::IvyRequest < ApplicationRecord
   include AASM
 

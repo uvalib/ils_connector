@@ -36,6 +36,7 @@ gem 'aasm'
 
 gem "lograge"
 
+
 # Use Redis adapter to run Action Cable in production
 # gem 'redis', '~> 3.0'
 # Use ActiveModel has_secure_password
@@ -55,6 +56,9 @@ group :development, :test do
   gem 'hashdiff'
   # compare xml
   gem 'equivalent-xml'
+
+  gem 'dotenv-rails'
+
 end
 
 group :production do

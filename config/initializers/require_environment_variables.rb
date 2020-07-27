@@ -1,18 +1,19 @@
 Rails.application.config.before_initialize do
-  if Rails.env.production?
     required_env = %w(
     SIRSI_WEB_SERVICES_BASE
     SIRSI_SCRIPT_URL
+    SIRSI_USER
+    SIRSI_PASSWORD
+    SIRSI_CLIENT_ID
+    SIRSI_LIBRARY
+    SERVICE_API_KEY
+    SECRET_KEY_BASE
     USERINFO_URL
     PDA_BASE_URL
     V4_JWT_KEY
+    JWT_SECRET
     )
     # To be included later
-    #SIRSI_USER
-    #SIRSI_PASSWORD
-    #SIRSI_CLIENT_ID
-    #SIRSI_LIBRARY
-    #SERVICE_API_KEY
     missing_list = []
     required_env.each do |required|
       if !ENV[required].present?
@@ -25,5 +26,4 @@ Rails.application.config.before_initialize do
       Rails.logger.error(msg)
       raise msg
     end
-  end
 end

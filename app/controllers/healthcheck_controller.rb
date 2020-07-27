@@ -58,7 +58,7 @@ class HealthcheckController < ApplicationController
                     Health.new(false, "Sirsi API Error: #{env_credential(:sirsi_web_services_base)} - #{sirsi_response.code} - #{sirsi_response.body}")
                   end
       else
-        health = Health.new( false, "Error connecting to, or authenticating with Sirsi" )
+        health = Health.new( false, "Error connecting to or authenticating with Sirsi" )
       end
     rescue => ex
       health = Health.new( false, "Error: #{ex.class}" )
