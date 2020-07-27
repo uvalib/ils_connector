@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe "V2::Users", type: :request do
+
+  before { skip "Deprecated"}
   describe "GET /v2/users/:id" do
 
     let(:user_id) { 'mhw8m' }
