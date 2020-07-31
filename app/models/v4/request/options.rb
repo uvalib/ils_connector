@@ -116,7 +116,7 @@ class V4::Request::Options
     # check if there is already an order
     begin
       pda = HTTParty.get("#{env_credential(:pda_base_url)}/check/#{availability.title_id}",
-                          headers: {authorization: availability.jwt_user[:auth_token]})
+                          headers: {authorization: availability.jwt_user[:auth_token]}, max_retries: 0)
 
       if pda.not_found?
         ato_item = {

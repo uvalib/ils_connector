@@ -34,7 +34,8 @@ class V4::Library < SirsiBase
     ensure_login do
       response = get('/policy/library/simpleQuery',
                       query: LIBRARY_PARAMS,
-                      headers: auth_headers
+                      headers: auth_headers,
+                      max_retries: 0
                      )
       check_session(response)
 

@@ -6,7 +6,8 @@ class V2::ItemType < SirsiBase
   def self.all
     raw = get('/policy/itemType/simpleQuery',
               query: REQUEST_PARAMS,
-              headers: auth_headers
+              headers: auth_headers,
+              max_retries: 0
     )
     check_session(raw)
 

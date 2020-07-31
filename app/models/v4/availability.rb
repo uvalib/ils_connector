@@ -37,7 +37,8 @@ class V4::Availability < SirsiBase
       data = {}
       response = self.class.get('/rest/standard/lookupTitleInfo',
                     query: REQUEST_PARAMS.merge(titleID: title_id),
-                    headers: self.class.auth_headers
+                    headers: self.class.auth_headers,
+                    max_retries: 0
                     )
       self.class.check_session(response)
       if response['TitleInfo'].present? && response['TitleInfo'].one? &&

@@ -5,7 +5,7 @@ class V4::CourseReserve < SirsiBase
       desks = []
       ensure_login do
          url = "/policy/reserveCollection/simpleQuery?key=*&includeFields=key,description"
-         response = get(url, headers: self.auth_headers)
+         response = get(url, headers: self.auth_headers, max_retries: 0)
          check_session(response)
          response.each do |r|
             desks << {id: r['key'], name: r['fields']['description'].gsub(/-/, ' ')}
@@ -22,7 +22,7 @@ class V4::CourseReserve < SirsiBase
          items.each do |id_str|
             id = id_str.gsub(/^u/, '')
             url = "/catalog/bib/key/#{id}?includeFields=#{fields}"
-            response = get(url, headers: self.auth_headers)
+            response = get(url, headers: self.auth_headers, max_retries: 0)
             check_session(response)
             if response.code != 200
                # if no response, just let it go thru as OK. it will be denied
@@ -79,7 +79,7 @@ class V4::CourseReserve < SirsiBase
          fl = "includeFields=#{fields.join(',')}"
          url = "/reserves/reserve/search?q=#{type}:#{query}&#{fl}&ct=#{page_size}&rw=#{(page_num-1)*page_size+1}"
          Rails.logger.info "Course reserves request: #{url}"
-         response = get(url, headers: self.auth_headers)
+         response = get(url, headers: self.auth_headers, max_retries: 0)
          if response.code == 500
             Rails.logger.error "Course reserves request got a 500 from sirsi"
             out[:success] = false
@@ -183,7 +183,7 @@ class V4::CourseReserve < SirsiBase
    def self.search_item item_id
      reserve = {}
      options = { base_uri: env_credential(:sirsi_script_url),
-                 query: {item_id: item_id}
+                 query: {item_id: item_id}, max_retries: 0
      }
      # actual login is not required for this url, still using this for error checking
      ensure_login do

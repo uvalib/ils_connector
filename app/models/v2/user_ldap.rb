@@ -9,7 +9,7 @@ class V2::UserLDAP < V2
     auth = env_credential(:auth_shared_secret).nil? ? env_credential(:service_api_key) : auth_token( env_credential(:auth_shared_secret))
 
     response = get("/user/#{user_id}",
-                    query: {auth: auth})
+                    query: {auth: auth}, max_retries: 0)
 
     if response.success?
       return response['user']
@@ -21,8 +21,7 @@ class V2::UserLDAP < V2
   end
 
   def self.healthcheck
-    response = get("/healthcheck", timeout: 2)
-
+    response = get("/healthcheck", timeout: 2, max_retries: 0)
     response
   end
 

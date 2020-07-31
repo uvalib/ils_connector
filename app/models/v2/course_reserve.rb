@@ -29,7 +29,8 @@ class V2::CourseReserve < SirsiBase
   def self.lookup_reserve_list user_barcode
     response = get('/rest/reserve/listReserve',
                    query: LIST_PARAMS.merge(userID: user_barcode),
-                   headers: self.auth_headers
+                   headers: self.auth_headers,
+                   max_retries: 0
                   )
     check_session(response)
     return response
@@ -38,7 +39,8 @@ class V2::CourseReserve < SirsiBase
   def self.lookup_course user_barcode, course_id
     response = get('/rest/reserve/lookupReserve',
                    query: {userID: user_barcode, courseID: course_id, hitsToDisplay: 200 },
-                   headers: self.auth_headers
+                   headers: self.auth_headers,
+                   max_retries: 0
                   )
     check_session(response)
     if response.code != 200 || response['faultResponse'].present?

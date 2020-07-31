@@ -7,7 +7,7 @@ class V4::Checkout < SirsiBase
          Rails.logger.info("User #{user_id} renew #{item_barcode}")
          incFields = "barcode,circRecordList{dueDate,item{barcode}}"
          response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=#{incFields}",
-            headers: self.auth_headers)
+            headers: self.auth_headers, max_retries: 0 )
          check_session(response)
          results = response['result']
          if results.nil? || results.none? || results.many?
@@ -49,7 +49,7 @@ class V4::Checkout < SirsiBase
       ensure_login do
          incFields = "barcode,circRecordList{dueDate,item{barcode}}"
          response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=#{incFields}",
-            headers: self.auth_headers)
+            headers: self.auth_headers, max_retries: 0)
          check_session(response)
          results = response['result']
          if results.nil? || results.none? || results.many?

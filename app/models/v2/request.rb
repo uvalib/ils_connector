@@ -6,7 +6,8 @@ class V2::Request < SirsiBase
          Rails.logger.debug "Lookup user barcode for #{computing_id}"
          data = {}.with_indifferent_access
          response = get("/user/patron/search?q=ALT_ID:#{computing_id}&includeFields=barcode",
-            headers: auth_headers
+            headers: auth_headers,
+            max_retries: 0
          )
          check_session(response)
          results = response['result']
@@ -56,7 +57,8 @@ class V2::Request < SirsiBase
       ensure_login do
          # Use user_barcode to call old API lookupPatronInfo to get all checked out items
          response = get("/rest/patron/lookupPatronInfo?includePatronCheckoutInfo=ALL&userID=#{user_barcode}",
-            headers: auth_headers
+            headers: auth_headers,
+            max_retries: 0
          )
          check_session(response)
 
@@ -83,7 +85,8 @@ class V2::Request < SirsiBase
       ensure_login do
          # Use user_barcode to call old API lookupPatronInfo to get all checked out items
          response = get("/rest/patron/lookupPatronInfo?includePatronCheckoutInfo=ALL&userID=#{user_barcode}",
-            headers: auth_headers
+            headers: auth_headers,
+            max_retries: 0
          )
          check_session(response)
 

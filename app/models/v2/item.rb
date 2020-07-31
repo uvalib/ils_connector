@@ -20,7 +20,8 @@ class V2::Item < SirsiBase
       data = {}.with_indifferent_access
       response = get('/rest/standard/lookupTitleInfo',
                      query: OLD_REQUEST_PARAMS.merge(titleID: item_id),
-                     headers: auth_headers
+                     headers: auth_headers,
+                     max_retries: 0
                     )
       check_session(response)
       if response['TitleInfo'].present? && response['TitleInfo'].one? &&
@@ -39,13 +40,15 @@ class V2::Item < SirsiBase
       item["titleID"] = item_id
       item["CallInfo"] = []
       response = get("/catalog/bib/key/#{item_id}?includeFields=callList,*",
-                     headers: auth_headers
+                     headers: auth_headers,
+                     max_retries: 0
                     )
       item["shadowed"] = response["fields"]["shadowed"]
       response["fields"]["callList"].each do |cl|
         key = cl["key"]
         call_resp = get("/catalog/call/key/#{key}?includeFields=itemList,*",
-                        headers: auth_headers
+                        headers: auth_headers,
+                        max_retries: 0
                        )
         holding = {}.with_indifferent_access
         holding["callNumber"] = call_resp["fields"]["dispCallNumber"]
@@ -57,7 +60,8 @@ class V2::Item < SirsiBase
         call_resp["fields"]["itemList"].each do |holding_copy|
           copy_key = holding_copy["key"]
           copy_resp = get("/catalog/item/key/#{copy_key}",
-                          headers: auth_headers
+                          headers: auth_headers,
+                          max_retries: 0
                          )
           copy = {}.with_indifferent_access
           copy["itemID"] = copy_resp["fields"]["barcode"]

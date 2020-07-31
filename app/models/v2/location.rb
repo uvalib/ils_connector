@@ -20,8 +20,9 @@ class V2::Location < SirsiBase
    locations = []
    ensure_login do
      locations = get('/policy/location/simpleQuery',
-                                query: LOCATION_PARAMS,
-                                headers: auth_headers
+                     query: LOCATION_PARAMS,
+                     headers: auth_headers,
+                     max_retries: 0
                     )
      check_session(locations)
      if locations.present?

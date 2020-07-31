@@ -114,7 +114,7 @@ class V4::Request::Hold < V4::Request::RequestBase
     params = {includeFields: 'holdRecordList{placedLibrary,pickupLibrary,patron{alternateID,displayName,barcode}},bib{title,author,currentLocation},transit{destinationLibrary,holdRecord{placedLibrary,pickupLibrary,patron{alternateID,displayName,barcode}}}'}
     item_response = self.get("/catalog/item/barcode/#{barcode}",
       query: params,
-      headers: self.base_headers.merge(headers)
+      headers: self.base_headers.merge(headers), max_retries: 0
       )
 
     if item_response.unauthorized? || item_response['messageList'].present?

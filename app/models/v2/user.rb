@@ -8,9 +8,10 @@ class V2::User < SirsiBase
     ensure_login do
       data = {}
       response = get('/user/patron/search',
-                                query: REQUEST_PARAMS.merge(q: "ALT_ID:#{user_id}"),
-                                headers: self.auth_headers
-                               )
+                     query: REQUEST_PARAMS.merge(q: "ALT_ID:#{user_id}"),
+                     headers: self.auth_headers,
+                     max_retries: 0
+                    )
       check_session(response)
       results = response['result']
 
@@ -77,7 +78,8 @@ class V2::User < SirsiBase
   def self.get_patron_info barcode
     response = get('/rest/patron/lookupPatronInfo',
                    query: PATRON_INFO_PARAMS.merge(userID: barcode),
-                   headers: self.auth_headers
+                   headers: self.auth_headers,
+                   max_retries: 0
                   )
     if response.present?
       response.parsed_response

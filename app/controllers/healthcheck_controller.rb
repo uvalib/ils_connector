@@ -85,7 +85,7 @@ class HealthcheckController < ApplicationController
   def pda_service_health
     health = nil
     begin
-      health_response = HTTParty.get("#{env_credential(:pda_base_url)}/healthcheck", timeout: 2)
+      health_response = HTTParty.get("#{env_credential(:pda_base_url)}/healthcheck", timeout: 2, max_retries: 0)
       health = if health_response.code == 200
                  Health.new(true, '')
                else

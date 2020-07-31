@@ -37,7 +37,8 @@ class V4::Location < SirsiBase
     ensure_login do
       response = get('/policy/location/simpleQuery',
                       query: LOCATION_PARAMS,
-                      headers: auth_headers
+                      headers: auth_headers,
+                      max_retries: 0
                      )
       check_session(response)
 

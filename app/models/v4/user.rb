@@ -25,7 +25,7 @@ class V4::User < SirsiBase
 
       ensure_login do
          response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=barcode,displayName,profile{description},patronStatusInfo{standing,amountOwed},library",
-            headers: self.auth_headers)
+            headers: self.auth_headers, max_retries: 0 )
          check_session(response)
          results = response['result']
          if results.nil? || results.none?
@@ -110,7 +110,7 @@ class V4::User < SirsiBase
          # incFields = "circRecordList{*,library{description},item{*,call{*,bib{callNumber,author,title}}}}"
          incFields = "circRecordList{dueDate,overdue,estimatedOverdueAmount,recalledDate,renewalDate,library{description},item{barcode,call{callNumber,bib{key,author,title}}}}"
          response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=#{incFields}",
-            headers: self.auth_headers, timeout: 30)
+            headers: self.auth_headers, timeout: 30, max_retries: 0)
          check_session(response)
          results = response['result']
          if results.nil? || results.none? || results.many?
@@ -147,7 +147,7 @@ class V4::User < SirsiBase
       ensure_login do
          # first convert ID to barcode...
          response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=barcode&json=true",
-            headers: self.auth_headers)
+            headers: self.auth_headers, max_retries: 0)
          check_session(response)
          results = response['result']
          if results.nil? || results.none? || results.many?
@@ -157,7 +157,7 @@ class V4::User < SirsiBase
          barcode = results.first["fields"]["barcode"]
 
          q = "/rest/patron/lookupPatronInfo?userID=#{barcode}&json=true&includeFeeInfo=UNPAID_FEES"
-         response = get(q, headers: self.auth_headers)
+         response = get(q, headers: self.auth_headers, max_retries: 0)
          check_session(response)
          fees = response['feeInfo']
          fees.each do |b|
@@ -184,7 +184,7 @@ class V4::User < SirsiBase
          }
          response = get("/user/patron/search",
             query: params,
-            headers: self.auth_headers)
+            headers: self.auth_headers, max_retries: 0)
          check_session(response)
          results = response['result']
          if results.nil? || results.none? || results.many?
@@ -234,7 +234,7 @@ class V4::User < SirsiBase
         }
         response = get("/user/patron/search",
                        query: params,
-                       headers: self.auth_headers)
+                       headers: self.auth_headers, max_retries: 0)
         check_session(response)
         results = response['result']
         if results.nil? || results.none? || results.many?
