@@ -14,7 +14,11 @@ class V2::UserLDAP < V2
     if response.success?
       return response['user']
     else
-      Rails.logger.error "Failed Userinfo Request: #{response.request.uri} #{response.body}"
+      if response.code == 404
+        Rails.logger.warn "Failed Userinfo Request: #{response.request.uri}, #{response.code}, #{response.body}"
+      else
+        Rails.logger.error "Failed Userinfo Request: #{response.request.uri}, #{response.code}, #{response.body}"
+      end
       return {}
     end
 
