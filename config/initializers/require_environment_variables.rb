@@ -6,7 +6,7 @@ Rails.application.config.before_initialize do
     SIRSI_PASSWORD
     SIRSI_CLIENT_ID
     SIRSI_LIBRARY
-    SERVICE_API_KEY
+    AUTH_SHARED_SECRET
     SECRET_KEY_BASE
     USERINFO_URL
     PDA_BASE_URL
