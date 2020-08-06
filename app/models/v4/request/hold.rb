@@ -115,7 +115,8 @@ class V4::Request::Hold < V4::Request::RequestBase
     item_response = self.get("/catalog/item/barcode/#{barcode}",
       query: params,
       headers: self.base_headers.merge(headers), max_retries: 0
-      )
+    )
+    check_session(item_response)
 
     if item_response.unauthorized? || item_response['messageList'].present?
       output[:error_messages].push *item_response['messageList']
