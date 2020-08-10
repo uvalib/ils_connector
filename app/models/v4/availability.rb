@@ -27,7 +27,7 @@ class V4::Availability < SirsiBase
                     includeAvailabilityInfo: 'true',
                     includeCallNumberSummary: 'true',
                     includeFields: '*',
-                    includeShadowed: 'BOTH',
+                    includeShadowed: 'NONE',
                     includeBoundTogether: 'true',
                     marcEntryID: '949,985,911'
   }
