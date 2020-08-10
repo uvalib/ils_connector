@@ -120,7 +120,7 @@ class V4::User < SirsiBase
          circ = results.first['fields']['circRecordList']
          circ.each do |cr|
             cr_f = cr.dig('fields')
-            next if cf_f.nil?
+            next if cr_f.nil?
             co = cr_f.dig('item', 'fields')
             co_call = co.dig('call', 'fields')
             title = co_call.dig('bib', 'fields', 'title')
