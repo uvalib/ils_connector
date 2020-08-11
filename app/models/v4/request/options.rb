@@ -84,7 +84,7 @@ class V4::Request::Options
     user_can_hold(item) &&
     !item[:unavailable] &&
     item[:current_location] != "Available to Order" &&
-    item[:library] != "Special Collections"
+    item[:library_id] != "SPEC-COLL"
   end
 
   # LEO users can request on_shelf items
