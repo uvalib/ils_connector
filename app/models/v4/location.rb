@@ -84,7 +84,7 @@ class V4::Location < SirsiBase
     args.flatten.any? { |arg| code.match?(arg) }
   end
 
-  ONLINE_LOCATIONS = codes 'INTERNET'
+  ONLINE_LOCATIONS = codes('INTERNET', 'NOTOREPDA')
 
   # Unavailable now means that an item is not on shelf nor holdable for anyone
   # These are still shown for now.
