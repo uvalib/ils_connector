@@ -89,12 +89,15 @@ class V4::Request::Options
 
   # LEO users can request on_shelf items
   def user_can_hold item
-    if availability.jwt_user[:can_leo]
-      return true
-    else
-      # normal users can only request when not on shelf
-      !item[:on_shelf]
-    end
+    # For now all users and can request on shelf items
+    return true
+
+    #if availability.jwt_user[:can_leo]
+    #  return true
+    #else
+    #  # normal users can only request when not on shelf
+    #  !item[:on_shelf]
+    #end
   end
 
 
