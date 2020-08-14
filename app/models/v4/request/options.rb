@@ -36,7 +36,8 @@ class V4::Request::Options
 
   # Scans use the same holdable items list
   def get_scan_info
-    if holdable_items.any?
+
+    if holdable_items.any? && availability.jwt_user[:home_library] != "HEALTHSCI"
       return {
         type: :scan,
         sign_in_required: true,
