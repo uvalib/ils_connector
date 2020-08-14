@@ -57,7 +57,7 @@ class V4::Availability < SirsiBase
             'Current Location' => :current_location,
             'Call Number' => :call_number,
             'Barcode' => :barcode,
-            'Availability' => :availability
+            #'Availability' => :availability
   }.freeze
 
   def process_response
