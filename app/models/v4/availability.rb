@@ -29,7 +29,7 @@ class V4::Availability < SirsiBase
                     includeFields: '*',
                     includeShadowed: 'NONE',
                     includeBoundTogether: 'true',
-                    marcEntryID: '949,985,911'
+                    marcEntryID: '949,985,911,506'
   }
 
   def find
@@ -163,13 +163,18 @@ class V4::Availability < SirsiBase
   end
 
   def notice_text item
-    note = if V4::Location.medium_rare? item['currentLocationID']
-             V4::Location::MEDIUM_RARE_MESSAGE
-          # No Course reserve note for now
-          # elsif note = course_reserve_note(item)
-          #   note
-           end
-    note
+    if V4::Location.medium_rare? item['currentLocationID']
+      return V4::Location::MEDIUM_RARE_MESSAGE
+    # No Course reserve note for now
+    # elsif note = course_reserve_note(item)
+    #   note
+    elsif item['homeLocationID'] == 'SC-IVY'
+      marc = data.dig("BibliographicInfo", 'MarcEntryInfo') || []
+      notices = marc.select {|entry| entry['entryID'] == '506'} || []
+      if notices
+        return notices.map{|n| n['text'] }.join('</br>')
+      end
+    end
   end
 
   def course_reserve_note item

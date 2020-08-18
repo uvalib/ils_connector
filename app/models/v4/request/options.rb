@@ -61,7 +61,9 @@ class V4::Request::Options
         self.holdable_items << {
           barcode: item[:barcode],
           label: item[:volume],
-          library: item[:library_id]
+          library: item[:library_id],
+          current_location: item[:current_location],
+          notice: item[:notice]
         }
       end
     end
@@ -75,7 +77,9 @@ class V4::Request::Options
         self.holdable_items << {
           barcode: holdable_item[:barcode],
           label: holdable_item[:call_number],
-          library: holdable_item[:library_id]
+          library: holdable_item[:library_id],
+          location: holdable_item[:current_location],
+          notice: holdable_item[:notice]
         }
       end
     end
