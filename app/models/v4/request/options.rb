@@ -14,6 +14,7 @@ class V4::Request::Options
     self.list = []
     self.list << get_hold_info
     self.list << get_scan_info
+    self.list << get_video_reserve_info
 
     # ATO is disabled until September
     #self.list << get_ato_info
@@ -36,14 +37,28 @@ class V4::Request::Options
 
   # Scans use the same holdable items list
   def get_scan_info
+    scan_items = holdable_items.reject {|item| item[:is_video]}
+    if scan_items.any? && availability.jwt_user[:home_library] != "HEALTHSCI"
 
-    if holdable_items.any? && availability.jwt_user[:home_library] != "HEALTHSCI"
       return {
         type: :scan,
         sign_in_required: true,
         button_label: "Request a scan",
         description: 'Select a portion of this item to be scanned.',
-        item_options: holdable_items
+        item_options: scan_items
+      }
+    end
+  end
+
+  def get_video_reserve_info
+    video_items = holdable_items.select {|item| item[:is_video]}
+    if video_items.any? && availability.jwt_user[:can_place_reserve]
+      return {
+        type:             :videoReserve,
+        button_label:     "Video reserve request",
+        sign_in_required: true,
+        description:      "Request a video reserve for streaming",
+        item_options:     video_items
       }
     end
   end
@@ -62,7 +77,8 @@ class V4::Request::Options
           barcode: item[:barcode],
           label: item[:volume],
           library: item[:library_id],
-          current_location: item[:current_location],
+          location: item[:current_location],
+          is_video: item[:is_video],
           notice: item[:notice]
         }
       end
@@ -70,16 +86,17 @@ class V4::Request::Options
 
     # if no Volume options are present, add the first holdable item
     if holdable_items.none?
-      holdable_item = availability.items.find do |item|
-        holdable_item?(item)
+      item = availability.items.find do |i|
+        holdable_item?(i)
       end
-      if holdable_item
+      if item.present?
         self.holdable_items << {
-          barcode: holdable_item[:barcode],
-          label: holdable_item[:call_number],
-          library: holdable_item[:library_id],
-          location: holdable_item[:current_location],
-          notice: holdable_item[:notice]
+          barcode: item[:barcode],
+          label: item[:call_number],
+          library: item[:library_id],
+          location: item[:current_location],
+          is_video: item[:is_video],
+          notice: item[:notice]
         }
       end
     end

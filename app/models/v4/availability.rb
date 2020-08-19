@@ -85,6 +85,7 @@ class V4::Availability < SirsiBase
             current_location: current_location(holding, item),
             home_location_id: home_location_id(holding, item),
             call_number: call_number(holding, item),
+            is_video: is_video(item),
             volume: volume(item)
           }
         rescue NoMethodError => error
@@ -108,6 +109,11 @@ class V4::Availability < SirsiBase
       call['itemID'] == item['itemID']
     end || {}
     return vol_item['analyticZ']
+  end
+
+  VIDEO_TYPES = %w(VIDEOJRNL VIDEO-DVD VIDEO-DISC VIDEO-CASS RSRV-VID4 RSRV-VID24)
+  def is_video item
+    VIDEO_TYPES.include? item['itemTypeID']
   end
 
   # Field methods below
