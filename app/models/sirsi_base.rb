@@ -34,7 +34,7 @@ class SirsiBase
 
       uri = response.present? ? response.uri : env_credential(:sirsi_web_services_base)
       Rails.logger.error "ERROR: #{uri} #{e.message} #{e.backtrace.first}"
-      return []
+      return nil
     end
   end
 
@@ -56,7 +56,7 @@ class SirsiBase
       @@session_token = @@sirsi_user['sessionToken']
       @@session_time = Time.now
     rescue => e
-      if @@sirsi_user.present?
+      if defined?( @@sirsi_user ) && @@sirsi_user.present?
         Rails.logger.error "Sirsi API Login Failed - #{@@sirsi_user.request.uri} #{@@sirsi_user.body}"
       else
         Rails.logger.error "Sirsi API Login Failed - #{env_credential(:sirsi_web_services_base)} "

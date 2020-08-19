@@ -41,21 +41,31 @@ class V2::User < SirsiBase
 
   end
 
+  # return a status true/false and whether the PIN is valid or not
   def self.check_pin barcode, pin
-    login_body = {'barcode' => barcode,
-             'password' => pin
-            }
-    response = post( "/user/patron/authenticate",
-                    { body: login_body.to_json,
-                         headers: base_headers
-    })
 
-    if response.code == 200
-      return true
-    elsif response.code == 401
-      return false
-    else
-      raise 'Unexpected pin check response.'
+    begin
+      login_body = {'barcode' => barcode,
+               'password' => pin
+              }
+      response = post( "/user/patron/authenticate",
+                      { body: login_body.to_json,
+                           headers: base_headers
+      })
+
+      if response.code == 200
+        # everything OK and PIN is good
+        return true, true
+      elsif response.code == 401
+        # everything OK and PIN is bad
+        return true, false
+      else
+        # everything is not OK
+        return false, false
+      end
+    rescue => ex
+      # everything is really not OK
+      return false, false
     end
   end
 

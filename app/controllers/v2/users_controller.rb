@@ -12,10 +12,13 @@ class V2::UsersController < V2ApplicationController
   end
 
   def check_pin
-   @is_valid_pin = V2::User.check_pin(user_params[:id], user_params['pin'])
-   render
+    ok, @is_valid_pin = V2::User.check_pin(user_params[:id], user_params['pin'])
+    if !ok
+       render plain: "Service unavailable", status: :service_unavailable
+    else
+       render
+    end
   end
-
 
   private
   def user_params

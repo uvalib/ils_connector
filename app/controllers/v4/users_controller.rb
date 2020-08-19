@@ -9,7 +9,10 @@ class V4::UsersController < V4ApplicationController
    end
 
    def check_pin
-      if V2::User.check_pin(user_params[:id], user_params['pin'])
+      ok, pin_ok = V2::User.check_pin(user_params[:id], user_params['pin'])
+      if !ok
+         render plain: "Service unavailable", status: :service_unavailable
+      elsif pin_ok
          render plain: "valid", status: :ok
       else
          render plain: "invalid", status: :not_found
@@ -34,8 +37,10 @@ class V4::UsersController < V4ApplicationController
    end
 
    def checkouts
-      checkouts = V4::User.get_checkouts(user_params[:id])
-      if checkouts.nil?
+      ok, checkouts = V4::User.get_checkouts(user_params[:id])
+      if !ok
+         render plain: "Service unavailable", status: :service_unavailable
+      elsif checkouts.nil?
          render plain: "#{user_params[:id]} not found", status: :not_found
       else
          render json: checkouts.to_json, status: :ok
@@ -43,8 +48,10 @@ class V4::UsersController < V4ApplicationController
    end
 
    def bills
-      bills = V4::User.get_bills(user_params[:id])
-      if bills.nil?
+      ok, bills = V4::User.get_bills(user_params[:id])
+      if !ok
+         render plain: "Service unavailable", status: :service_unavailable
+      elsif bills.nil?
          render plain: "#{user_params[:id]} not found", status: :not_found
       else
          render json: bills.to_json, status: :ok
@@ -52,8 +59,10 @@ class V4::UsersController < V4ApplicationController
    end
 
    def holds
-      holds = V4::User.get_holds(user_params[:id])
-      if holds.empty?
+      ok, holds = V4::User.get_holds(user_params[:id])
+      if !ok
+         render plain: "Service unavailable", status: :service_unavailable
+      elsif holds.nil?
          render plain: "#{user_params[:id]} not found", status: :not_found
       else
          render json: holds.to_json, status: :ok

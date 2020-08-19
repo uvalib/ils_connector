@@ -10,11 +10,11 @@ class V4::Availability < SirsiBase
     self.title_id = id.gsub(/^u/, '')
     self.jwt_user = jwt_user
     self.data = find
-    if data.present?
+    if defined?( self.data ) && self.data.present?
       self.items = process_response if self.data.present?
       self.request_options = V4::Request::Options.new(self).list
     end
-  end
+   end
 
   # used to name the root node in ActiveModel::Serializers
   def self.model_name

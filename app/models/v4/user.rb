@@ -104,9 +104,11 @@ class V4::User < SirsiBase
       return true
    end
 
+   # return a status true/false and the checkout list or nil if the user is not found
    def self.get_checkouts(user_id)
-      checkouts = []
+
       ensure_login do
+         checkouts = []
          # incFields = "circRecordList{*,library{description},item{*,call{*,bib{callNumber,author,title}}}}"
          incFields = "circRecordList{dueDate,overdue,estimatedOverdueAmount,recalledDate,renewalDate,library{description},item{barcode,call{callNumber,bib{key,author,title}}}}"
          response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=#{incFields}",
@@ -115,7 +117,7 @@ class V4::User < SirsiBase
          results = response['result']
          if results.nil? || results.none? || results.many?
             Rails.logger.warn "User Not Found: #{user_id}"
-            return nil
+            return true, nil
          end
          circ = results.first['fields']['circRecordList']
          circ.each do |cr|
@@ -139,13 +141,17 @@ class V4::User < SirsiBase
                renewDate: cr_f['renewalDate']
             }
          end
+         return true, checkouts
       end
-      return checkouts
+
+      # error, unable to login to Sirsi
+      return false, nil
    end
 
+   # return a status true/false and the checkout list or nil if the user is not found
    def self.get_bills(user_id)
-      bills = []
       ensure_login do
+         bills = []
          # first convert ID to barcode...
          response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=barcode&json=true",
             headers: self.auth_headers, max_retries: 0)
@@ -153,7 +159,7 @@ class V4::User < SirsiBase
          results = response['result']
          if results.nil? || results.none? || results.many?
             Rails.logger.warn "User Not Found: #{user_id}"
-            return nil
+            return true, nil
          end
          barcode = results.first["fields"]["barcode"]
 
@@ -171,14 +177,18 @@ class V4::User < SirsiBase
                library: b['billLibraryDescription'], date: b['dateBilled'], item: item
             }
          end
+         return true, bills
       end
-      return bills
+
+      # error, unable to login to Sirsi
+      return false, nil
    end
 
+   # return a status true/false and the checkout list or nil if the user is not found
    def self.get_holds user_id
 
-      holds = []
       ensure_login do
+         holds = []
          params = {q: "ALT_ID:#{user_id}",
             includeFields: "holdRecordList{*,bib{title,author},item{barcode,currentLocation,library,transit{transitReason},call{dispCallNumber}}}",
             json: true
@@ -190,7 +200,7 @@ class V4::User < SirsiBase
          results = response['result']
          if results.nil? || results.none? || results.many?
             Rails.logger.warn "User Not Found: #{user_id}"
-            return nil
+            return true, nil
          end
          hold_records = results.first["fields"]["holdRecordList"]
          hold_records.each do |hold|
@@ -221,8 +231,11 @@ class V4::User < SirsiBase
                itemStatus: item_status,
             }
          end
+         return true, {holds: holds}
       end
-      {holds: holds}
+
+      # error, unable to login to Sirsi
+      return false, nil
    end
 
    # Gets a subset of user info needed to make a hold
