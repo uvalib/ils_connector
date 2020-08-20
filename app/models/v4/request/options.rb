@@ -16,8 +16,7 @@ class V4::Request::Options
     self.list << get_scan_info
     self.list << get_video_reserve_info
 
-    # ATO is disabled until September
-    #self.list << get_ato_info
+    self.list << get_ato_info
     self.list.compact! # remove nil values
 
     # this.list << other_request_types_go_here
