@@ -134,8 +134,8 @@ class V4::Request::Options
   ]
 
   def get_ato_info
-    no_ato = availability.items.none? {|item| item[:current_location] == "Available to Order" }
-    return nil if no_ato
+    ato_item = availability.items.find {|item| item[:current_location] == "Available to Order" }
+    return nil if !ato_item
 
     # check if there is already an order
     begin
@@ -146,6 +146,8 @@ class V4::Request::Options
         ato_item = {
           catalog_key: availability.title_id,
           isbn: availability.pda_isbn,
+          barcode: ato_item[:barcode],
+          title: availability.title,
           fund_code: availability.fund_code,
           loan_type: availability.loan_type,
           hold_library: availability.pda_hold_library

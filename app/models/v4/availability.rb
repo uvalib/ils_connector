@@ -29,7 +29,7 @@ class V4::Availability < SirsiBase
                     includeFields: '*',
                     includeShadowed: 'NONE',
                     includeBoundTogether: 'true',
-                    marcEntryID: '949,985,911,506'
+                    marcEntryID: '949,985,911,506,245'
   }
 
   def find
@@ -234,6 +234,14 @@ class V4::Availability < SirsiBase
   end
 
   # End PDA fields
+
+  def title
+    # title pulled from marc
+    marc = data.dig('BibliographicInfo', 'MarcEntryInfo')
+    return nil if !marc
+    marc_field = marc.find {|m| m['entryID'] == '245'}
+    return marc_field['text']
+  end
 
 
   # end field methods
