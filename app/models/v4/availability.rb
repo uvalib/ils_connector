@@ -203,12 +203,24 @@ class V4::Availability < SirsiBase
   end
 
   # Begin fields for PDA service
+  PDA_LOCATION_MAP = {
+    'AL-PPDA'=>'ALD',
+    'AS-PPDA'=>'ASTRO',
+    'CH-PPDA'=>'CHEM',
+    'CL-PPDA'=>'CLEM',
+    'FA-PPDA'=>'FINE ARTS',
+    'MA-PPDA'=>'MATH',
+    'MU-PPDA'=>'MUSIC',
+    'PH-PPDA'=>'PHYS',
+    'SE-PPDA'=>'SCIENG'
+  }
 
   def pda_hold_library
     marc = data.dig('BibliographicInfo', 'MarcEntryInfo')
     return nil if !marc
     marc_field = marc.find {|m| m['entryID'] == '949'}
-    return marc_field['text']
+    hold_id = marc_field['text']
+    return PDA_LOCATION_MAP[hold_id]
   end
 
   def fund_code
