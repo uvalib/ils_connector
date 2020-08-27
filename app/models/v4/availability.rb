@@ -83,6 +83,7 @@ class V4::Availability < SirsiBase
             library: library(holding, item),
             library_id: holding["libraryID"],
             current_location: current_location(holding, item),
+            current_location_id: item['currentLocationID'],
             home_location_id: home_location_id(holding, item),
             call_number: call_number(holding, item),
             is_video: is_video(item),

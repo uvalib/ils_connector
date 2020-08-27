@@ -77,6 +77,7 @@ class V4::Request::Options
           label: item[:volume],
           library: item[:library_id],
           location: item[:current_location],
+          location_id: item[:current_location_id],
           is_video: item[:is_video],
           notice: item[:notice]
         }
@@ -94,6 +95,7 @@ class V4::Request::Options
           label: item[:call_number],
           library: item[:library_id],
           location: item[:current_location],
+          location_id: item[:current_location_id],
           is_video: item[:is_video],
           notice: item[:notice]
         }
