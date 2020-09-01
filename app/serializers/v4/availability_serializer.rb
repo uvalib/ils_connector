@@ -5,4 +5,5 @@ class V4::AvailabilitySerializer < ActiveModel::Serializer
   end
   has_many :items
   has_many :request_options
+  has_many :bound_with
 end

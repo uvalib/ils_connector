@@ -3,7 +3,7 @@ class V4::Availability < SirsiBase
   base_uri env_credential(:sirsi_web_services_base)
   default_timeout 5
 
-  attr_accessor :title_id, :data, :items, :request_options, :jwt_user
+  attr_accessor :title_id, :data, :items, :bound_with, :request_options, :jwt_user
 
   def initialize id, jwt_user
     # remove leading u if present
@@ -11,7 +11,8 @@ class V4::Availability < SirsiBase
     self.jwt_user = jwt_user
     self.data = find
     if defined?( self.data ) && self.data.present?
-      self.items = process_response if self.data.present?
+      self.items = process_items
+      self.bound_with = process_bound_with
       self.request_options = V4::Request::Options.new(self).list
     end
    end
@@ -60,7 +61,7 @@ class V4::Availability < SirsiBase
             #'Availability' => :availability
   }.freeze
 
-  def process_response
+  def process_items
     holding_data = data['CallInfo']
 
     items = []
@@ -96,6 +97,23 @@ class V4::Availability < SirsiBase
       end
     end
     items
+  end
+
+  def process_bound_with
+    if data['BoundwithLinkInfo'].empty?
+      return []
+    end
+    bound_with_items = data['BoundwithLinkInfo'].map do |link|
+      title = link['linkedTitle']
+      {
+        isParent: link['linkedAsParent'],
+        title_id: "u#{title['titleID']}",
+        call_number: link['callNumber'],
+        title: title['title'],
+        author: title['author']
+      }
+    end
+    return bound_with_items
   end
 
   def field_data name, value, visible=true, type='text'
