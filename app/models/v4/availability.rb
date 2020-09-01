@@ -87,7 +87,8 @@ class V4::Availability < SirsiBase
             home_location_id: home_location_id(holding, item),
             call_number: call_number(holding, item),
             is_video: is_video(item),
-            volume: volume(item)
+            volume: volume(item),
+            non_circulating: non_circulating?(holding, item)
           }
         rescue NoMethodError => error
           Rails.logger.error "Exception in Document #{title_id} - Item: #{item['itemID']} - #{error}\n#{error.backtrace.first}"
@@ -161,6 +162,12 @@ class V4::Availability < SirsiBase
   def unavailable? item
     loc = V4::Location.find(item['currentLocationID'])
     loc.unavailable if loc
+  end
+
+  def non_circulating? holding, item
+    library = V4::Library.find holding['libraryID']
+    loc = V4::Location.find(item['currentLocationID'])
+    return library.non_circulating || loc.non_circulating
   end
 
   # Are not returned by this API
