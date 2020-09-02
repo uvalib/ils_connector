@@ -107,7 +107,7 @@ class V4::Availability < SirsiBase
       title = link['linkedTitle']
       {
         is_parent: link['linkedAsParent'],
-        title_id: "u#{title['titleID']}",
+        title_id: "#{title['titleID']}",
         call_number: link['callNumber'],
         title: title['title'],
         author: title['author']
