@@ -106,7 +106,7 @@ class V4::Availability < SirsiBase
     bound_with_items = data['BoundwithLinkInfo'].map do |link|
       title = link['linkedTitle']
       {
-        isParent: link['linkedAsParent'],
+        is_parent: link['linkedAsParent'],
         title_id: "u#{title['titleID']}",
         call_number: link['callNumber'],
         title: title['title'],
