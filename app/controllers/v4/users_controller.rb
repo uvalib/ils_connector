@@ -9,7 +9,7 @@ class V4::UsersController < V4ApplicationController
    end
 
    def check_pin
-      ok, pin_ok = V2::User.check_pin(user_params[:id], user_params['pin'])
+      ok, pin_ok = V4::User.check_pin(user_params[:id], user_params['pin'])
       if !ok
          render plain: "Service unavailable", status: :service_unavailable
       elsif pin_ok

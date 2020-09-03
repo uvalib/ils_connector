@@ -104,6 +104,63 @@ class V4::User < SirsiBase
       return true
    end
 
+   # return a status true/false and whether the PIN is valid or not
+  def self.check_pin barcode, pin
+   begin
+     login_body = {
+               'barcode' => barcode,
+              'password' => pin
+             }
+     response = post( "/user/patron/authenticate",
+                     { body: login_body.to_json,
+                          headers: base_headers
+     })
+
+     if response.code == 200
+       # everything OK and PIN is good
+       return true, true
+     elsif response.code == 401
+
+      #try alt_id
+      return check_alt_pin(barcode, pin)
+
+     else
+       # everything is not OK
+       return false, false
+     end
+   rescue => ex
+     # everything is really not OK
+     return false, false
+   end
+ end
+
+ def self.check_alt_pin alt_id, pin
+   begin
+      login_body = {
+                'alternateID' => alt_id,
+               'password' => pin
+              }
+      response = post( "/user/patron/authenticate",
+                      { body: login_body.to_json,
+                           headers: base_headers
+      })
+
+      if response.code == 200
+        # everything OK and PIN is good
+        return true, true
+      elsif response.code == 401
+        # everything OK and PIN is bad
+        return true, false
+      else
+        # everything is not OK
+        return false, false
+      end
+    rescue => ex
+      # everything is really not OK
+      return false, false
+    end
+ end
+
    # return a status true/false and the checkout list or nil if the user is not found
    def self.get_checkouts(user_id)
 
