@@ -45,7 +45,7 @@ class V2::CourseReserve < SirsiBase
     check_session(response)
     if response.code != 200 || response['faultResponse'].present?
       Rails.logger.warn "Course lookup failed"
-      Rails.logger.warn response
+      Rails.logger.warn response.body
       return {reserveInfo: []}
     else
       return response

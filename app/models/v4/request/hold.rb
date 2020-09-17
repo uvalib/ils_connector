@@ -70,7 +70,7 @@ class V4::Request::Hold < V4::Request::RequestBase
         hold_data[:comment] = comment
       end
 
-      Rails.logger.info headers
+      #Rails.logger.info headers
       Rails.logger.info hold_data
       response = self.class.post('/circulation/holdRecord/placeHold?includeFields=holdRecord{*}',
                                  body: hold_data.to_json,
@@ -86,7 +86,7 @@ class V4::Request::Hold < V4::Request::RequestBase
           end
         end
       end
-      Rails.logger.info response
+      Rails.logger.info response.body
 
     end
   end
