@@ -13,6 +13,7 @@ class V4::Availability < SirsiBase
     if defined?( self.data ) && self.data.present?
       self.items = process_items
       self.bound_with = process_bound_with
+      process_copy_numbers
       self.request_options = V4::Request::Options.new(self).list
     end
    end
@@ -114,6 +115,28 @@ class V4::Availability < SirsiBase
       }
     end
     return bound_with_items
+  end
+
+  # Get Copy numbers from Sirsi for Special Collections items
+  def process_copy_numbers
+    if data['CallInfo'].none? {|c| c['libraryID'] == "SPEC-COLL"}
+      return
+    end
+
+    options = { base_uri: env_credential(:sirsi_script_url),
+      query: {key: title_id},
+      max_retries: 0
+    }
+    # actual login is not required for this url, still using this for error checking
+    self.class.ensure_login do
+      copy_numbers = self.class.get("/getCopyNums", options)
+      if copy_numbers.parsed_response.present?
+        copy_numbers.each do |copy|
+          matching_item = items.find {|i| i[:barcode] == copy['barcode']}
+          matching_item[:copy_number] = copy['copyNumber']
+        end
+      end
+    end
   end
 
   def field_data name, value, visible=true, type='text'
