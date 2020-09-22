@@ -133,7 +133,7 @@ class V4::Availability < SirsiBase
       if copy_numbers.parsed_response.present?
         copy_numbers.each do |copy|
           matching_item = items.find {|i| i[:barcode] == copy['barcode']}
-          matching_item[:copy_number] = copy['copyNumber']
+          matching_item[:copy_number] = copy['copyNumber'] if matching_item
         end
       end
     end
