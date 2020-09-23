@@ -119,7 +119,8 @@ class V4::Availability < SirsiBase
 
   # Get Copy numbers from Sirsi for Special Collections items
   def process_copy_numbers
-    if data['CallInfo'].none? {|c| c['libraryID'] == "SPEC-COLL"}
+    if data['CallInfo'].none? {|c| c['libraryID'] == "SPEC-COLL"} ||
+      items.length < 2
       return
     end
 
@@ -130,10 +131,12 @@ class V4::Availability < SirsiBase
     # actual login is not required for this url, still using this for error checking
     self.class.ensure_login do
       copy_numbers = self.class.get("/getCopyNums", options)
-      if copy_numbers.parsed_response.present?
+      if copy_numbers.parsed_response.present? &&
+        copy_numbers.any? {|cn| cn['copyNumber'].to_i > 1}
+
         copy_numbers.each do |copy|
           matching_item = items.find {|i| i[:barcode] == copy['barcode']}
-          matching_item[:copy_number] = copy['copyNumber'] if matching_item
+          matching_item[:call_number] += " (copy #{copy['copyNumber']})" if matching_item
         end
       end
     end
