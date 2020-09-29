@@ -70,6 +70,10 @@ class V4::Request::Hold < V4::Request::RequestBase
         hold_data[:comment] = comment
       end
 
+      if pickupLibrary == "LEO"
+        hold_data[:comment] = "LEO Mobile"
+      end
+
       #Rails.logger.info headers
       Rails.logger.info hold_data
       response = self.class.post('/circulation/holdRecord/placeHold?includeFields=holdRecord{*}',
