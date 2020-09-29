@@ -163,7 +163,13 @@ class V4::Request::Options
         }
       elsif pda.success?
         # An order has already been made
-        return nil
+        # return just the description
+        return {
+          type: :pda,
+          sign_in_required: true,
+          description: I18n.t('requests.pda.description'),
+          item_options: [],
+        }
       else
         # error
         Rails.logger.error("PDA error: #{pda.response.body}")
