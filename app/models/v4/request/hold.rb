@@ -70,7 +70,7 @@ class V4::Request::Hold < V4::Request::RequestBase
         hold_data[:comment] = comment
       end
 
-      if pickupLibrary == "LEO"
+      if pickup_library == "LEO"
         hold_data[:comment] = "LEO Mobile"
       end
 
