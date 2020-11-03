@@ -65,40 +65,41 @@ class V4::User < SirsiBase
       return user
    end
 
-   def self.change_pin(user_id, old_pin, new_pin)
-      Rails.logger.info("User #{user_id} attempt to change pin")
+   def self.change_password(user_id, current_password, new_password)
+      Rails.logger.info("User #{user_id} attempt to change password")
       begin
          Rails.logger.info "Logging in #{user_id}"
-         login_body = {'login' => user_id, 'password' => old_pin}
+         login_body = {'login' => user_id, 'password' => current_password}
          response = post( "/user/patron/login",
             { body: login_body.to_json, headers: base_headers
          })
 
          if response.code == 200
             session_token = response['sessionToken']
-            Rails.logger.info "User #{user_id} passed pin check"
+            Rails.logger.info "User #{user_id} changing password"
             pin_headers = base_headers
             pin_headers['x-sirs-sessionToken'] = session_token
-            pin_body = { "currentPin": old_pin, "newPin": new_pin }
+            pin_body = { "currentPin": current_password, "newPin": new_password }
             pin_resp = post( "/user/patron/changeMyPin",
                { body: pin_body.to_json, headers: pin_headers
             })
             if pin_resp.code == 200
-               Rails.logger.info "User #{user_id} change pin success"
+               Rails.logger.info "User #{user_id} password change success"
                return true
             else
-               Rails.logger.warn "User #{user_id} change pin failed: #{pin_resp.as_json}"
-               return false
+               Rails.logger.warn "User #{user_id} password change failed: #{pin_resp.as_json}"
+               message = pin_resp.as_json.dig('messageList', 0, 'message')
+               return false, message
             end
          elsif response.code == 401
-            Rails.logger.info "Login #{user_id} FAILED"
+            Rails.logger.info "User #{user_id} current password incorrect"
             return false
          else
             Rails.logger.error "Login #{user_id} FAILED - unexpected response #{response.code}"
             return false
          end
        rescue => e
-         Rails.logger.warn "User #{user_id} change pin error #{e}"
+         Rails.logger.warn "User #{user_id} change password error #{e}"
          return false
        end
       return true

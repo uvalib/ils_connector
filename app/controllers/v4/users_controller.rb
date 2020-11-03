@@ -20,10 +20,11 @@ class V4::UsersController < V4ApplicationController
    end
 
    def change_pin
-      if V4::User.change_pin(user_params[:id], user_params['current_pin'], user_params['new_pin'])
-         render plain: "changed", status: :ok
+      ok, message = V4::User.change_password(user_params[:id], user_params['current_pin'], user_params['new_pin'])
+      if ok
+         render json: {}, status: :ok
       else
-         render plain: "failed", status: :not_found
+         render json: {message: message}, status: :not_found
       end
    end
 
