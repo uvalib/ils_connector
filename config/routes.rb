@@ -78,6 +78,8 @@ Rails.application.routes.draw do
         end
         collection do
           post :sirsi_staff_login
+          post :forgot_password
+          post :change_password_with_token
         end
       end
       resources :course_reserves, :only => [] do

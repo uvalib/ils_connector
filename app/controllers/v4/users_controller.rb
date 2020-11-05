@@ -28,6 +28,25 @@ class V4::UsersController < V4ApplicationController
       end
    end
 
+   def change_password_with_token
+      ok, message = V4::User.change_password_with_token(password_token_params)
+      if ok
+         render json: {}, status: :ok
+      else
+         render json: {message: message}, status: :not_found
+      end
+   end
+
+   def forgot_password
+      ok, message = V4::User.forgot_password(params[:userBarcode])
+      if ok
+         render json: {}, status: :ok
+      else
+         render json: {message: message}, status: 402
+      end
+   end
+   def
+
    def sirsi_staff_login
       user = V4::User.sirsi_staff_login(sirsi_login_params)
       if user.present?
@@ -73,6 +92,9 @@ class V4::UsersController < V4ApplicationController
    private
    def user_params
       params.permit(:id, :pin, :format, :current_pin, :new_pin, :username, :password)
+   end
+   def password_token_params
+      params.permit(:new_password, :reset_password_token)
    end
    def sirsi_login_params
       params.permit(:username, :password)

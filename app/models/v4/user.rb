@@ -24,7 +24,7 @@ class V4::User < SirsiBase
       end
 
       ensure_login do
-         response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=barcode,displayName,profile{description},patronStatusInfo{standing,amountOwed},library",
+         response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=barcode,primaryAddress{emailAddress},displayName,profile{description},patronStatusInfo{standing,amountOwed},library",
             headers: self.auth_headers, max_retries: 0 )
          check_session(response)
          results = response['result']
@@ -44,6 +44,7 @@ class V4::User < SirsiBase
          user['profile'] = fields['profile']['fields']['description']
          statusInfo = fields['patronStatusInfo']['fields']
          user['standing'] = statusInfo['standing']['key']
+         user['sirsiEmail'] = fields.dig('primaryAddress', 'fields', 'emailAddress')
          if !fields['library'].blank?
             user['homeLibrary'] = fields['library']['key']
          end
@@ -103,6 +104,48 @@ class V4::User < SirsiBase
          return false
        end
       return true
+   end
+
+   def self.change_password_with_token data
+      puts data
+
+      ensure_login do
+         pin_body = { "newPin": data[:new_password], "resetPinToken": data[:reset_password_token] }
+         pin_resp = post( "/user/patron/changeMyPin",
+            { body: pin_body.to_json, headers: base_headers.without('SD-Preferred-Role')
+         })
+         if pin_resp.code == 200
+            Rails.logger.info "Password token change success"
+            return true
+         else
+            Rails.logger.warn "Token password change failed: #{pin_resp.as_json}"
+            message = pin_resp.as_json.dig('messageList', 0, 'message')
+            return false, message
+         end
+      end
+   end
+
+   def self.forgot_password barcode
+      # check for email first
+      user = find(barcode)
+
+      if user.present? && user['sirsiEmail'].present?
+         response = post("/user/patron/resetMyPin",
+            body: {
+               login: barcode,
+               resetPinUrl: "#{ENV['V4_CLIENT_URL']}/signin?token=<RESET_PIN_TOKEN>"
+            }.to_json,
+            headers: auth_headers, retries: 0
+         )
+         if response.success?
+            return true
+         else
+            return false, "No email on file."
+         end
+      else
+         # user not found
+         return false
+      end
    end
 
    # return a status true/false and whether the PIN is valid or not

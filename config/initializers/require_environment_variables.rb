@@ -12,6 +12,7 @@ Rails.application.config.before_initialize do
   PDA_BASE_URL
   V4_JWT_KEY
   JWT_SECRET
+  V4_CLIENT_URL
   )
   missing_list = []
   required_env.each do |required|
