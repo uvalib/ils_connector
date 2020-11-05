@@ -107,7 +107,6 @@ class V4::User < SirsiBase
    end
 
    def self.change_password_with_token data
-      puts data
 
       ensure_login do
          pin_body = { "newPin": data[:new_password], "resetPinToken": data[:reset_password_token] }
