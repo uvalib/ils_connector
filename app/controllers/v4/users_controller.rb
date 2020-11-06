@@ -9,7 +9,7 @@ class V4::UsersController < V4ApplicationController
    end
 
    def check_pin
-      ok, pin_ok = V4::User.check_pin(user_params[:id], user_params['pin'])
+      ok, pin_ok = V4::User.check_pin(user_params[:id], user_params[:password])
       if !ok
          render plain: "Service unavailable", status: :service_unavailable
       elsif pin_ok
@@ -20,7 +20,7 @@ class V4::UsersController < V4ApplicationController
    end
 
    def change_pin
-      ok, message = V4::User.change_password(user_params[:id], user_params['current_pin'], user_params['new_pin'])
+      ok, message = V4::User.change_password(user_params[:id], user_params[:current_pin], user_params[:new_pin])
       if ok
          render json: {}, status: :ok
       else

@@ -70,7 +70,7 @@ Rails.application.routes.draw do
       end
       resources :users, only: [:show] do
         member do
-          get :check_pin
+          match :check_pin, to: 'users#check_pin', via: [:get, :post]
           post :change_pin
           get :checkouts
           get :bills
