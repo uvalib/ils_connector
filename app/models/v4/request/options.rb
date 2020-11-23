@@ -167,7 +167,7 @@ class V4::Request::Options
         return {
           type: :pda,
           sign_in_required: true,
-          description: I18n.t('requests.pda.description'),
+          description: I18n.t('requests.pda.pending_description'),
           item_options: [],
         }
       else
