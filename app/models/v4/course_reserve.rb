@@ -25,8 +25,8 @@ class V4::CourseReserve < SirsiBase
             response = get(url, headers: self.auth_headers, max_retries: 0)
             check_session(response)
             if response.code != 200
-               # if no response, just let it go thru as OK. it will be denied
-               # by someone else later (once the request email is received) if necessary
+               # If an item cant be found in ILS, it cant be reserved
+               out << {id: id_str, reserve: false }
                next
             end
 
