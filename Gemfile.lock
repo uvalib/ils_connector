@@ -91,7 +91,7 @@ GEM
     erubi (1.9.0)
     faker (2.12.0)
       i18n (>= 1.6, < 2)
-    ffi (1.13.0)
+    ffi (1.14.2)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
     hashdiff (1.0.1)
@@ -103,10 +103,9 @@ GEM
       concurrent-ruby (~> 1.0)
     jsonapi-renderer (0.2.2)
     jwt (2.2.1)
-    listen (3.1.5)
-      rb-fsevent (~> 0.9, >= 0.9.4)
-      rb-inotify (~> 0.9, >= 0.9.7)
-      ruby_dep (~> 1.2)
+    listen (3.4.0)
+      rb-fsevent (~> 0.10, >= 0.10.3)
+      rb-inotify (~> 0.9, >= 0.9.10)
     lograge (0.11.2)
       actionpack (>= 4)
       activesupport (>= 4)
@@ -192,7 +191,6 @@ GEM
       rspec-mocks (~> 3.9)
       rspec-support (~> 3.9)
     rspec-support (3.9.3)
-    ruby_dep (1.5.0)
     shoulda-matchers (4.3.0)
       activesupport (>= 4.2.0)
     sidekiq (6.0.7)
@@ -244,7 +242,7 @@ DEPENDENCIES
   hashie
   httparty
   jwt
-  listen (>= 3.0.5, < 3.2)
+  listen (>= 3.0.5, < 3.5)
   lograge
   prometheus-client
   puma (~> 4.0)
