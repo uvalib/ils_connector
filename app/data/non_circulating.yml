@@ -1,6 +1,5 @@
 libraries:
   - SPEC-COLL
-  - JAG
 locations:
   # Medium Rare
   - LOCKEDSTKS
