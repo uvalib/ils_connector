@@ -210,7 +210,7 @@ class V4::User < SirsiBase
       ensure_login do
          checkouts = []
          # incFields = "circRecordList{*,library{description},item{*,call{*,bib{callNumber,author,title}}}}"
-         incFields = "circRecordList{dueDate,overdue,estimatedOverdueAmount,recalledDate,renewalDate,library{description},item{barcode,call{callNumber,bib{key,author,title}}}}"
+         incFields = "circRecordList{dueDate,overdue,estimatedOverdueAmount,recalledDate,renewalDate,library{description},item{barcode,call{dispCallNumber,bib{key,dispCallNumber,author,title}}}}"
          response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=#{incFields}",
             headers: self.auth_headers, timeout: 30, max_retries: 0)
          check_session(response)
@@ -232,7 +232,7 @@ class V4::User < SirsiBase
                title: title,
                author: author,
                barcode: co['barcode'],
-               callNumber: co_call['callNumber'],
+               callNumber: co_call['dispCallNumber'],
                library: library,
                due: cr_f['dueDate'],
                overDue: cr_f['overdue'],
