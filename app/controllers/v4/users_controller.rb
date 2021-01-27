@@ -1,4 +1,5 @@
 class V4::UsersController < V4ApplicationController
+   require 'csv'
    def show
       user = V4::User.find(user_params[:id])
       if user.nil?
@@ -63,7 +64,10 @@ class V4::UsersController < V4ApplicationController
       elsif checkouts.nil?
          render plain: "#{user_params[:id]} not found", status: :not_found
       else
-         render json: checkouts.to_json, status: :ok
+         respond_to do |format|
+            format.json { render json: checkouts.to_json, status: :ok }
+            format.csv {send_data list_to_csv(checkouts), filename: "checkouts_for_#{user_params['id']}_#{Date.today.to_s}.csv"}
+         end
       end
    end
 
@@ -98,5 +102,14 @@ class V4::UsersController < V4ApplicationController
    end
    def sirsi_login_params
       params.permit(:username, :password)
+   end
+
+   def list_to_csv list
+      CSV.generate do |csv|
+         csv << list.first.keys.map {|k| k.to_s.titleize}
+         list.each do |item|
+            csv << item.values
+         end
+      end
    end
  end
