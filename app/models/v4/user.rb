@@ -29,8 +29,9 @@ class V4::User < SirsiBase
          check_session(response)
          results = response['result']
          if results.nil? || results.none?
-            Rails.logger.warn "User Not Found: #{user_id}"
-            return nil
+            Rails.logger.warn "User Not Found in Sirsi: #{user_id}"
+            user['noAccount'] = true
+            return user
          end
          if results.many?
             Rails.logger.warn "More than one user found: #{user_id}"
