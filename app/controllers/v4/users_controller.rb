@@ -16,7 +16,7 @@ class V4::UsersController < V4ApplicationController
       elsif pin_ok
          render plain: "valid", status: :ok
       else
-         render plain: "invalid", status: :not_found
+         render plain: "invalid", status: :unauthorized
       end
    end
 
