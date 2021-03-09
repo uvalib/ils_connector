@@ -140,6 +140,7 @@ class V4::User < SirsiBase
          if response.success?
             return true
          else
+            Rails.logger.error "Forgot password failed: #{resp.as_json}"
             return false, "No email on file."
          end
       else
@@ -159,20 +160,24 @@ class V4::User < SirsiBase
                      { body: login_body.to_json,
                           headers: base_headers
      })
+     hidden_pw = pin.gsub /./, '*'
 
      if response.code == 200
        # everything OK and PIN is good
        return true, true
      elsif response.code == 401
+      Rails.logger.warn "Pin check failed: #{barcode}(#{hidden_pw}) #{response.as_json}"
 
       #try alt_id
       return check_alt_pin(barcode, pin)
 
      else
+      Rails.logger.warn "Pin check failed: #{barcode}(#{hidden_pw}) #{response.as_json}"
        # everything is not OK
        return false, false
      end
    rescue => ex
+     Rails.logger.warn "Pin check failed: #{barcode}(#{hidden_pw}) #{ex}"
      # everything is really not OK
      return false, false
    end
@@ -193,13 +198,16 @@ class V4::User < SirsiBase
         # everything OK and PIN is good
         return true, true
       elsif response.code == 401
+        Rails.logger.warn "Alt Pin check failed: #{alt_id} #{response.as_json}"
         # everything OK and PIN is bad
         return true, false
       else
         # everything is not OK
+        Rails.logger.warn "Alt Pin check failed: #{alt_id} #{response.as_json}"
         return false, false
       end
     rescue => ex
+      Rails.logger.warn "Alt Pin check failed:  #{alt_id} #{ex}"
       # everything is really not OK
       return false, false
     end
