@@ -12,6 +12,7 @@ class V4::User < SirsiBase
          user['address'] = ldap['office'].first if !ldap['office'].blank?
          user['email'] = ldap['email']
          user['displayName'] = ldap['display_name']
+         user['private'] = ldap['private']
 
          # description can be used to dertermine undergraduate status. Necessary
          # to determine if a user can make course reserves
