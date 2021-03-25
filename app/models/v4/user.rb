@@ -8,7 +8,7 @@ class V4::User < SirsiBase
          user['id'] = ldap['cid']
          user['communityUser'] = false
          user['title'] = ldap['title'].first if !ldap['title'].blank?
-         user['department'] = ldap['department'].join(',') if !ldap['department'].blank?
+         user['department'] = ldap['department'].join(', ') if !ldap['department'].blank?
          user['address'] = ldap['office'].first if !ldap['office'].blank?
          user['email'] = ldap['email']
          user['displayName'] = ldap['display_name']
@@ -17,7 +17,7 @@ class V4::User < SirsiBase
          # description can be used to dertermine undergraduate status. Necessary
          # to determine if a user can make course reserves
          if !ldap['description'].blank?
-            user['description'] = ldap['description'].first
+            user['description'] = ldap['description'].join(', ')
          end
       else
          Rails.logger.info "User #{user_id} not in LDAP; flagging as community user"
