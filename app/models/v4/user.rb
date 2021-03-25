@@ -8,7 +8,7 @@ class V4::User < SirsiBase
          user['id'] = ldap['cid']
          user['communityUser'] = false
          user['title'] = ldap['title'].first if !ldap['title'].blank?
-         user['department'] = ldap['department'].first if !ldap['department'].blank?
+         user['department'] = ldap['department'].join(',') if !ldap['department'].blank?
          user['address'] = ldap['office'].first if !ldap['office'].blank?
          user['email'] = ldap['email']
          user['displayName'] = ldap['display_name']
