@@ -25,7 +25,7 @@ class V4::UsersController < V4ApplicationController
       if ok
          render json: {}, status: :ok
       else
-         render json: {message: message}, status: :not_found
+         render json: {message: message}, status: :unauthorized
       end
    end
 
@@ -34,7 +34,7 @@ class V4::UsersController < V4ApplicationController
       if ok
          render json: {}, status: :ok
       else
-         render json: {message: message}, status: :not_found
+         render json: {message: message}, status: :unauthorized
       end
    end
 
@@ -43,7 +43,7 @@ class V4::UsersController < V4ApplicationController
       if ok
          render json: {}, status: :ok
       else
-         render json: {message: message}, status: 402
+         render json: {message: message}, status: :unauthorized
       end
    end
    def
