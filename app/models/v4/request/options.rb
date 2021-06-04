@@ -34,10 +34,15 @@ class V4::Request::Options
     end
   end
 
-  # Scans use the same holdable items list
+  # These profile names cannot request scans
+  NO_SCAN_PROFILES = %w(VABORROWER OTHERVAFAC ALUMNI RESEARCHER)
+
   def get_scan_info
+    # Scans use the same holdable items list
     scan_items = holdable_items.reject {|item| item[:is_video]}
-    if scan_items.any? && availability.jwt_user[:home_library] != "HEALTHSCI"
+    if scan_items.any? &&
+      availability.jwt_user[:home_library] != "HEALTHSCI" &&
+      NO_SCAN_PROFILES.none?(availability.jwt_user[:profile].to_s.upcase)
 
       return {
         type: :scan,
@@ -46,6 +51,8 @@ class V4::Request::Options
         description: 'Select a portion of this item to be scanned.',
         item_options: scan_items
       }
+    else
+      return
     end
   end
 
