@@ -1,6 +1,8 @@
 class V4::User < SirsiBase
    base_uri env_credential(:sirsi_web_services_base)
 
+   SLOW_TIMEOUT = 30
+
    def self.find( user_id )
       user = {}.with_indifferent_access
       ldap = V2::UserLDAP.find( user_id )
@@ -222,7 +224,9 @@ class V4::User < SirsiBase
          # incFields = "circRecordList{*,library{description},item{*,call{*,bib{callNumber,author,title}}}}"
          incFields = "circRecordList{dueDate,overdue,estimatedOverdueAmount,recalledDate,renewalDate,library{description},item{barcode,call{dispCallNumber,bib{key,author,title}}}}"
          response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=#{incFields}",
-            headers: self.auth_headers, timeout: 30, max_retries: 0)
+            headers: self.auth_headers,
+            timeout: SLOW_TIMEOUT,
+            max_retries: 0)
          check_session(response)
          results = response['result']
          if results.nil? || results.none? || results.many?
@@ -305,7 +309,10 @@ class V4::User < SirsiBase
          }
          response = get("/user/patron/search",
             query: params,
-            headers: self.auth_headers, max_retries: 0)
+            headers: self.auth_headers,
+            max_retries: 0,
+            timeout: SLOW_TIMEOUT
+         )
          check_session(response)
          results = response['result']
          if results.nil? || results.none? || results.many?
