@@ -1,7 +1,7 @@
 FROM ruby:2.7.1-alpine
 
 # Add necessary packages
-RUN apk --update add bash tzdata build-base nodejs sqlite-dev mariadb-dev zlib-dev libxml2-dev libxslt-dev libffi-dev ca-certificates curl shared-mime-info
+RUN apk --update add bash tzdata build-base nodejs sqlite-dev mariadb-dev zlib-dev libxml2-dev libxslt-dev libffi-dev ca-certificates curl shared-mime-info && rm -rf /var/cache/apk/*
 
 # Create the run user and group
 RUN addgroup --gid 18570 sse && adduser --uid 1984 docker -G sse -D
@@ -44,3 +44,7 @@ RUN test -n "$BUILD_TAG" && touch $APP_HOME/buildtag.build-$BUILD_TAG || touch $
 
 # specify the user
 USER docker
+
+#
+# end of file
+#
