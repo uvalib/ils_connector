@@ -46,7 +46,6 @@ class V4::UsersController < V4ApplicationController
          render json: {message: message}, status: :unauthorized
       end
    end
-   def
 
    def sirsi_staff_login
       user = V4::User.sirsi_staff_login(sirsi_login_params)
