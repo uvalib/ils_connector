@@ -223,9 +223,8 @@ class V4::Availability < SirsiBase
   def notice_text item
     if V4::Location.medium_rare? item['currentLocationID']
       return V4::Location::MEDIUM_RARE_MESSAGE
-    # No Course reserve note for now
-    # elsif note = course_reserve_note(item)
-    #   note
+    elsif note = course_reserve_note(item)
+      return note
     elsif item['homeLocationID'] == 'SC-IVY'
       marc = data.dig("BibliographicInfo", 'MarcEntryInfo') || []
       notices = marc.select {|entry| entry['entryID'] == '506'} || []
