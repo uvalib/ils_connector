@@ -10,12 +10,21 @@ class SirsiBase
 
   default_timeout 10
 
+  # Class variables to share among threads
+  @@session_token = nil
+  @@sirsi_user = nil
+  @@staffKey = nil
+  @@session_token = nil
+  @@session_time = nil
+  @@base_headers = nil
+  @@auth_headers = nil
+
   # wrap api calls with this (we add the no_instrument attribute so we can filter certain responses from the log)
   #
   def self.ensure_login( no_instrument = false )
     response = nil
     begin
-      if !defined?(@@session_token) || old_session?
+      if @@session_token.nil? || old_session?
         login
       end
 
@@ -56,11 +65,13 @@ class SirsiBase
       @@session_token = @@sirsi_user['sessionToken']
       @@session_time = Time.now
     rescue => e
-      if defined?( @@sirsi_user ) && @@sirsi_user.present?
-        Rails.logger.error "Sirsi API Login Failed - #{@@sirsi_user.request.uri} #{@@sirsi_user.body}"
+      if @@sirsi_user.present?
+        Rails.logger.error "Sirsi API Login Failed - #{e.class} - #{@@sirsi_user.request.uri} #{@@sirsi_user.body}"
       else
         Rails.logger.error "Sirsi API Login Failed - #{env_credential(:sirsi_web_services_base)} "
       end
+      # reset the session token to force another login after this error
+      @@session_token = nil
       raise
     end
   end
@@ -75,7 +86,7 @@ class SirsiBase
   end
 
   def self.auth_headers
-    if defined?(@@session_token)
+    if @@session_token.present?
       @@auth_headers = base_headers.merge({'x-sirs-sessionToken' => @@session_token})
     end
   end
@@ -91,7 +102,7 @@ class SirsiBase
   end
 
   def self.old_session?
-    defined?(@@session_time) && (@@session_time < 1.hour.ago)
+    @@session_time.present? && (@@session_time < 1.hour.ago)
   end
 
   # used for healthcheck.

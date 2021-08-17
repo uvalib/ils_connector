@@ -51,7 +51,7 @@ class HealthcheckController < ApplicationController
     health = nil
     begin
       sirsi_response = SirsiBase.account_info
-      if sirsi_response != []
+      if sirsi_response.present?
          health = if sirsi_response.code == 200
                     Health.new(true, '')
                   else
@@ -61,7 +61,7 @@ class HealthcheckController < ApplicationController
         health = Health.new( false, "Error connecting to or authenticating with Sirsi" )
       end
     rescue => ex
-      health = Health.new( false, "Error: #{ex.class}" )
+      health = Health.new( false, "Error: #{ex.class} #{ex.backtrace.first}" )
     end
     health
   end
