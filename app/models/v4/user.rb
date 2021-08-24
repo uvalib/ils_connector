@@ -388,7 +388,7 @@ class V4::User < SirsiBase
     }
     sirsi_user = post("/user/staff/login",
                       body: login_body.to_json,
-                      headers: base_headers )
+                      headers: base_headers.without('x-sirs-sessionToken') )
     if sirsi_user.success?
       return sirsi_user
 

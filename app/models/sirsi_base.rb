@@ -56,7 +56,7 @@ class SirsiBase
       time = Benchmark.realtime do
         @@sirsi_user = post( "/user/staff/login",
                             body: login_body.to_json,
-                            headers: base_headers )
+                            headers: base_headers.without('x-sirs-sessionToken') )
       end
       raise if !@@sirsi_user.success?
       Rails.logger.info "Sirsi Response: #{(time * 1000).round} mS"
