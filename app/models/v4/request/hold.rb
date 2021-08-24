@@ -105,7 +105,9 @@ class V4::Request::Hold < V4::Request::RequestBase
 
     # Use the provided user's session token instead of the standard ils-connector account.
     headers = { 'SD-Working-LibraryID' => working_library,
-                'x-sirs-sessionToken' => staff_session_token }
+                'x-sirs-sessionToken' => staff_session_token,
+                'x-sirs-clientID' => 'ILL_CKOUT'
+              }
 
     # Get Item
     params = {includeFields: 'holdRecordList{placedLibrary,pickupLibrary,patron{alternateID,displayName,barcode}},bib{title,author,currentLocation},transit{destinationLibrary,holdRecord{placedLibrary,pickupLibrary,patron{alternateID,displayName,barcode}}}'}
@@ -113,7 +115,6 @@ class V4::Request::Hold < V4::Request::RequestBase
       query: params,
       headers: self.base_headers.merge(headers), max_retries: 0
     )
-    check_session(item_response)
 
     if item_response.unauthorized? || item_response['messageList'].present?
       output[:error_messages].push *item_response['messageList']
@@ -176,14 +177,14 @@ end
 
       headers = {'SD-Working-LibraryID' => working_library,
         'SD-Prompt-Return' => override_header,
-        'x-sirs-sessionToken' => staff_session_token
+        'x-sirs-sessionToken' => staff_session_token,
+        'x-sirs-clientID' => 'ILL_CKOUT'
       }
       # untransit needs to happen at the delivery location
       response = self.post("/circulation/transit/untransit",
         body: {itemBarcode: barcode}.to_json,
         headers: self.base_headers.merge(headers)
       )
-      self.check_session(response)
 
       # Blocking prompt found
       if response['promptRequired']
@@ -208,7 +209,8 @@ end
       end
       headers = {'SD-Working-LibraryID' => working_library,
         'SD-Prompt-Return' => override_header,
-        'x-sirs-sessionToken' => staff_session_token
+        'x-sirs-sessionToken' => staff_session_token,
+        'x-sirs-clientID' => 'ILL_CKOUT'
       }
 
       response = self.post("/circulation/circRecord/checkOut",
@@ -217,7 +219,6 @@ end
         }.to_json,
         headers: self.base_headers.merge(headers)
       )
-      self.check_session(response)
 
       # Blocking prompt found
       if response['promptRequired'] && override_code.present?
