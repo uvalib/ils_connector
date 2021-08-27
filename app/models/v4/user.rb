@@ -82,8 +82,7 @@ class V4::User < SirsiBase
          if response.code == 200
             session_token = response['sessionToken']
             Rails.logger.info "User #{user_id} changing password"
-            pin_headers = base_headers
-            pin_headers['x-sirs-sessionToken'] = session_token
+            pin_headers = base_headers.merge('x-sirs-sessionToken': session_token, 'SD-Preferred-Role': 'PATRON')
             pin_body = { "currentPin": current_password, "newPin": new_password }
             pin_resp = post( "/user/patron/changeMyPin",
                { body: pin_body.to_json, headers: pin_headers
@@ -113,16 +112,17 @@ class V4::User < SirsiBase
    def self.change_password_with_token data
 
       ensure_login do
-         pin_body = { "newPin": data[:new_password], "resetPinToken": data[:reset_password_token] }
-         pin_resp = post( "/user/patron/changeMyPin",
-            { body: pin_body.to_json, headers: base_headers.without('SD-Preferred-Role')
+         pw_body = { "newPin": data[:new_password], "resetPinToken": data[:reset_password_token] }
+         pw_headers = base_headers.merge('SD-Preferred-Role': 'PATRON')
+         pw_resp = post( "/user/patron/changeMyPin",
+            { body: pw_body.to_json, headers: pw_headers
          })
-         if pin_resp.code == 200
+         if pw_resp.code == 200
             Rails.logger.info "Password token change success"
             return true
          else
-            Rails.logger.warn "Token password change failed: #{pin_resp.as_json}"
-            message = pin_resp.as_json.dig('messageList', 0, 'message')
+            Rails.logger.warn "Token password change failed: #{pw_resp.as_json}"
+            message = pw_resp.as_json.dig('messageList', 0, 'message')
             return false, message
          end
       end
@@ -152,8 +152,40 @@ class V4::User < SirsiBase
       end
    end
 
-   # return a status true/false and whether the PIN is valid or not
-  def self.check_pin barcode, pin
+ # Check for Sirsi Alt ID first
+ # return a status true/false and whether the PIN is valid or not
+ def self.check_pin alt_id, pin
+   begin
+      login_body = {
+                'alternateID' => alt_id,
+               'password' => pin
+              }
+      response = post( "/user/patron/authenticate",
+                      { body: login_body.to_json,
+                           headers: base_headers
+      })
+
+      if response.code == 200
+        # everything OK and PIN is good
+        return true, true
+      elsif response.code == 401
+        Rails.logger.warn "Alt ID Pin check failed: #{alt_id} #{response.as_json}"
+        #try barcode
+        return check_barcode_pin(alt_id, pin)
+      else
+        # everything is not OK
+        Rails.logger.warn "Alt ID Pin check failed: #{alt_id} #{response.as_json}"
+        return false, false
+      end
+    rescue => ex
+      Rails.logger.warn "Alt ID Pin check failed:  #{alt_id} #{ex}"
+      # everything is really not OK
+      return false, false
+    end
+ end
+
+  # barcode check is secondary but some accounts have the "altID" in the barcode field
+  def self.check_barcode_pin barcode, pin
    begin
      login_body = {
                'barcode' => barcode,
@@ -171,8 +203,8 @@ class V4::User < SirsiBase
      elsif response.code == 401
       Rails.logger.warn "Pin check failed: #{barcode}(#{hidden_pw}) #{response.as_json}"
 
-      #try alt_id
-      return check_alt_pin(barcode, pin)
+        # everything OK and PIN is bad
+        return true, false
 
      else
       Rails.logger.warn "Pin check failed: #{barcode}(#{hidden_pw}) #{response.as_json}"
@@ -184,36 +216,6 @@ class V4::User < SirsiBase
      # everything is really not OK
      return false, false
    end
- end
-
- def self.check_alt_pin alt_id, pin
-   begin
-      login_body = {
-                'alternateID' => alt_id,
-               'password' => pin
-              }
-      response = post( "/user/patron/authenticate",
-                      { body: login_body.to_json,
-                           headers: base_headers
-      })
-
-      if response.code == 200
-        # everything OK and PIN is good
-        return true, true
-      elsif response.code == 401
-        Rails.logger.warn "Alt Pin check failed: #{alt_id} #{response.as_json}"
-        # everything OK and PIN is bad
-        return true, false
-      else
-        # everything is not OK
-        Rails.logger.warn "Alt Pin check failed: #{alt_id} #{response.as_json}"
-        return false, false
-      end
-    rescue => ex
-      Rails.logger.warn "Alt Pin check failed:  #{alt_id} #{ex}"
-      # everything is really not OK
-      return false, false
-    end
  end
 
    # return a status true/false and the checkout list or nil if the user is not found

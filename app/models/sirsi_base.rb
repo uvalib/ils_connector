@@ -77,7 +77,7 @@ class SirsiBase
   end
 
   def self.base_headers
-    @@base_headers ||= {'x-sirs-clientID' => 'VIRGO',
+    @@base_headers ||= {'x-sirs-clientID' => 'SymWSTestClient',
     'Content-Type' => 'application/json',
     'Accept' => 'application/json',
     'SD-Originating-App-Id' => 'Virgo4',
