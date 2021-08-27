@@ -7,7 +7,7 @@ class V4::AvailabilityController < V4ApplicationController
     # we return nil as an error
     if @item.data.nil?
        render plain: "Service unavailable", status: :service_unavailable
-    elsif @item.data.present? == false
+    elsif @item.data.empty?
        render plain: "Item #{item_params[:id]} is not found", status: :not_found
     else
        render json: @item

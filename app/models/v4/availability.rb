@@ -6,7 +6,12 @@ class V4::Availability < SirsiBase
   attr_accessor :title_id, :data, :items, :bound_with, :request_options, :jwt_user
 
   def initialize id, jwt_user
-    # remove leading u if present
+    if !id.match? /^u\d*$/
+      # id does not match u#### format. Shortcut to 404
+      self.data = {}
+      return
+    end
+    # remove leading u
     self.title_id = id.gsub(/^u/, '')
     self.jwt_user = jwt_user
     self.data = find
