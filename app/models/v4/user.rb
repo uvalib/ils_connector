@@ -45,7 +45,7 @@ class V4::User < SirsiBase
          user['key'] = fields['patronStatusInfo']['key']
          # Don't override the name from LDAP
          user['displayName'] ||= fields['displayName']
-         user['profile'] = fields['profile']['fields']['description']
+         user['profile'] = fields['profile']['key']
          statusInfo = fields['patronStatusInfo']['fields']
          user['standing'] = statusInfo['standing']['key']
          user['sirsiEmail'] = fields.dig('primaryAddress', 'fields', 'emailAddress')
