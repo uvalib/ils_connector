@@ -1,6 +1,8 @@
 libraries:
   - SPEC-COLL
 locations:
+  # Reference materials
+  - REFERENCE
   # Medium Rare
   - LOCKEDSTKS
   # Reserve Locations
