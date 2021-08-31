@@ -77,10 +77,10 @@ class SirsiBase
   end
 
   def self.base_headers
-    @@base_headers ||= {'x-sirs-clientID' => 'SymWSTestClient',
+    @@base_headers ||= {'x-sirs-clientID' => env_credential(:sirsi_client_id),
     'Content-Type' => 'application/json',
     'Accept' => 'application/json',
-    'SD-Originating-App-Id' => 'Virgo4',
+    'SD-Originating-App-Id' => 'Virgo',
     'SD-Preferred-Role' => 'STAFF'
     }
   end
