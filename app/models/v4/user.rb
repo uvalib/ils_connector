@@ -27,7 +27,7 @@ class V4::User < SirsiBase
       end
 
       ensure_login do
-         response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=barcode,primaryAddress{emailAddress},displayName,profile{description},patronStatusInfo{standing,amountOwed},library",
+         response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=barcode,primaryAddress{*},address1,address2,address3,displayName,preferredName,firstName,middleName,lastName,profile{description},patronStatusInfo{standing,amountOwed},library",
             headers: self.auth_headers, max_retries: 0 )
          check_session(response)
          results = response['result']
@@ -45,10 +45,49 @@ class V4::User < SirsiBase
          user['key'] = fields['patronStatusInfo']['key']
          # Don't override the name from LDAP
          user['displayName'] ||= fields['displayName']
+         address = fields.dig('primaryAddress', 'fields') || {}
+         user['sirsiEmail'] = address['emailAddress']
+         user['sirsiProfile'] = {
+            preferredName: fields['preferredName'],
+            firstName: fields['firstName'],
+            middleName: fields['middleName'],
+            lastName: fields['lastName'],
+            address1: {},
+            address2: {},
+            address3Email: {}
+         }
+
+         addressMap = {'LINE1' => :line1,
+            'LINE2' => :line2,
+            'LINE3' => :line3,
+            'ZIP' => :zip,
+            'PHONE' => :phone
+         }
+         fields['address1'].each do |a|
+            key = addressMap[a.dig('fields', 'code', 'key')]
+            if key
+               user['sirsiProfile']['address1'][key] = a.dig('fields', 'data')
+            end
+
+         end
+         fields['address2'].each do |a|
+            key = addressMap[a.dig('fields', 'code', 'key')]
+            if key
+               user['sirsiProfile']['address2'][key] = a.dig('fields' 'data')
+            end
+         end
+         # Address3 is email
+         if fields['address3'].one? && fields['address3'].first.dig('fields', 'code', 'key') == 'EMAIL'
+            user['sirsiProfile']['address3Email'] = fields['address3'].first.dig('fields', 'data')
+         elsif fields['address3'].many?
+            Rails.logger.warn("Format for Sirsi address3 does not follow email convention. Keys are: #{
+               field['address3'].map {|a| a.dig('fields', 'code', 'key')}}")
+         end
+
+
          user['profile'] = fields['profile']['key']
          statusInfo = fields['patronStatusInfo']['fields']
          user['standing'] = statusInfo['standing']['key']
-         user['sirsiEmail'] = fields.dig('primaryAddress', 'fields', 'emailAddress')
          if !fields['library'].blank?
             user['homeLibrary'] = fields['library']['key']
          end
