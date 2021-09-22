@@ -12,9 +12,10 @@ class V4::User < SirsiBase
          user['title'] = ldap['title'].first if !ldap['title'].blank?
          user['department'] = ldap['department'].join(', ') if !ldap['department'].blank?
          user['address'] = ldap['office'].first if !ldap['office'].blank?
-         user['email'] = ldap['email']
-         user['displayName'] = ldap['display_name']
          user['private'] = ldap['private']
+         # Use the Sirsi versions of these
+         #user['email'] = ldap['email']
+         #user['displayName'] = ldap['display_name']
 
          # description can be used to dertermine undergraduate status. Necessary
          # to determine if a user can make course reserves
@@ -43,10 +44,14 @@ class V4::User < SirsiBase
          fields = results.first["fields"]
          user['barcode'] = fields['barcode']
          user['key'] = fields['patronStatusInfo']['key']
-         # Don't override the name from LDAP
-         user['displayName'] ||= fields['displayName']
+         user['displayName'] = fields['displayName']
          address = fields.dig('primaryAddress', 'fields') || {}
-         user['sirsiEmail'] = address['emailAddress']
+
+         if address['emailAddress'].present?
+            user['email'] = address['emailAddress']
+         else
+            Rails.logger.warn "User #{user_id} does not have a Sirsi email."
+         end
          user['sirsiProfile'] = {
             preferredName: fields['preferredName'],
             firstName: fields['firstName'],
