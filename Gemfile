@@ -26,7 +26,7 @@ gem 'devise-jwt'
 gem 'sidekiq'
 
 # Use Puma as the app server
-gem 'puma', '~> 4.0'
+gem 'puma', '~> 4.3'
 
 # JSON API
 gem 'active_model_serializers', '~> 0.10.0'
