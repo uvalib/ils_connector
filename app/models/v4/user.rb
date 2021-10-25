@@ -175,8 +175,7 @@ class V4::User < SirsiBase
    def self.forgot_password barcode
       # check for email first
       user = find(barcode)
-
-      if user.present? && user['sirsiEmail'].present?
+      if user.present? && user['email'].present?
          response = post("/user/patron/resetMyPin",
             body: {
                login: barcode,
