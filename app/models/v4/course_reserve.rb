@@ -26,14 +26,16 @@ class V4::CourseReserve < SirsiBase
             check_session(response)
             if response.code != 200
                # If an item cant be found in ILS, it cant be reserved
-               out << {id: id_str, reserve: false }
+               out << {id: id_str, reserve: false, is_video: false}
                next
             end
 
             can_reserve = false
+            is_video = false
             response['fields']['callList'].each do |cl|
                cl['fields']['itemList'].each do |item|
                   item_t = item['fields']['itemType']['key']
+                  is_video = V4::Availability::VIDEO_TYPES.include? item_t
                   lib = item['fields']['library']['key']
                   if lib == "HEALTHSCI" || lib == "SPEC-COLL"
                      Rails.logger.info "Cannot reserve #{id_str}: invalid library #{lib}"
@@ -53,9 +55,9 @@ class V4::CourseReserve < SirsiBase
             end
 
             if can_reserve
-               out << {id: id_str, reserve: true }
+               out << {id: id_str, reserve: true, is_video: is_video}
             else
-               out << {id: id_str, reserve: false }
+               out << {id: id_str, reserve: false, is_video: is_video}
             end
          end
       end
