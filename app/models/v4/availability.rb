@@ -231,11 +231,7 @@ class V4::Availability < SirsiBase
     elsif note = course_reserve_note(item)
       return note
     elsif item['homeLocationID'] == 'SC-IVY'
-      marc = data.dig("BibliographicInfo", 'MarcEntryInfo') || []
-      notices = marc.select {|entry| entry['entryID'] == '506'} || []
-      if notices
-        return notices.map{|n| n['text'] }.join('</br>')
-      end
+      return I18n.t('availability.notice.ivy_stacks')
     end
   end
 
