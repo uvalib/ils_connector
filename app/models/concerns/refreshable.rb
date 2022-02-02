@@ -19,7 +19,7 @@ module Refreshable
     end
 
     def reset_refresh_timer
-      self.next_update = Time.parse(REFRESH_TIME).in_time_zone(REFRESH_ZONE) + REFRESH_INTERVAL
+      self.next_update = Time.use_zone(REFRESH_ZONE) { Time.zone.parse(REFRESH_TIME) + REFRESH_INTERVAL }
       Rails.logger.info "Refreshed #{self.name}. Next update: #{next_update}"
     end
   end
