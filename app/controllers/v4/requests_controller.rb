@@ -32,6 +32,7 @@ class V4::RequestsController < V4ApplicationController
   end
 
   def set_dibs
+    Rails.logger.info( "Setting DIBS status for #{params[:barcode]}" )
     resp = {} # V4::Request::Dibs.set_dibs(params[:barcode])
     render json: resp, status: :ok
   rescue JWT::ExpiredSignature
@@ -39,6 +40,7 @@ class V4::RequestsController < V4ApplicationController
   end
 
   def set_no_dibs
+    Rails.logger.info( "Clearing DIBS status for #{params[:barcode]}" )
     resp = {} # V4::Request::Dibs.set_no_dibs(params[:barcode])
     render json: resp, status: :ok
   rescue JWT::ExpiredSignature
