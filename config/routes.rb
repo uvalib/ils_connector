@@ -110,8 +110,8 @@ Rails.application.routes.draw do
           post :scan, action: :create_scan
 
           # Sets/clears the DIBS/reserves status for the item
-          post 'dibs/:barcode', action: :set_dibs
-          post 'nodibs/:barcode', action: :set_no_dibs
+          put 'dibs/:barcode', action: :set_dibs
+          put 'nodibs/:barcode', action: :set_no_dibs
 
         end
 
