@@ -109,13 +109,19 @@ Rails.application.routes.draw do
           # Create a scan request
           post :scan, action: :create_scan
 
+        end
+      end
+
+      resources :dibs, :only => [] do
+        collection do
+
           # Sets/clears the DIBS/reserves status for the item
-          put 'dibs/:barcode', action: :set_in_dibs
+          put 'indibs/:barcode', action: :set_in_dibs
           put 'nodibs/:barcode', action: :set_no_dibs
 
         end
-
       end
+
     end
     scope host: env_credential(:pda_base_url) do
       post 'orders' => 'external#nil', as: :pda
