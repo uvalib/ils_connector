@@ -31,22 +31,6 @@ class V4::RequestsController < V4ApplicationController
     render json: {error: 'Session Expired'}, status: 401
   end
 
-  def set_dibs
-    Rails.logger.info( "Setting DIBS status for #{params[:barcode]}" )
-    resp = {} # V4::Request::Dibs.set_dibs(params[:barcode])
-    render json: resp, status: :ok
-  rescue JWT::ExpiredSignature
-    render json: {error: 'Session Expired'}, status: 401
-  end
-
-  def set_no_dibs
-    Rails.logger.info( "Clearing DIBS status for #{params[:barcode]}" )
-    resp = {} # V4::Request::Dibs.set_no_dibs(params[:barcode])
-    render json: resp, status: :ok
-  rescue JWT::ExpiredSignature
-    render json: {error: 'Session Expired'}, status: 401
-  end
-
   private
   def hold_params
     params.permit :titleKey, :itemBarcode, :pickupLibrary, :userId, :illiadTN
