@@ -13,4 +13,8 @@ module JWTUser
       {}
     end
   end
+
+  def authorize_jwt
+    render plain: 'Unauthorized', status: 401 unless jwt_user.present?
+  end
 end
