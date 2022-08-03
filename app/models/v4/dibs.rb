@@ -3,8 +3,8 @@ class V4::Dibs < SirsiBase
   include ActiveModel::Validations
   base_uri env_credential(:sirsi_web_services_base)
 
-  attr_accessor :barcode, :item_data, :put_data, :fields, :key, :custom_dibs_info, :item_type, :next_custom_key
-  validates_presence_of :barcode, :item_data, :fields, :key, :item_type, :next_custom_key
+  attr_accessor :barcode, :item_data, :put_data, :fields, :key, :custom_dibs_info, :item_type
+  validates_presence_of :barcode, :item_data, :fields, :key, :item_type
 
   DIBS_LOCATION_KEY = "DIBS".freeze
   DIBS_ITEM_TYPE_KEY = "DIBS".freeze
@@ -16,8 +16,6 @@ class V4::Dibs < SirsiBase
     dibs_item = self.new(barcode)
     return dibs_item if dibs_item.invalid?
 
-    # check for errors here
-
     if dibs_item.custom_dibs_info.present? && dibs_item.item_type == DIBS_LOCATION_KEY
       Rails.logger.warn "Item already in DIBS. No changes made. Barcode: #{dibs_item.barcode}"
       return dibs_item
@@ -25,7 +23,6 @@ class V4::Dibs < SirsiBase
 
     dibs_custom_field = {
       "resource": "/catalog/item/customInformation",
-      "key": dibs_item.next_custom_key,
       "fields": {
         "itemExtendedInformation": {
           "resource": "/policy/itemExtendedInformation",
@@ -47,7 +44,8 @@ class V4::Dibs < SirsiBase
       )
       check_session(response)
       if !response.success?
-        dibs_item.errors.add(:base, response.body)
+        Rails.logger.warn "Sirsi PUT Failed for #{dibs_item.barcode}: #{response.body}"
+        dibs_item.errors.add(:sirsi, response.body)
       end
 
     end
@@ -64,18 +62,21 @@ class V4::Dibs < SirsiBase
       return dibs_item
     end
 
-    # restore original current location and item type
-    original_fields = JSON.parse( dibs_item.custom_dibs_info['fields']['data'] )
-    dibs_item.put_data['fields']['currentLocation'] = original_fields['currentLocation']
-    dibs_item.put_data['fields']['itemType'] = original_fields['itemType']
+    if dibs_item.custom_dibs_info.present?
+      # restore original current location and item type
+      original_fields = JSON.parse( dibs_item.custom_dibs_info['fields']['data'] )
+      dibs_item.put_data['fields']['currentLocation'] = original_fields['currentLocation']
+      dibs_item.put_data['fields']['itemType'] = original_fields['itemType']
 
-    # remove DIBS custom info
-    dibs_item.put_data['fields']['customInformation'] =
-      dibs_item.put_data['fields']['customInformation'].reject do |custom_info|
+      # remove DIBS custom info
+      original_custom_information = dibs_item.put_data['fields']['customInformation'].reject do |custom_info|
         custom_info['fields']['itemExtendedInformation']['key'] == DIBS_CUSTOM_INFO_KEY
       end
+      dibs_item.put_data['fields']['customInformation'] = original_custom_information
+    end
 
     ensure_login do
+      Rails.logger.info dibs_item.put_data.to_json
 
       response = put("/catalog/item/key/#{dibs_item.key}",
         body: dibs_item.put_data.to_json,
@@ -85,7 +86,8 @@ class V4::Dibs < SirsiBase
       check_session(response)
 
       if !response.success?
-        dibs_item.errors.add(:base, response.body)
+        Rails.logger.warn "Sirsi PUT Failed for #{dibs_item.barcode}: #{response.body}"
+        dibs_item.errors.add(:sirsi, response.body)
       end
     end
     return dibs_item
@@ -123,14 +125,8 @@ class V4::Dibs < SirsiBase
       self.key = item_data['key']
       self.item_type = fields['itemType']['key']
 
-      self.next_custom_key = 1
-      fields['customInformation'].each do |ci|
-        if custom_dibs_info.nil? && ci['fields']['itemExtendedInformation']['key'] == DIBS_CUSTOM_INFO_KEY
-          self.custom_dibs_info = ci
-        end
-        if ci['key'].to_i >= self.next_custom_key
-          self.next_custom_key = ci['key'].to_i + 1
-        end
+      self.custom_dibs_info = fields['customInformation'].find do |ci|
+        ci['fields']['itemExtendedInformation']['key'] == DIBS_CUSTOM_INFO_KEY
       end
     end
   end
