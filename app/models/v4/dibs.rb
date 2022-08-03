@@ -3,8 +3,7 @@ class V4::Dibs < SirsiBase
   include ActiveModel::Validations
   base_uri env_credential(:sirsi_web_services_base)
 
-  attr_accessor :barcode, :item_data, :put_data, :fields, :key, :custom_dibs_info, :item_type
-  validates_presence_of :barcode, :item_data, :fields, :key, :item_type
+  attr_accessor :barcode, :item_data, :put_data, :fields, :key, :custom_dibs_info, :item_type, :not_found
 
   DIBS_LOCATION_KEY = "DIBS".freeze
   DIBS_ITEM_TYPE_KEY = "DIBS".freeze
@@ -14,7 +13,7 @@ class V4::Dibs < SirsiBase
 
   def self.set_in_dibs( barcode )
     dibs_item = self.new(barcode)
-    return dibs_item if dibs_item.invalid?
+    return dibs_item if dibs_item.errors.any?
 
     if dibs_item.custom_dibs_info.present? && dibs_item.item_type == DIBS_LOCATION_KEY
       Rails.logger.warn "Item already in DIBS. No changes made. Barcode: #{dibs_item.barcode}"
@@ -55,7 +54,7 @@ class V4::Dibs < SirsiBase
 
   def self.set_no_dibs( barcode )
     dibs_item = self.new(barcode)
-    return dibs_item if dibs_item.invalid?
+    return dibs_item if dibs_item.errors.any?
 
     if !dibs_item.custom_dibs_info.present? && dibs_item.item_type != DIBS_LOCATION_KEY
       Rails.logger.warn "Item not at DIBS location. No changes made. Barcode: #{dibs_item.barcode}"
@@ -96,8 +95,7 @@ class V4::Dibs < SirsiBase
 
   def initialize(barcode)
     @barcode = barcode
-    message, status = get_dibs_item_data
-    validate
+    get_dibs_item_data
   end
 
 
@@ -116,7 +114,7 @@ class V4::Dibs < SirsiBase
       barcode_check = response.dig('fields', 'barcode')
       if barcode_check.blank?
          Rails.logger.warn "DIBS Barcode Not Found: #{barcode}"
-         self.errors.add(:not_found, "Barcode not found")
+         self.errors.add(:not_found, "Barcode #{barcode}")
          return
       end
       self.item_data = response.parsed_response
