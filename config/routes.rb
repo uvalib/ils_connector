@@ -119,6 +119,11 @@ Rails.application.routes.draw do
           put 'indibs/:barcode', action: :set_in_dibs
           put 'nodibs/:barcode', action: :set_no_dibs
 
+          # Checks out a dibs item to a user
+          # JWT is required for user_id
+          put 'checkout/:barcode', action: :checkout
+          put 'checkin/:barcode', action: :checkin
+
         end
       end
 

@@ -12,8 +12,6 @@ class V4::DibsController < V4ApplicationController
     else
       render json: {errors: dib.errors}, status: :unprocessable_entity
     end
-  rescue JWT::ExpiredSignature
-    render json: {error: 'Session Expired'}, status: 401
   end
 
   def set_no_dibs
@@ -27,10 +25,14 @@ class V4::DibsController < V4ApplicationController
       render json: {errors: dib.errors}, status: :unprocessable_entity
 
     end
-  rescue JWT::ExpiredSignature
-    render json: {error: 'Session Expired'}, status: 401
   end
 
-  private
 
+  def checkout
+    render json: {stub: true, barcode: params[:barcode], user_id: jwt_user[:user_id]}
+  end
+
+  def checkin
+    render json: {stub: true, barcode: params[:barcode], user_id: jwt_user[:user_id]}
+  end
 end

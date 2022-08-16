@@ -16,5 +16,9 @@ module JWTUser
 
   def authorize_jwt
     render plain: 'Unauthorized', status: 401 unless jwt_user.present?
+
+  rescue JWT::ExpiredSignature
+    puts "Expired jwt"
+    render json: {error: 'Session Expired'}, status: 401
   end
 end
