@@ -28,10 +28,10 @@ class V4::Dibs < SirsiBase
           "key": DIBS_CUSTOM_INFO_KEY
         },
         # For restoring later, custom data to the item's previous location and item type.
-        "data": {"currentLocation": dibs_item.fields['currentLocation'], "itemType": dibs_item.fields['itemType']}.to_json
+        "data": {"homeLocation": dibs_item.fields['homeLocation'], "itemType": dibs_item.fields['itemType']}.to_json
       }
     }
-    dibs_item.put_data['fields']['currentLocation']['key'] = DIBS_LOCATION_KEY
+    dibs_item.put_data['fields']['homeLocation']['key'] = DIBS_LOCATION_KEY
     dibs_item.put_data['fields']['itemType']['key'] = DIBS_ITEM_TYPE_KEY
     dibs_item.put_data['fields']['customInformation'] << dibs_custom_field
 
@@ -62,9 +62,9 @@ class V4::Dibs < SirsiBase
     end
 
     if dibs_item.custom_dibs_info.present?
-      # restore original current location and item type
+      # restore original home location and item type
       original_fields = JSON.parse( dibs_item.custom_dibs_info['fields']['data'] )
-      dibs_item.put_data['fields']['currentLocation'] = original_fields['currentLocation']
+      dibs_item.put_data['fields']['homeLocation'] = original_fields['homeLocation']
       dibs_item.put_data['fields']['itemType'] = original_fields['itemType']
 
       # remove DIBS custom info
