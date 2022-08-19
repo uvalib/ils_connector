@@ -93,6 +93,58 @@ class V4::Dibs < SirsiBase
 
   end
 
+  def self.checkout options
+    ensure_login do
+      # get patron barcode
+      patron_barcode = options[:user_id]
+
+
+      # get due date
+      due_date = "2022-08-18T17:05:00-04:00"
+      due_date = (Time.now.in_time_zone('America/New_York') + options[:duration].hours ).to_s(:iso8601)
+
+
+      headers = { 'sd-working-libraryid' => 'UVA-LIB',
+                  'SD-Prompt-Return' => '',
+                  'x-sirs-clientID' => 'DIBS-PATRN'
+      }
+
+      checkout_data = {
+        "itemBarcode": options[:barcode],
+        "patronBarcode": patron_barcode,
+        "dueDate": due_date,
+        "reserveCollection": {
+          "resource": "/policy/reserveCollection",
+          "key": "DIBS-E-RES"
+        }
+      }
+
+      #Rails.logger.info headers
+      Rails.logger.info checkout_data
+
+      attempts = 0
+      attempt_limit = 5
+
+      while attempts < attempt_limit do
+
+        response = send_checkout(checkout_data, headers)
+        # stop making attempts if no overrides are available
+        if response.success? || response['dataMap']['promptType'].blank?
+          break
+        end
+
+        attempts += 1
+        Rails.logger.info "Sirsi Checkout override Headers:#{headers}\n #{response.inspect}"
+
+      end
+
+      return response
+    end
+  end
+
+  def self.checkin
+  end
+
   def initialize(barcode)
     @barcode = barcode
     get_dibs_item_data
@@ -129,4 +181,21 @@ class V4::Dibs < SirsiBase
     end
   end
 
+  private
+  def self.send_checkout(checkout_data, headers )
+    response = post('/circulation/circRecord/checkOut?includeFields={*}',
+      body: checkout_data.to_json,
+      headers: auth_headers.merge(headers)
+    )
+    check_session(response)
+    if !response.success? && response['dataMap'].present?
+    override_headers = response['dataMap'].map do |_, promptType|
+      # 'CKOBLOCKS/OK;CIRC_NONCHARGEABLE_OVRCD/OK;CIRC_ITEM_PIECES_OVRCD/OK'
+      "#{promptType}/OK"
+    end
+
+    headers['SD-Prompt-Return'] = (headers['SD-Prompt-Return'].split(';') + override_headers).join(';')
+    end
+    return response
+end
 end

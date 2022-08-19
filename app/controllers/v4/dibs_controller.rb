@@ -29,10 +29,21 @@ class V4::DibsController < V4ApplicationController
 
 
   def checkout
-    render json: {stub: true, barcode: params[:barcode], user_id: jwt_user[:user_id]}
+    co = V4::Dibs.checkout(checkout_params)
+    if co.success?
+      render json: {}, status: :ok
+    else
+      render json: {errors: co['messageList'], barcode: params[:barcode], user_id: jwt_user[:user_id]}, status: co.code
+    end
   end
 
   def checkin
-    render json: {stub: true, barcode: params[:barcode], user_id: jwt_user[:user_id]}
+    render json: {stub: true, params: params, user_id: jwt_user[:user_id]}
+  end
+
+  private
+  def checkout_params
+    params[:duration] = params[:duration].to_i
+    params.permit(:barcode, :user_id, :duration)
   end
 end
