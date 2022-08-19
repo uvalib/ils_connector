@@ -98,20 +98,22 @@ class V4::Dibs < SirsiBase
       # get patron barcode
       patron_barcode = options[:user_id]
 
+      user_validation = V4::User.validate_dibs_checkout(options[:user_id], options[:barcode])
+      if user_validation[:barcode].empty?
+        return {'messageList' => [{message: "User not found"}]}
+      end
 
       # get due date
-      due_date = "2022-08-18T17:05:00-04:00"
       due_date = (Time.now.in_time_zone('America/New_York') + options[:duration].hours ).to_s(:iso8601)
 
-
       headers = { 'sd-working-libraryid' => 'UVA-LIB',
-                  'SD-Prompt-Return' => '',
+                  'SD-Prompt-Return' => user_validation[:overrides],
                   'x-sirs-clientID' => 'DIBS-PATRN'
       }
 
       checkout_data = {
         "itemBarcode": options[:barcode],
-        "patronBarcode": patron_barcode,
+        "patronBarcode": user_validation[:barcode],
         "dueDate": due_date,
         "reserveCollection": {
           "resource": "/policy/reserveCollection",
@@ -129,7 +131,7 @@ class V4::Dibs < SirsiBase
 
         response = send_checkout(checkout_data, headers)
         # stop making attempts if no overrides are available
-        if response.success? || response['dataMap']['promptType'].blank?
+        if response.success? || response.dig('dataMap','promptType').blank?
           break
         end
 
@@ -137,7 +139,6 @@ class V4::Dibs < SirsiBase
         Rails.logger.info "Sirsi Checkout override Headers:#{headers}\n #{response.inspect}"
 
       end
-
       return response
     end
   end
@@ -188,13 +189,12 @@ class V4::Dibs < SirsiBase
       headers: auth_headers.merge(headers)
     )
     check_session(response)
-    if !response.success? && response['dataMap'].present?
-    override_headers = response['dataMap'].map do |_, promptType|
-      # 'CKOBLOCKS/OK;CIRC_NONCHARGEABLE_OVRCD/OK;CIRC_ITEM_PIECES_OVRCD/OK'
-      "#{promptType}/OK"
-    end
-
-    headers['SD-Prompt-Return'] = (headers['SD-Prompt-Return'].split(';') + override_headers).join(';')
+    if !response.success? && response.dig('dataMap', 'promptType').present?
+      override_headers = response['dataMap'].map do |_, promptType|
+        # 'CKOBLOCKS/OK;CIRC_NONCHARGEABLE_OVRCD/OK;CIRC_ITEM_PIECES_OVRCD/OK'
+        "#{promptType}/OK"
+      end
+      headers['SD-Prompt-Return'] = (headers['SD-Prompt-Return'].split(';') + override_headers).join(';')
     end
     return response
 end

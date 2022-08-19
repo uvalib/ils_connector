@@ -30,10 +30,10 @@ class V4::DibsController < V4ApplicationController
 
   def checkout
     co = V4::Dibs.checkout(checkout_params)
-    if co.success?
+    if co.try :success?
       render json: {}, status: :ok
     else
-      render json: {errors: co['messageList'], barcode: params[:barcode], user_id: jwt_user[:user_id]}, status: co.code
+      render json: {errors: co['messageList'], barcode: params[:barcode], user_id: jwt_user[:user_id]}, status: co['code'] || 500
     end
   end
 
