@@ -121,8 +121,8 @@ Rails.application.routes.draw do
 
           # Checks out a dibs item to a user
           # JWT is required for user_id
-          put 'checkout', action: :checkout
-          put 'checkin', action: :checkin
+          post 'checkout', action: :checkout
+          post 'checkin', action: :checkin
 
         end
       end

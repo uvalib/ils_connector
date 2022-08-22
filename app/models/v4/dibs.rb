@@ -136,7 +136,7 @@ class V4::Dibs < SirsiBase
         end
 
         attempts += 1
-        Rails.logger.info "Sirsi Checkout override Headers:#{headers}\n #{response.inspect}"
+        Rails.logger.warn "Sirsi Checkout\n#{checkout_data}\noverride Headers:#{headers}\n #{response.inspect}"
 
       end
       return response
