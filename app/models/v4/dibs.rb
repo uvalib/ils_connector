@@ -107,7 +107,7 @@ class V4::Dibs < SirsiBase
       due_date = (Time.now.in_time_zone('America/New_York') + options[:duration].hours ).to_s(:iso8601)
 
       headers = { 'sd-working-libraryid' => 'UVA-LIB',
-                  'SD-Prompt-Return' => user_validation[:overrides],
+                  'SD-Prompt-Return' => '',
                   'x-sirs-clientID' => 'DIBS-PATRN'
       }
 
@@ -125,7 +125,8 @@ class V4::Dibs < SirsiBase
       Rails.logger.info checkout_data
 
       attempts = 0
-      attempt_limit = 5
+      attempt_limit = 10
+      response = nil
 
       while attempts < attempt_limit do
 
@@ -189,13 +190,14 @@ class V4::Dibs < SirsiBase
       headers: auth_headers.merge(headers)
     )
     check_session(response)
-    if !response.success? && response.dig('dataMap', 'promptType').present?
-      override_headers = response['dataMap'].map do |_, promptType|
-        # 'CKOBLOCKS/OK;CIRC_NONCHARGEABLE_OVRCD/OK;CIRC_ITEM_PIECES_OVRCD/OK'
-        "#{promptType}/OK"
+    if !response.success?
+      # CKOBLOCKS CIRC_NONCHARGEABLE_OVRCD CIRC_ITEM_PIECES_OVRCD'
+      override = response.dig('dataMap', 'promptType')
+      if override.present?
+        override_header = "#{override}/DIBSDIBS"
+        headers['SD-Prompt-Return'] = (headers['SD-Prompt-Return'].split(';').push(override_header)).join(';')
       end
-      headers['SD-Prompt-Return'] = (headers['SD-Prompt-Return'].split(';') + override_headers).join(';')
     end
     return response
-end
+  end
 end

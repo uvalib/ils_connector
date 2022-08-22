@@ -310,7 +310,7 @@ class V4::User < SirsiBase
    # validate that a checkout belongs to a user
    def self.validate_dibs_checkout user_id, barcode
 
-      dibs_validation = {barcode: "", valid: true, overrides: "", message: ""}
+      dibs_validation = {barcode: "", valid: true, message: ""}
 
       ensure_login do
          # incFields = "circRecordList{*,library{description},item{*,call{*,bib{callNumber,author,title}}}}"
@@ -328,10 +328,6 @@ class V4::User < SirsiBase
             return dibs_validation
          end
          fields = results.first['fields']
-
-         if fields['standing']['key'] == "DELINQUENT"
-            dibs_validation[:overrides] = "CKOBLOCKS/OK"
-         end
 
          # barcode should appear in user's checkouts
          dibs_validation[:valid] = fields['circRecordList'].any? do |cr|
