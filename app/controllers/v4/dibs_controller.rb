@@ -45,7 +45,7 @@ class V4::DibsController < V4ApplicationController
 
   private
   def authorize_dibs
-    if !Rails.env.development? && params[:user_id] != jwt_user[:userId]
+    if !Rails.env.development? && params[:user_id] != jwt_user[:user_id]
       render plain: 'Unauthorized', status: 401
     end
   end
