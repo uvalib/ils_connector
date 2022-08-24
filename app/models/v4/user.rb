@@ -310,11 +310,11 @@ class V4::User < SirsiBase
    # validate that a checkout belongs to a user
    def self.validate_dibs_checkout user_id, barcode
 
-      dibs_validation = {barcode: "", valid: true, message: ""}
+      dibs_validation = {}
 
       ensure_login do
          # incFields = "circRecordList{*,library{description},item{*,call{*,bib{callNumber,author,title}}}}"
-         incFields = "barcode,alternateID,standing,circRecordList{item{barcode}}"
+         incFields = "barcode,alternateID,standing,circRecordList{library,item{barcode}}"
          response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=#{incFields}",
             headers: self.auth_headers,
             timeout: SLOW_TIMEOUT,
@@ -323,18 +323,20 @@ class V4::User < SirsiBase
          results = response['result']
          if results.nil? || results.none? || results.many?
             Rails.logger.warn "User Not Found: #{user_id}"
-            dibs_validation[:valid] = false
-            dibs_validation[:message] = "User Not Found"
+            dibs_validation[:error] = "User Not Found"
             return dibs_validation
          end
          fields = results.first['fields']
 
          # barcode should appear in user's checkouts
-         dibs_validation[:valid] = fields['circRecordList'].any? do |cr|
-            cr['barcode'] == barcode
+         circ_record = fields['circRecordList'].find do |cr|
+            cr.dig('fields','item','fields','barcode') == barcode
+         end
+         if circ_record.present?
+            dibs_validation[:item_library] = circ_record.dig('fields', 'library', 'key')
          end
 
-         dibs_validation[:barcode] = fields['barcode']
+         dibs_validation[:user_barcode] = fields['barcode']
 
       end
       return dibs_validation
