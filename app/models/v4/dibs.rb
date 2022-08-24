@@ -95,12 +95,10 @@ class V4::Dibs < SirsiBase
 
   def self.checkout options
     ensure_login do
-      # get patron barcode
-      patron_barcode = options[:user_id]
-
-      user_validation = V4::User.validate_dibs_checkout(options[:user_id], options[:barcode])
-      if user_validation[:barcode].empty?
-        return {'messageList' => [{message: "User not found"}]}
+      # get patron barcode and validate
+      dibs_validation = V4::User.validate_dibs_checkout(options[:user_id], options[:barcode])
+      if dibs_validation[:error].present?
+        return {'messageList' => [{message: dibs_validation[:error]}]}
       end
 
       # get due date
@@ -113,7 +111,7 @@ class V4::Dibs < SirsiBase
 
       checkout_data = {
         "itemBarcode": options[:barcode],
-        "patronBarcode": user_validation[:barcode],
+        "patronBarcode": dibs_validation[:user_barcode],
         "dueDate": due_date,
         "reserveCollection": {
           "resource": "/policy/reserveCollection",
@@ -146,16 +144,15 @@ class V4::Dibs < SirsiBase
 
   def self.checkin options
     ensure_login do
-      # get patron barcode
-      patron_barcode = options[:user_id]
 
-      user_validation = V4::User.validate_dibs_checkout(options[:user_id], options[:barcode])
-      if user_validation[:barcode].empty?
-        return {'messageList' => [{message: "User not found"}]}
+      dibs_validation = V4::User.validate_dibs_checkout(options[:user_id], options[:barcode])
+      if dibs_validation[:error].present?
+        return {'messageList' => [{message: dibs_validation[:error]}]}
+      elsif dibs_validation[:item_library].blank?
+        return {'messageList' => [{message: "Cannot check in, item is not checked out to the user."}]}
       end
 
-
-      headers = { 'sd-working-libraryid' => 'UVA-LIB',
+      headers = { 'sd-working-libraryid' => dibs_validation[:item_library],
                   'SD-Prompt-Return' => '',
                   'x-sirs-clientID' => 'DIBS-PATRN'
       }

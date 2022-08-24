@@ -60,8 +60,7 @@ class V4::DibsController < V4ApplicationController
 
   def dibs_params
     # duration in hours
-    params[:duration] = params[:duration].to_i
-
+    params[:duration] = params[:duration].to_i if params[:duration]
 
     params.permit(:barcode, :user_id, :duration)
   end
