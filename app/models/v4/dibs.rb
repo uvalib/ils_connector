@@ -144,7 +144,47 @@ class V4::Dibs < SirsiBase
     end
   end
 
-  def self.checkin
+  def self.checkin options
+    ensure_login do
+      # get patron barcode
+      patron_barcode = options[:user_id]
+
+      user_validation = V4::User.validate_dibs_checkout(options[:user_id], options[:barcode])
+      if user_validation[:barcode].empty?
+        return {'messageList' => [{message: "User not found"}]}
+      end
+
+
+      headers = { 'sd-working-libraryid' => 'UVA-LIB',
+                  'SD-Prompt-Return' => '',
+                  'x-sirs-clientID' => 'DIBS-PATRN'
+      }
+
+      checkin_data = {
+        "itemBarcode": options[:barcode]
+
+      }
+
+      #Rails.logger.info headers
+      Rails.logger.info checkin_data
+
+      attempts = 0
+      attempt_limit = 10
+      response = nil
+
+      while attempts < attempt_limit do
+
+        response = send_checkin(checkin_data, headers)
+        # stop making attempts if no overrides are available
+        if response.success? || response.dig('dataMap','promptType').blank?
+          break
+        end
+        attempts += 1
+
+      end
+      Rails.logger.warn "Sirsi Checkin\n#{checkin_data}\noverride Headers:#{headers}\n #{response.inspect}"
+      return response
+    end
   end
 
   def initialize(barcode)
@@ -196,6 +236,23 @@ class V4::Dibs < SirsiBase
       if override.present?
         override_header = "#{override}/DIBSDIBS"
         headers['SD-Prompt-Return'] = (headers['SD-Prompt-Return'].split(';').push(override_header)).join(';')
+      end
+    end
+    return response
+  end
+
+  def self.send_checkin(checkin_data, headers)
+    response = post('/circulation/circRecord/checkIn?includeFields={*}',
+      body: checkin_data.to_json,
+      headers: auth_headers.merge(headers)
+    )
+    check_session(response)
+    if !response.success?
+      # CKOBLOCKS CIRC_NONCHARGEABLE_OVRCD CIRC_ITEM_PIECES_OVRCD'
+      override = response.dig('dataMap', 'promptType')
+      if override.present?
+        #override_header = "#{override}/DIBSDIBS"
+        #headers['SD-Prompt-Return'] = (headers['SD-Prompt-Return'].split(';').push(override_header)).join(';')
       end
     end
     return response

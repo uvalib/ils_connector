@@ -58,6 +58,8 @@ group :development, :test do
   gem 'equivalent-xml'
 
   gem 'dotenv-rails'
+  gem 'ruby-debug-ide'
+  gem 'debase'
 
 end
 
