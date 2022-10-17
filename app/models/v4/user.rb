@@ -267,7 +267,7 @@ class V4::User < SirsiBase
       ensure_login do
          checkouts = []
          # incFields = "circRecordList{*,library{description},item{*,call{*,bib{callNumber,author,title}}}}"
-         incFields = "circRecordList{dueDate,overdue,estimatedOverdueAmount,recalledDate,renewalDate,library{description},item{barcode,call{dispCallNumber,bib{key,author,title}}}}"
+         incFields = "circRecordList{dueDate,overdue,estimatedOverdueAmount,recallDueDate,renewalDate,library{description},item{barcode,call{dispCallNumber,bib{key,author,title}}}}"
          response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=#{incFields}",
             headers: self.auth_headers,
             timeout: SLOW_TIMEOUT,
@@ -296,7 +296,7 @@ class V4::User < SirsiBase
                due: cr_f['dueDate'],
                overDue: cr_f['overdue'],
                overdueFee: cr_f.dig('estimatedOverdueAmount', 'amount'),
-               recallDate: cr_f['recalledDate'],
+               recallDueDate: cr_f['recallDueDate'],
                renewDate: cr_f['renewalDate']
             }
          end
