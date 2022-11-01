@@ -10,8 +10,12 @@ class V4::RequestsController < V4ApplicationController
   end
 
   def delete_hold
-    deleted = V4::Request::Hold.delete_hold(params[:id])
-    render json: {status: deleted}
+    deleted = V4::Request::Hold.delete_hold(params[:id], jwt_user[:user_id])
+    if deleted
+      render json: {status: deleted}
+    else
+      render plain: "Unauthorized", status: 401
+    end
   end
 
   def fill_hold

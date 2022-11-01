@@ -32,13 +32,21 @@ class V4::Request::Hold < V4::Request::RequestBase
   end
 
   # deletes hold from Sirsi
-  def self.delete_hold id
+  def self.delete_hold hold_id, user_id
     ensure_login do
-      response = delete("/circulation/holdRecord/key/#{id}",
-                                 headers: auth_headers.merge(headers)
-                     )
-      check_session(response)
-      return response.code == 204
+      success, user_holds = V4::User.get_holds(user_id)
+
+      if success &&
+        user_holds[:holds].any? {|hold| (hold[:id] == hold_id) && hold[:cancellable] }
+
+        response = delete("/circulation/holdRecord/key/#{hold_id}",
+                                  headers: auth_headers.merge(headers)
+                      )
+        check_session(response)
+        return response.code == 204
+      else
+        return false
+      end
     end
   end
 

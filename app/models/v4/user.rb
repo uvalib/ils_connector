@@ -397,7 +397,7 @@ class V4::User < SirsiBase
          results = response['result']
          if results.nil? || results.none? || results.many?
             Rails.logger.warn "User Not Found: #{user_id}"
-            return true, nil
+            return false, nil
          end
          hold_records = results.first["fields"]["holdRecordList"]
          hold_records.each do |hold|
@@ -413,6 +413,10 @@ class V4::User < SirsiBase
             elsif item_status == 'INTRANSIT' && h.dig('item', 'fields', 'transit', 'fields', 'transitReason') == 'HOLD'
                item_status = 'IN TRANSIT for hold'
             end
+
+            cancellable = h['status'] == 'PLACED' &&
+                         h['recallStatus'] != 'RUSH'
+
             holds << {
                id: hold['key'],
                pickupLocation: pickupLocation,
@@ -426,6 +430,7 @@ class V4::User < SirsiBase
                author: h['bib']['fields']['author'],
                callNumber: h['item']['fields']['call']['fields']['dispCallNumber'],
                itemStatus: item_status,
+               cancellable: cancellable
             }
          end
          return true, {holds: holds}
