@@ -419,6 +419,7 @@ class V4::User < SirsiBase
 
             holds << {
                id: hold['key'],
+               userID: user_id,
                pickupLocation: pickupLocation,
                status: status,
                placedDate: h['placedDate'],
@@ -429,6 +430,7 @@ class V4::User < SirsiBase
                title: h['bib']['fields']['title'],
                author: h['bib']['fields']['author'],
                callNumber: h['item']['fields']['call']['fields']['dispCallNumber'],
+               barcode: h['item']['fields']['barcode'],
                itemStatus: item_status,
                cancellable: cancellable
             }
