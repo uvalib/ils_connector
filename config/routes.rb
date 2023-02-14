@@ -127,6 +127,12 @@ Rails.application.routes.draw do
         end
       end
 
+      resources :metadata, only: [] do
+        member do
+          post 'update_rights', action: :update_rights
+        end
+      end
+
     end
     scope host: env_credential(:pda_base_url) do
       post 'orders' => 'external#nil', as: :pda
