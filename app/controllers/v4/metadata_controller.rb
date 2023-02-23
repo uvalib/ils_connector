@@ -1,7 +1,4 @@
 class V4::MetadataController < V4ApplicationController
-  include JWTUser
-  #before_action :authorize_jwt
-  before_action :authorize_user
 
   def update_rights
     metadata = V4::Metadata.find(params[:id])
@@ -22,9 +19,6 @@ class V4::MetadataController < V4ApplicationController
   end
 
   private
-  def authorize_user
-  end
-
   def rights_params
     params.permit(:resource_uri, :name, :uri, :statement)
   end
