@@ -20,6 +20,6 @@ class V4::MetadataController < V4ApplicationController
 
   private
   def rights_params
-    params.permit(:resource_uri, :name, :uri, :statement)
+    params.permit(:resource_uri, :name, :uri)
   end
 end

@@ -41,7 +41,6 @@ class V4::Metadata < SirsiBase
       subfields: [
         {code: 'r', data: params[:uri]},
         {code: 't', data: params[:name]},
-        {code: 't', data: params[:statement]},
         {code: 'u', data: params[:resource_uri]},
         {code: 'e', data: '(dpeaa) UVA TrackSys'}
       ]
