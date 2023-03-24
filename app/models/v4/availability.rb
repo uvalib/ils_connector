@@ -1,7 +1,7 @@
 class V4::Availability < SirsiBase
   include ActiveModel::Serializers::JSON
   base_uri env_credential(:sirsi_web_services_base)
-  default_timeout 20
+  default_timeout 30
 
   attr_accessor :title_id, :data, :items, :bound_with, :request_options, :jwt_user
 
