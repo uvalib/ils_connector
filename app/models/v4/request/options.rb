@@ -94,7 +94,8 @@ class V4::Request::Options
     # if no Volume options are present, add the first holdable item
     if holdable_items.none?
       item = availability.items.find do |i|
-        holdable_item?(i)
+        # Use the 1st holdable item, without medium-rare
+        holdable_item?(i) && !V4::Location.medium_rare?(i[:home_location_id])
       end
       if item.present?
         self.holdable_items << {
