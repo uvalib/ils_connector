@@ -108,6 +108,34 @@ class V4::Request::Options
         }
       end
     end
+
+    # Check for medium rare items
+    mr_items = availability.items.filter do |item|
+      V4::Location.medium_rare?(item[:home_location_id])
+    end
+    mr_items.each do |mr_item|
+      # add any missing medium rare items
+      if self.holdable_items.none? {|hi| hi[:barcode] == mr_item[:barcode]}
+        self.holdable_items << {
+          barcode: mr_item[:barcode],
+          label: mr_item[:call_number],
+          library: mr_item[:library_id],
+          location: mr_item[:current_location],
+          location_id: mr_item[:current_location_id],
+          is_video: mr_item[:is_video],
+          notice: mr_item[:notice]
+        }
+      end
+    end
+
+    self.holdable_items.map! do |item|
+      # mark medium rare
+      if item[:notice] && item[:notice].include?("This item is medium rare")
+        item[:label] = item[:label] + " (Ivy limited circulation)"
+      end
+      item
+    end if self.holdable_items
+
   end
 
   def holdable_item? item

@@ -4,7 +4,7 @@ locations:
   # Reference materials
   - REFERENCE
   # Medium Rare
-  - LOCKEDSTKS
+  #- LOCKEDSTKS
   # Reserve Locations
   - AS-RESV
   - MU-RESV
