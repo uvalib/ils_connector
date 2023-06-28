@@ -133,7 +133,7 @@ class V4::Location < SirsiBase
 
   # @see Firehose::Copy#medium_rare?
   MEDIUM_RARE_LOCATIONS = codes 'LOCKEDSTKS'
-  MEDIUM_RARE_MESSAGE = "This item is medium rare and does not circulate. When you request this item from Ivy, it will be delivered to the Small Special Collections Library for you to use in the reading room only."
+  MEDIUM_RARE_MESSAGE = "This item does not circulate outside of library spaces. When you request this item from Ivy, it will be delivered to the Small Special Collections Library for you to use in the reading room only."
 
   # Libraries that do not have checkout (for UVA persons).
   RESERVE_LIBRARIES = codes %w(SPEC-COLL JAG)

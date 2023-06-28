@@ -131,7 +131,7 @@ class V4::Request::Options
 
     self.holdable_items.map! do |item|
       # mark medium rare
-      if item[:notice] && item[:notice].include?("This item is medium rare")
+      if item[:notice] && item[:notice] == V4::Location::MEDIUM_RARE_MESSAGE
         item[:label] = item[:label] + " (Ivy limited circulation)"
       end
       item
