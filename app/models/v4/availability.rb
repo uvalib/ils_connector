@@ -215,7 +215,7 @@ class V4::Availability < SirsiBase
 
   def non_circulating? holding, item
     library = V4::Library.find holding['libraryID']
-    loc = V4::Location.find(item['homeLocationID'])
+    loc = V4::Location.find(item['currentLocationID'])
     return library.non_circulating || loc.non_circulating
   end
 
