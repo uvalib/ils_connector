@@ -21,5 +21,6 @@ locations:
   - FA-RESV
   - SEL-RESV
   - NOTORDERED
-  # Ivy Storage: Law Special Collections
+  # Law Special Collections
   - LAW-SC-IVY
+  - LAW-SC
