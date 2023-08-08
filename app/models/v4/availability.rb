@@ -89,7 +89,7 @@ class V4::Availability < SirsiBase
             fields: fields,
             library: library(holding, item),
             library_id: holding["libraryID"],
-            current_location: self.current_location(holding, item),
+            current_location: current_location(holding, item),
             current_location_id: item['currentLocationID'],
             home_location_id: home_location_id(holding, item),
             call_number: call_number(holding, item),
@@ -174,7 +174,7 @@ class V4::Availability < SirsiBase
     lib.description if lib
   end
 
-  def self.current_location holding, item
+  def current_location holding, item
     loc = V4::Location.find item["currentLocationID"]
     loc.description if loc
   end
