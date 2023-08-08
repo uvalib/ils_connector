@@ -267,7 +267,7 @@ class V4::User < SirsiBase
       ensure_login do
          checkouts = []
          # incFields = "circRecordList{*,library{description},item{*,call{*,bib{callNumber,author,title}}}}"
-         incFields = "circRecordList{dueDate,overdue,estimatedOverdueAmount,recallDueDate,renewalDate,library{description},item{barcode,call{dispCallNumber,bib{key,author,title}}}}"
+         incFields = "circRecordList{dueDate,overdue,estimatedOverdueAmount,recallDueDate,renewalDate,library{description},item{barcode,currentLocation,call{dispCallNumber,bib{key,author,title}}}}"
          response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=#{incFields}",
             headers: self.auth_headers,
             timeout: SLOW_TIMEOUT,
@@ -287,12 +287,15 @@ class V4::User < SirsiBase
             title = co_call.dig('bib', 'fields', 'title')
             author = co_call.dig('bib', 'fields', 'author')
             library = cr_f.dig('library', 'fields', 'description')
+            loc = V4::Location.find co.dig("currentLocation", "key")
+            loc = loc.description if loc
             checkouts << {id: co_call.dig('bib', 'key'),
                title: title,
                author: author,
                barcode: co['barcode'],
                callNumber: co_call['dispCallNumber'],
                library: library,
+               currentLocation: loc,
                due: cr_f['dueDate'],
                overDue: cr_f['overdue'],
                overdueFee: cr_f.dig('estimatedOverdueAmount', 'amount'),
