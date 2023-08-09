@@ -267,7 +267,7 @@ class V4::User < SirsiBase
       ensure_login do
          checkouts = []
          # incFields = "circRecordList{*,library{description},item{*,call{*,bib{callNumber,author,title}}}}"
-         incFields = "circRecordList{dueDate,overdue,estimatedOverdueAmount,recallDueDate,renewalDate,library{description},item{barcode,currentLocation,call{dispCallNumber,bib{key,author,title}}}}"
+         incFields = "blockList{item{key},amount},circRecordList{dueDate,overdue,estimatedOverdueAmount,recallDueDate,renewalDate,library{description},item{key,barcode,currentLocation,call{dispCallNumber,bib{key,author,title}}}}"
          response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=#{incFields}",
             headers: self.auth_headers,
             timeout: SLOW_TIMEOUT,
@@ -278,6 +278,7 @@ class V4::User < SirsiBase
             Rails.logger.warn "User Not Found: #{user_id}"
             return true, nil
          end
+         blockList = results.first['fields']['blockList']
          circ = results.first['fields']['circRecordList']
          circ.each do |cr|
             cr_f = cr.dig('fields')
@@ -289,6 +290,8 @@ class V4::User < SirsiBase
             library = cr_f.dig('library', 'fields', 'description')
             loc = V4::Location.find co.dig("currentLocation", "key")
             loc = loc.description if loc
+            block = blockList.find {|bl| bl['fields']['item']['key'] == cr_f['item']['key']}
+
             checkouts << {id: co_call.dig('bib', 'key'),
                title: title,
                author: author,
@@ -297,8 +300,9 @@ class V4::User < SirsiBase
                library: library,
                currentLocation: loc,
                due: cr_f['dueDate'],
-               overDue: cr_f['overdue'],
+               overDue: cr_f['overdue'] || block.present?,
                overdueFee: cr_f.dig('estimatedOverdueAmount', 'amount'),
+               billAmount: block&.dig('fields', 'amount', 'amount'),
                recallDueDate: cr_f['recallDueDate'],
                renewDate: cr_f['renewalDate']
             }
