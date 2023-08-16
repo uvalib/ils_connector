@@ -267,7 +267,7 @@ class V4::User < SirsiBase
       ensure_login do
          checkouts = []
          # incFields = "circRecordList{*,library{description},item{*,call{*,bib{callNumber,author,title}}}}"
-         incFields = "blockList{item{key},amount},circRecordList{dueDate,overdue,estimatedOverdueAmount,recallDueDate,renewalDate,library{description},item{key,barcode,currentLocation,call{dispCallNumber,bib{key,author,title}}}}"
+         incFields = "blockList{amount,block{description},item{key}},circRecordList{circulationRule{billStructure{maxFee}},dueDate,overdue,estimatedOverdueAmount,recallDueDate,renewalDate,library{description},item{key,barcode,currentLocation,call{dispCallNumber,bib{key,author,title}}}}"
          response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=#{incFields}",
             headers: self.auth_headers,
             timeout: SLOW_TIMEOUT,
@@ -290,7 +290,7 @@ class V4::User < SirsiBase
             library = cr_f.dig('library', 'fields', 'description')
             loc = V4::Location.find co.dig("currentLocation", "key")
             loc = loc.description if loc
-            block = blockList.find {|bl| bl['fields']['item']['key'] == cr_f['item']['key']}
+            bills = blockList.filter {|bl| bl['fields']['item']['key'] == cr_f['item']['key']}
 
             checkouts << {id: co_call.dig('bib', 'key'),
                title: title,
@@ -302,7 +302,7 @@ class V4::User < SirsiBase
                due: cr_f['dueDate'],
                overDue: cr_f['overdue'] || block.present?,
                overdueFee: cr_f.dig('estimatedOverdueAmount', 'amount'),
-               billAmount: block&.dig('fields', 'amount', 'amount'),
+               bills: formattedBills(bills),
                recallDueDate: cr_f['recallDueDate'],
                renewDate: cr_f['renewalDate']
             }
@@ -312,6 +312,16 @@ class V4::User < SirsiBase
 
       # error, unable to login to Sirsi
       return false, nil
+   end
+
+   # Restructure bills
+   def self.formattedBills(bills)
+      bills.map do |b|
+         {
+            amount: b&.dig('fields', 'amount', 'amount'),
+            label: b&.dig('fields','block', 'fields', 'description')
+         }
+      end.compact
    end
 
    # validate that a checkout belongs to a user
