@@ -300,7 +300,7 @@ class V4::User < SirsiBase
                library: library,
                currentLocation: loc,
                due: cr_f['dueDate'],
-               overDue: cr_f['overdue'] || block.present?,
+               overDue: cr_f['overdue'] || bills.present?,
                overdueFee: cr_f.dig('estimatedOverdueAmount', 'amount'),
                bills: formattedBills(bills),
                recallDueDate: cr_f['recallDueDate'],
