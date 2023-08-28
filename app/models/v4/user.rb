@@ -111,7 +111,7 @@ class V4::User < SirsiBase
          #   acct.graduate? || acct.undergraduate?
       end
 
-      user[:sirsiUnavailable] = true if sirsi_result.try(:[], :error)
+      user[:sirsiUnavailable] = true if sirsi_result.try(:fetch, :error)
 
       return user
    end
