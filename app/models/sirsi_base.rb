@@ -43,7 +43,7 @@ class SirsiBase
 
       uri = response.present? ? response.uri : env_credential(:sirsi_web_services_base)
       Rails.logger.error "ERROR: #{uri} #{e.message} #{e.backtrace.first}"
-      return nil
+      return {error: e.message}
     end
   end
 

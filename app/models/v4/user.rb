@@ -27,7 +27,7 @@ class V4::User < SirsiBase
          user['communityUser'] = true
       end
 
-      ensure_login do
+      sirsi_result = ensure_login do
          response = get("/user/patron/search?q=ALT_ID:#{user_id}&includeFields=barcode,primaryAddress{*},address1,address2,address3,displayName,preferredName,firstName,middleName,lastName,profile{description},patronStatusInfo{standing,amountOwed},library",
             headers: self.auth_headers, max_retries: 0 )
          check_session(response)
@@ -110,6 +110,8 @@ class V4::User < SirsiBase
          # acct.faculty? || acct.instructor? || acct.staff? ||
          #   acct.graduate? || acct.undergraduate?
       end
+
+      user[:sirsiUnavailable] = true if sirsi_result.try(:[], :error)
 
       return user
    end
