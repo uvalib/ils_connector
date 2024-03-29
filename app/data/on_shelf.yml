@@ -62,5 +62,9 @@ locations:
   - SEL-RESV
   - SERV-DSK
   - STACKS
+  - STACKS-1
+  - STACKS-3
+  - STACKS-4
+  - STACKS-5
   - STUDYROOM
   - VAULT
