@@ -256,6 +256,7 @@ class V4::Availability < SirsiBase
 
   # Begin fields for PDA service
   PDA_LOCATION_MAP = {
+    'SH-PPDA'=>'SHANNON'
     'AL-PPDA'=>'ALD',
     'AS-PPDA'=>'ASTRO',
     'CH-PPDA'=>'CHEM',
