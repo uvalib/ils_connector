@@ -80,6 +80,8 @@ Rails.application.routes.draw do
           post :sirsi_staff_login
           post :forgot_password
           post :change_password_with_token
+          post :register
+          get "activate/:code", to: "users#activate", as: "activate"
         end
       end
       resources :course_reserves, :only => [] do

@@ -92,6 +92,27 @@ class V4::UsersController < V4ApplicationController
       end
    end
 
+   def register
+      ok, user = V4::User.register(registration_params)
+      if !ok || user.nil?
+         render plain: "Service unavailable", status: :service_unavailable
+      elsif user.try('[:errors]')
+         render json: user.to_json, status: :unprocessable_entity
+      else
+         render json: user.to_json, status: :ok
+      end
+
+   end
+
+   def activate
+      ok = V4::User.activate(params[:code])
+      if ok
+         render nil, status: :ok
+      else
+         render nil, status: :unprocessable_entity
+      end
+   end
+
    private
    def user_params
       params.permit(:id, :pin, :format, :current_pin, :new_pin, :username, :password)
@@ -101,6 +122,9 @@ class V4::UsersController < V4ApplicationController
    end
    def sirsi_login_params
       params.permit(:username, :password)
+   end
+   def registration_params
+      params.permit(V4::User::REGISTRATION_MAP.keys)
    end
 
    def list_to_csv list

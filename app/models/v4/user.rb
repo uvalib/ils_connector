@@ -116,6 +116,98 @@ class V4::User < SirsiBase
       return user
    end
 
+   REGISTRATION_MAP = {
+      firstName: "patron-firstName",
+      lastName: "patron-lastName",
+      password: "patron-pin",
+      address1: "patronAddress1-LINE1",
+      address2: "patronAddress1-LINE2",
+      phone: "patronAddress1-PHONE",
+      zip: "patronAddress1-ZIP",
+      email: "patronAddress3-EMAIL",
+      city: nil,
+      state: nil
+   }
+
+   def self.register(registration_params)
+      Rails.logger.info("User #{registration_params[:email]} attempts to register")
+
+      errors = []
+      symphony_register_params = {}
+      REGISTRATION_MAP.each do |virgo_key, symphony_key|
+         if registration_params[virgo_key].blank? && virgo_key != :address2 #is optional
+            next errors << "#{virgo_key} required"
+         end
+         next if symphony_key.nil? || registration_params[virgo_key].blank?
+         symphony_register_params[symphony_key] = registration_params[virgo_key]
+      end
+      return false, {errors: errors} if errors.any?
+
+      # "city, state" are on line 2 or 3
+      cityState ="#{registration_params[:city]}, #{registration_params[:state]}"
+      if registration_params[:address2].empty?
+         symphony_register_params["patronAddress1-LINE2"] = cityState
+      else
+         symphony_register_params["patronAddress1-LINE3"] = cityState
+      end
+
+      # These fields are not user defined
+      symphony_register_params["patron-preferredAddress"] = "3"
+      symphony_register_params["activationUrl"] = "#{ENV['V4_CLIENT_URL']}/api/activateTempAccount/"
+      puts symphony_register_params.without("patron-pin")
+
+      ensure_login do
+         response = post("/user/patron/register",
+            body: symphony_register_params.to_json,
+            headers: self.auth_headers, max_retries: 0
+         )
+         check_session(response)
+         if response['messageList']
+            return false, errors: response['messageList'].flat_map{|ml| ml['message']}
+         end
+
+         # registration was successful, now update the altID with TEMP
+
+         newKey = response.dig('patron', 'key')
+         tempAltIDPayload = {
+            "@resource": "/user/patron",
+            "@key": newKey,
+            "barcode": response['barcode'],
+            "alternateID": "TEMP#{response['barcode']}",
+            "preferredAddress": "3",
+         }
+         putHeaders = {
+            "Accept" => "application/vnd.sirsidynix.roa.resource.v2+json",
+            "Content-Type" => "application/vnd.sirsidynix.roa.resource.v2+json",
+            "SD-Working-LibraryID" => "UVA-LIB"
+
+         }
+
+         putResponse = put("/user/patron/key/#{newKey}",
+         body: tempAltIDPayload.to_json,
+         headers: self.auth_headers.merge(putHeaders), max_retries: 0
+         )
+         check_session(putResponse)
+
+         return true, "Patron is registered"
+      end
+   end
+
+   def self.activate(code)
+      ensure_login do
+         response = post("/user/patron/activate",
+            body: {activationToken: code}.to_json,
+            headers: self.auth_headers, max_retries: 0
+         )
+         check_session(response)
+         if response['success']
+            return true
+         else
+            return true
+         end
+      end
+   end
+
    def self.change_password(user_id, current_password, new_password)
       Rails.logger.info("User #{user_id} attempt to change password")
       begin
