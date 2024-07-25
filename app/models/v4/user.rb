@@ -169,11 +169,12 @@ class V4::User < SirsiBase
          # registration was successful, now update the altID with TEMP
 
          newKey = response.dig('patron', 'key')
+         tempBarcode = "TEMP#{response['barcode']}"
          tempAltIDPayload = {
             "@resource": "/user/patron",
             "@key": newKey,
-            "barcode": response['barcode'],
-            "alternateID": "TEMP#{response['barcode']}",
+            "barcode": tempBarcode,
+            "alternateID": tempBarcode,
             "preferredAddress": "3",
          }
          putHeaders = {
