@@ -5,7 +5,7 @@ class V4::User < SirsiBase
 
    def self.find( user_id )
       user = {}.with_indifferent_access
-      ldap = V2::UserLDAP.find( user_id )
+      ldap = V4::UserLDAP.find( user_id )
       if ldap.present?
          user['id'] = ldap['cid']
          user['communityUser'] = false
