@@ -9,30 +9,15 @@ end
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '5.2.4'
 
-# Oracle for SIRSI connections - removed
-#gem 'activerecord-oracle_enhanced-adapter'
-#gem 'ruby-oci8', '2.2.5' # required for CRuby
-
 gem "bootsnap", ">= 1.1.0", require: false
 
-gem 'active_hash'
-gem 'hashie'
-
 gem 'httparty'
-
-gem 'devise'
-gem 'devise-jwt'
-
-gem 'sidekiq'
 
 # Use Puma as the app server
 gem 'puma', '~> 4.0'
 
 # JSON API
 gem 'active_model_serializers', '~> 0.10.0'
-
-# State machine: https://github.com/aasm/aasm
-gem 'aasm'
 
 gem "lograge"
 
@@ -52,11 +37,6 @@ group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
 
-  # compares hashes. Used when comparing firehose responses to V2
-  gem 'hashdiff'
-  # compare xml
-  gem 'equivalent-xml'
-
   gem 'dotenv-rails'
   gem 'ruby-debug-ide'
   gem 'debase'
@@ -64,17 +44,12 @@ group :development, :test do
 end
 
 group :production do
-  # Mysql for intermediate data
-  # Not used
-  #gem 'mysql2'
 end
 
 group :test do
   gem 'rspec-rails'
-  #gem 'factory_bot_rails'
   gem 'shoulda-matchers'
   gem 'faker'
-  #gem 'database_cleaner'
 end
 
 group :development do

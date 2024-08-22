@@ -1,23 +1,12 @@
 require 'spec_helper'
 ENV['RAILS_ENV'] ||= 'test'
 require File.expand_path('../../config/environment', __FILE__)
-# Remove the ActiveRecord constant, because it is autloaded by
-# ActiveStorage and not needed for our application. The presence
-# of the ActiveRecord constant causes rspec-rails to include
-# extra fixture support, which results in:
-#
-#   ActiveRecord::ConnectionNotEstablished:
-#     No connection pool with 'primary' found.
-#
-Object.send(:remove_const, :ActiveRecord)
 
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?
 require 'rspec/rails'
 # Add additional requires below this line. Rails is not loaded until this point!
 
-#require 'devise/jwt/test_helpers'
-require 'equivalent-xml'
 
 # configure shoulda matchers to use rspec as the test framework and full matcher libraries for rails
 Shoulda::Matchers.configure do |config|
