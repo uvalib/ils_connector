@@ -1,6 +1,5 @@
+# Library from Sirsi's API
 class V4::Library < SirsiBase
-  # V2 Library uses a yml file
-  # V4 should try to move away from that as much as possible
   include Refreshable
   include ActiveModel::Serializers::JSON
   include AvailabilityHelper

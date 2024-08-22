@@ -1,4 +1,4 @@
-class V4::UserLDAP < V4
+class V4::UserLDAP
   include HTTParty
   base_uri env_credential(:userinfo_url)
   default_timeout 10

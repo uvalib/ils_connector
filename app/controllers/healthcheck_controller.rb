@@ -69,7 +69,7 @@ class HealthcheckController < ApplicationController
   def user_service_health
     health = nil
     begin
-      health_response = V2::UserLDAP.healthcheck
+      health_response = V4::UserLDAP.healthcheck
       health = if health_response.code == 200
                  Health.new(true, '')
                else

@@ -1,3 +1,4 @@
+# This loads and exposes app/data/non_circulating.yml and app/data/on_shelf.yml config
 module AvailabilityHelper
   extend ActiveSupport::Concern
   require 'yaml'
