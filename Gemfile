@@ -38,8 +38,6 @@ group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
 
   gem 'dotenv-rails'
-  gem 'ruby-debug-ide'
-  gem 'debase'
 
 end
 
@@ -49,7 +47,6 @@ end
 group :test do
   gem 'rspec-rails'
   gem 'shoulda-matchers'
-  gem 'faker'
 end
 
 group :development do
