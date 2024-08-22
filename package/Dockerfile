@@ -1,16 +1,17 @@
 FROM public.ecr.aws/docker/library/ruby:2.7.8-alpine3.16
 
 # Add necessary packages
-RUN apk --update add bash tzdata build-base nodejs sqlite-dev mariadb-dev zlib-dev libxml2-dev libxslt-dev libffi-dev ca-certificates curl shared-mime-info && rm -rf /var/cache/apk/*
+RUN apk --update add bash tzdata build-base ca-certificates curl shared-mime-info && rm -rf /var/cache/apk/*
 
 # Create the run user and group
 RUN addgroup --gid 18570 sse && adduser --uid 1984 docker -G sse -D
 
-# set the timezone appropriatly
+# set the timezone appropriately
 ENV TZ=UTC
 RUN cp /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Add necessary gems
+RUN gem update --system 3.3.27
 ENV BUNDLER_VERSION='2.1.4'
 RUN gem install bundler --no-document -v '2.1.4'
 
