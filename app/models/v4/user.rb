@@ -163,28 +163,24 @@ class V4::User < SirsiBase
          )
          check_session(response)
          if response['messageList']
+            puts response.inspect
             return false, errors: response['messageList'].flat_map{|ml| ml['message']}
          end
 
          # registration was successful, now update the altID with TEMP
-
-         newKey = response.dig('patron', 'key')
-         tempBarcode = "TEMP#{response['barcode']}"
          tempAltIDPayload = {
             "@resource": "/user/patron",
-            "@key": newKey,
-            "barcode": tempBarcode,
-            "alternateID": tempBarcode,
+            "@key": response.dig('patron', 'key'),
+            "alternateID": response['barcode'],
             "preferredAddress": "3",
          }
          putHeaders = {
             "Accept" => "application/vnd.sirsidynix.roa.resource.v2+json",
             "Content-Type" => "application/vnd.sirsidynix.roa.resource.v2+json",
             "SD-Working-LibraryID" => "UVA-LIB"
-
          }
 
-         putResponse = put("/user/patron/key/#{newKey}",
+         putResponse = put("/user/patron/key/#{response.dig('patron', 'key')}",
          body: tempAltIDPayload.to_json,
          headers: self.auth_headers.merge(putHeaders), max_retries: 0
          )
