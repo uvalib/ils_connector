@@ -172,6 +172,7 @@ class V4::User < SirsiBase
             "@resource": "/user/patron",
             "@key": response.dig('patron', 'key'),
             "alternateID": response['barcode'],
+            "keepCircHistory": "CIRCRULE",
             "preferredAddress": "3",
          }
          putHeaders = {
