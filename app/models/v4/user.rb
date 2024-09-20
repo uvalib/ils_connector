@@ -122,11 +122,11 @@ class V4::User < SirsiBase
       password: "patron-pin",
       address1: "patronAddress1-LINE1",
       address2: "patronAddress1-LINE2",
-      phone: "patronAddress1-PHONE",
-      zip: "patronAddress1-ZIP",
-      email: "patronAddress3-EMAIL",
       city: nil,
-      state: nil
+      state: nil,
+      zip: "patronAddress1-ZIP",
+      phone: "patronAddress1-PHONE",
+      email: "patronAddress3-EMAIL"
    }
 
    def self.register(registration_params)
@@ -138,18 +138,21 @@ class V4::User < SirsiBase
          if registration_params[virgo_key].blank? && virgo_key != :address2 #is optional
             next errors << "#{virgo_key} required"
          end
-         next if symphony_key.nil? || registration_params[virgo_key].blank?
+
+         # City, State handling
+         if virgo_key == :city
+            if registration_params[:city].present? && registration_params[:state].present?
+               symphony_register_params["patronAddress1-LINE3"] = "#{registration_params[:city]}, #{registration_params[:state]}"
+               next
+            else
+               next errors << "City and State required"
+            end
+         end
+         next if symphony_key.nil?
+
          symphony_register_params[symphony_key] = registration_params[virgo_key]
       end
       return false, {errors: errors} if errors.any?
-
-      # "city, state" are on line 2 or 3
-      cityState ="#{registration_params[:city]}, #{registration_params[:state]}"
-      if registration_params[:address2].empty?
-         symphony_register_params["patronAddress1-LINE2"] = cityState
-      else
-         symphony_register_params["patronAddress1-LINE3"] = cityState
-      end
 
       # These fields are not user defined
       symphony_register_params["patron-preferredAddress"] = "3"
