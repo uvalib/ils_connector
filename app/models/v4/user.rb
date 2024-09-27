@@ -116,16 +116,17 @@ class V4::User < SirsiBase
       return user
    end
 
+   # Order matters here
    REGISTRATION_MAP = {
       firstName: "patron-firstName",
       lastName: "patron-lastName",
       password: "patron-pin",
-      address1: "patronAddress1-LINE1",
-      address2: "patronAddress1-LINE2",
-      city: nil,
-      state: nil,
-      zip: "patronAddress1-ZIP",
       phone: "patronAddress1-PHONE",
+      zip: "patronAddress1-ZIP",
+      city: nil,  # city, state becomes patronAddress1-LINE3
+      state: nil,
+      address2: "patronAddress1-LINE2",
+      address1: "patronAddress1-LINE1",
       email: "patronAddress3-EMAIL"
    }
 
