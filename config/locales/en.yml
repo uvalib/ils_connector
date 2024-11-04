@@ -42,5 +42,5 @@ en:
       pending_description: '<div class="pda-about">This item is now on order. Learn more about <a href="https://library.virginia.edu/about-available-to-order-items" aria-label="Available to Order" style="text-decoration: underline;" target="_blank" title="Available to Order (Opens in a new window.)" class="piwik_link">Available to Order</a> items.</div>'
   availability:
     notice:
-      ivy_stacks: Part or all of this collection is housed at Ivy Stacks, an off-site storage facility. Requests for materials housed at Ivy Stacks require at least 72 hours notice.
+      ivy_stacks: Part or all of this collection is housed in <a href="https://library.virginia.edu/locations/ivy" target="_blank">Ivy Stacks</a> and requires 72 hours’ notice to retrieve.
 
