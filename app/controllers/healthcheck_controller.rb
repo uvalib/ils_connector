@@ -52,10 +52,10 @@ class HealthcheckController < ApplicationController
     begin
       sirsi_response = SirsiBase.account_info
       if sirsi_response.present?
-         health = if sirsi_response.code == 200
+         health = if sirsi_response.try(:code) == 200
                     Health.new(true, '')
                   else
-                    Health.new(false, "Sirsi API Error: #{env_credential(:sirsi_web_services_base)} - #{sirsi_response.code} - #{sirsi_response.body}")
+                    Health.new(false, "Sirsi API Error: #{env_credential(:sirsi_web_services_base)} - #{sirsi_response.try(:code)} - #{sirsi_response.try(:body) || sirsi_response.inspect}")
                   end
       else
         health = Health.new( false, "Error connecting to or authenticating with Sirsi" )
