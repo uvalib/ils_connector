@@ -68,7 +68,7 @@ class SirsiBase
       if @@sirsi_user.present?
         Rails.logger.error "Sirsi API Login Failed - #{e.class} - #{@@sirsi_user.request.uri} #{@@sirsi_user.body}"
       else
-        Rails.logger.error "Sirsi API Login Failed - #{env_credential(:sirsi_web_services_base)} "
+        Rails.logger.error "Sirsi API Login Failed - #{env_credential(:sirsi_web_services_base)} #{@@sirsi_user.inspect} #{e.inspect}"
       end
       # reset the session token to force another login after this error
       @@session_token = nil
