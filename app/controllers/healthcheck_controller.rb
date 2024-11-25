@@ -30,6 +30,8 @@ class HealthcheckController < ApplicationController
     response = make_response
     if response.is_healthy?
       render json: response, :status => 200
+    elsif response.sirsi_connection.message.include?("Connection refused")
+      render json: response, :status => 500
     else
       Rails.logger.error "Healthcheck Failure: #{response.to_json}"
       render json: response, :status => 200
