@@ -58,7 +58,7 @@ class V4::Request::Options
 
   def get_video_reserve_info
     video_items = holdable_items.select {|item| item[:is_video]}
-    if video_items.any? && availability.jwt_user[:can_place_reserve]
+    if video_items.any?
       return {
         type:             :videoReserve,
         button_label:     "Video reserve request",
