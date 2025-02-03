@@ -75,7 +75,11 @@ Rails.application.routes.draw do
         end
       end
 
-    end
+      # Send /v4/healthcheck and /v4/version to the root path
+      resources :healthcheck, only: [ :index ], to: "/healthcheck#index"
+      resources :version, only: [:index], to: "/version#index"
+    end # v4 namespace
+
     scope host: env_credential(:pda_base_url) do
       post 'orders' => 'external#nil', as: :pda
     end
